@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Friendology.in — Learn. Move. Connect.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F7FF;
+  --ink: #1E2040;
+  --muted: #7A7FA8;
+  --line: #E2E6F5;
+  --card: #FFFFFF;
+  --sky: #4D8EF0;
+  --mint: #3BBFA0;
+  --peach: #F07A52;
+  --lav: #8B76D6;
+  --butter: #F0B94D;
+  --berry: #C75C8E;
+  --r: 24px;
+  --shadow: 0 12px 40px -16px rgba(30,32,64,.14), 0 2px 8px -2px rgba(30,32,64,.06);
+  --shadow-sm: 0 6px 20px -10px rgba(30,32,64,.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Nunito', sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(245,247,255,.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  padding: 0 24px;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: var(--sky);
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-brand span { color: var(--peach); }
+.nav-links {
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-links a {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: .88rem;
+  padding: 7px 13px;
+  border-radius: 12px;
+  transition: background .15s, color .15s;
+}
+.nav-links a:hover { background: var(--line); color: var(--ink); }
+.nav-cta {
+  background: var(--sky) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 18px -6px rgba(77,142,240,.6);
+}
+.nav-cta:hover { background: #3a7ee0 !important; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 24px 60px;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(77,142,240,.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 88% 25%, rgba(139,118,214,.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 85%, rgba(59,191,160,.10) 0%, transparent 46%),
+    radial-gradient(ellipse at 8% 85%, rgba(240,122,82,.08) 0%, transparent 40%),
+    var(--bg);
+}
+.hero-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(77,142,240,.1);
+  border: 1.5px solid rgba(77,142,240,.25);
+  color: var(--sky);
+  font-weight: 800;
+  font-size: .82rem;
+  padding: 6px 16px;
+  border-radius: 100px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: fadeUp .7s ease both;
+}
+.hero h1 {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  line-height: 1.08;
+  letter-spacing: -.5px;
+  max-width: 760px;
+  animation: fadeUp .7s .1s ease both;
+}
+.hero h1 em { font-style: normal; color: var(--sky); }
+.hero h1 b { color: var(--peach); font-weight: 800; }
+.hero-sub {
+  color: var(--muted);
+  font-size: 1.12rem;
+  font-weight: 600;
+  max-width: 520px;
+  margin: 18px auto 0;
+  line-height: 1.65;
+  animation: fadeUp .7s .2s ease both;
+}
+.hero-actions {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+  margin-top: 36px;
+  animation: fadeUp .7s .3s ease both;
+}
+.btn-primary {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1.08rem;
+  color: #fff;
+  background: linear-gradient(145deg, var(--sky), #3a7ee0);
+  border: none; border-radius: 16px;
+  padding: 16px 32px;
+  cursor: pointer; text-decoration: none;
+  box-shadow: 0 12px 28px -8px rgba(77,142,240,.55), inset 0 1px 0 rgba(255,255,255,.3);
+  transition: transform .15s, box-shadow .15s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 18px 36px -8px rgba(77,142,240,.6); }
+.btn-secondary {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 700;
+  font-size: 1.08rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1.5px solid var(--line); border-radius: 16px;
+  padding: 16px 28px;
+  cursor: pointer; text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform .15s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-secondary:hover { transform: translateY(-1px); }
+
+/* ── FLOATING BADGES ── */
+.hero-badges {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  margin-top: 48px;
+  animation: fadeUp .7s .4s ease both;
+}
+.badge {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 100px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: .84rem;
+  color: var(--muted);
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; gap: 7px;
+}
+
+/* ── SECTION COMMON ── */
+section { padding: 80px 24px; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 800; font-size: .78rem;
+  letter-spacing: .8px; text-transform: uppercase;
+  color: var(--sky);
+  margin-bottom: 12px;
+}
+.section-head {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  line-height: 1.15;
+  max-width: 600px;
+}
+.section-sub {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 10px;
+  max-width: 520px;
+  line-height: 1.65;
+}
+.center { text-align: center; margin: 0 auto; }
+.container { max-width: 1060px; margin: 0 auto; }
+
+/* ── GAMES SECTION ── */
+#games { background: var(--card); }
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 44px;
+}
+.game-card {
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 28px 24px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .18s, box-shadow .18s;
+  display: flex; flex-direction: column; gap: 14px;
+  position: relative; overflow: hidden;
+}
+.game-card::before {
+  content: '';
+  position: absolute; top: -40px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  opacity: .15;
+  background: var(--tint, var(--sky));
+}
+.game-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.game-card.featured {
+  background: linear-gradient(145deg, #EAF2FF, var(--card));
+  border-color: rgba(77,142,240,.35);
+  grid-column: span 2;
+  flex-direction: row; align-items: center;
+}
+.game-icon {
+  width: 60px; height: 60px;
+  border-radius: 18px;
+  display: grid; place-items: center;
+  font-size: 2rem;
+  background: var(--card);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+.game-title { font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 1.15rem; }
+.game-desc { color: var(--muted); font-weight: 600; font-size: .9rem; line-height: 1.55; }
+.game-tag {
+  display: inline-block;
+  background: rgba(77,142,240,.12);
+  color: var(--sky);
+  font-weight: 800;
+  font-size: .72rem;
+  padding: 4px 10px;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: auto;
+}
+
+/* ── TOOLS SECTION ── */
+#tools { background: var(--bg); }
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 44px;
+}
+.tool-card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  padding: 26px 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .18s, box-shadow .18s;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.tool-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.tool-icon {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: grid; place-items: center;
+  font-size: 1.7rem;
+  flex-shrink: 0;
+}
+.tool-name { font-family: 'Baloo 2', cursive; font-weight: 800; font-size: 1.1rem; }
+.tool-desc { color: var(--muted); font-weight: 600; font-size: .88rem; line-height: 1.55; }
+.tool-status {
+  font-size: .72rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 100px;
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  width: fit-content;
+}
+.status-live { background: rgba(59,191,160,.12); color: var(--mint); }
+.status-soon { background: rgba(240,185,77,.14); color: var(--butter); }
+
+/* ── PUNAH / EXERCISE ── */
+#punah {
+  background: linear-gradient(145deg, #E8F4FF, #F0F9F5);
+}
+.punah-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.punah-visual {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 28px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.punah-emoji {
+  font-size: 4rem;
+  display: block;
+  animation: bounce 2.2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.punah-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 20px; justify-content: center;
+}
+.punah-pill {
+  background: rgba(59,191,160,.1);
+  border: 1.5px solid rgba(59,191,160,.25);
+  color: var(--mint);
+  font-weight: 700;
+  font-size: .8rem;
+  padding: 5px 13px;
+  border-radius: 100px;
+}
+
+/* ── COMMUNITY ── */
+#community { background: var(--card); }
+.connect-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 44px;
+}
+.connect-tag {
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 14px;
+  text-align: center;
+  transition: transform .15s, border-color .15s;
+  cursor: pointer;
+}
+.connect-tag:hover { transform: scale(1.04); border-color: var(--sky); }
+.connect-tag .ico { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+.connect-tag .nm { font-weight: 800; font-size: .88rem; color: var(--ink); }
+.connect-tag .cnt { font-size: .75rem; font-weight: 600; color: var(--muted); margin-top: 2px; }
+
+/* ── DONATE ── */
+#donate {
+  background: linear-gradient(145deg, #1E2040, #2D2F5E);
+  color: #fff;
+  text-align: center;
+}
+#donate .section-label { color: #A8BBFF; }
+#donate .section-head { color: #fff; margin: 0 auto; }
+#donate .section-sub { color: rgba(255,255,255,.65); margin: 12px auto 0; }
+.donate-amounts {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+  margin-top: 36px;
+}
+.donate-btn {
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  color: #fff;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 14px 26px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+}
+.donate-btn:hover { background: rgba(255,255,255,.18); transform: translateY(-2px); }
+.donate-btn.highlight {
+  background: var(--sky);
+  border-color: transparent;
+  box-shadow: 0 10px 28px -8px rgba(77,142,240,.6);
+}
+.donate-note { color: rgba(255,255,255,.45); font-size: .85rem; font-weight: 600; margin-top: 18px; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--ink);
+  color: rgba(255,255,255,.6);
+  text-align: center;
+  padding: 28px 24px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+footer a { color: rgba(255,255,255,.75); text-decoration: none; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 680px) {
+  .nav-links a:not(.nav-cta) { display: none; }
+  .game-card.featured { grid-column: span 1; flex-direction: column; }
+  .punah-inner { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 2.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">🌟 Friendology<span>.in</span></a>
+  <div class="nav-links">
+    <a href="#games">Games</a>
+    <a href="#tools">Tools</a>
+    <a href="#punah">Punah</a>
+    <a href="#community">Community</a>
+    <a href="#donate" class="nav-cta">Support Us</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-pill">🇮🇳 Made for Indian Families</div>
+  <h1>Where Kids <em>Learn</em>,<br>Families <b>Connect</b></h1>
+  <p class="hero-sub">Games for young minds. Exercise routines. Smart tools. And a community that gets your life.</p>
+  <div class="hero-actions">
+    <a href="#games" class="btn-primary">🎮 Play Tiny Words</a>
+    <a href="#community" class="btn-secondary">👨‍👩‍👧 Join Community</a>
+  </div>
+  <div class="hero-badges">
+    <div class="badge">✨ Free forever</div>
+    <div class="badge">🎮 Kids' vocab games</div>
+    <div class="badge">💪 Punah exercise</div>
+    <div class="badge">🛠️ Parent tools</div>
+    <div class="badge">👨‍👩‍👧 Family connect</div>
+  </div>
+</section>
+
+<!-- GAMES -->
+<section id="games">
+  <div class="container">
+    <div class="section-label">🎮 Games</div>
+    <h2 class="section-head">Tiny Words — Learn & Play</h2>
+    <p class="section-sub">Vocabulary games designed for children. Fun, fast, and completely free.</p>
+
+    <div class="games-grid">
+      <a href="tiny-words-game.html" class="game-card featured" style="--tint: var(--sky)">
+        <div class="game-icon">🖼️</div>
+        <div>
+          <div class="game-title">Image to Word</div>
+          <div class="game-desc">See a picture, spell the word. Builds vocabulary through visual recognition.</div>
+          <div class="game-tag">⭐ Most Popular</div>
+        </div>
+      </a>
+      <a href="tiny-words-game.html" class="game-card" style="--tint: var(--peach)">
+        <div class="game-icon">🔤</div>
+        <div class="game-title">Word to Image</div>
+        <div class="game-desc">Read the word, find the right picture.</div>
+        <div class="game-tag">🧠 Visual</div>
+      </a>
+      <a href="tiny-words-game.html" class="game-card" style="--tint: var(--mint)">
+        <div class="game-icon">🔢</div>
+        <div class="game-title">Count & Match</div>
+        <div class="game-desc">Count objects and match to numbers.</div>
+        <div class="game-tag">🔢 Numbers</div>
+      </a>
+      <a href="tiny-words-game.html" class="game-card" style="--tint: var(--lav)">
+        <div class="game-icon">✍️</div>
+        <div class="game-title">Fill the Blank</div>
+        <div class="game-desc">Complete the word with missing letters.</div>
+        <div class="game-tag">✍️ Spelling</div>
+      </a>
+      <a href="tiny-words-game.html" class="game-card" style="--tint: var(--butter)">
+        <div class="game-icon">🔍</div>
+        <div class="game-title">Letter Hunt</div>
+        <div class="game-desc">Find hidden letters in a grid before time runs out.</div>
+        <div class="game-tag">⚡ Fast-paced</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PUNAH -->
+<section id="punah">
+  <div class="container">
+    <div class="punah-inner">
+      <div>
+        <div class="section-label">💪 Exercise</div>
+        <h2 class="section-head">Punah — Move Every Day</h2>
+        <p class="section-sub">Simple, structured exercise routines for children and families. No equipment needed. Just you, your space, and the will to move.</p>
+        <div style="margin-top: 28px;">
+          <a href="punah.html" class="btn-primary">Start Today →</a>
+        </div>
+      </div>
+      <div class="punah-visual">
+        <span class="punah-emoji">🧘</span>
+        <h3 style="font-family: 'Baloo 2', cursive; font-size: 1.4rem; margin-top: 16px;">Daily Movement Plan</h3>
+        <p style="color: var(--muted); font-size: .9rem; margin-top: 8px; font-weight: 600;">Designed for Indian families. Simple. Effective. Fun for all ages.</p>
+        <div class="punah-pills">
+          <span class="punah-pill">Morning Routine</span>
+          <span class="punah-pill">Kids' Stretches</span>
+          <span class="punah-pill">Family Workouts</span>
+          <span class="punah-pill">No Equipment</span>
+          <span class="punah-pill">5–30 mins</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="container">
+    <div class="section-label center">🛠️ Tools</div>
+    <h2 class="section-head center">Smart Tools for Families</h2>
+    <p class="section-sub center">Practical calculators and planners built for real life decisions.</p>
+
+    <div class="tools-grid">
+      <a href="growth-calculator.html" class="tool-card">
+        <div class="tool-icon" style="background: rgba(77,142,240,.1);">📈</div>
+        <div class="tool-name">Growth Calculator</div>
+        <div class="tool-desc">See how investments grow over time. Simple and clear, no jargon.</div>
+        <span class="tool-status status-live">Live</span>
+      </a>
+      <a href="schedule-optimizer.html" class="tool-card">
+        <div class="tool-icon" style="background: rgba(59,191,160,.1);">🗓️</div>
+        <div class="tool-name">Schedule Optimizer</div>
+        <div class="tool-desc">Plan your child's week — school, play, study, sleep — in balance.</div>
+        <span class="tool-status status-live">Live</span>
+      </a>
+      <a href="stock-screener.html" class="tool-card">
+        <div class="tool-icon" style="background: rgba(240,185,77,.1);">📊</div>
+        <div class="tool-name">Indian Value Screener</div>
+        <div class="tool-desc">Screen Indian stocks by value metrics. For the long-term investor.</div>
+        <span class="tool-status status-soon">Coming Soon</span>
+      </a>
+      <div class="tool-card" style="border-style: dashed; opacity: .6; cursor: default;">
+        <div class="tool-icon" style="background: rgba(139,118,214,.1);">➕</div>
+        <div class="tool-name">More Tools</div>
+        <div class="tool-desc">Suggest a tool you need. We'll build it.</div>
+        <span class="tool-status status-soon">You Decide</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section id="community">
+  <div class="container">
+    <div class="section-label center">👨‍👩‍👧 Community</div>
+    <h2 class="section-head center">Find Your People</h2>
+    <p class="section-sub center">Connect with families who share your world — your city, your school, your interests, your values.</p>
+
+    <div class="connect-grid">
+      <div class="connect-tag"><span class="ico">🏫</span><div class="nm">Same School</div><div class="cnt">Kids' school</div></div>
+      <div class="connect-tag"><span class="ico">🎂</span><div class="nm">Kids' Age</div><div class="cnt">Similar stage</div></div>
+      <div class="connect-tag"><span class="ico">🏙️</span><div class="nm">Your City</div><div class="cnt">Mumbai, Delhi…</div></div>
+      <div class="connect-tag"><span class="ico">🏘️</span><div class="nm">Society</div><div class="cnt">Same complex</div></div>
+      <div class="connect-tag"><span class="ico">🗣️</span><div class="nm">Language</div><div class="cnt">Hindi, Tamil…</div></div>
+      <div class="connect-tag"><span class="ico">🙏</span><div class="nm">Religion</div><div class="cnt">Shared faith</div></div>
+      <div class="connect-tag"><span class="ico">🎉</span><div class="nm">Festival</div><div class="cnt">Diwali, Eid…</div></div>
+      <div class="connect-tag"><span class="ico">🎓</span><div class="nm">Your School</div><div class="cnt">Alumni network</div></div>
+      <div class="connect-tag"><span class="ico">🚗</span><div class="nm">Car Brand</div><div class="cnt">Fellow owners</div></div>
+      <div class="connect-tag"><span class="ico">🛵</span><div class="nm">Two-Wheeler</div><div class="cnt">Rider groups</div></div>
+      <div class="connect-tag"><span class="ico">📍</span><div class="nm">Location</div><div class="cnt">Nearby families</div></div>
+      <div class="connect-tag"><span class="ico">➕</span><div class="nm">+ More</div><div class="cnt">Your interests</div></div>
+    </div>
+
+    <div style="text-align:center; margin-top: 36px;">
+      <a href="#" class="btn-primary">Join the Community →</a>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section id="donate">
+  <div class="container">
+    <div class="section-label">❤️ Support</div>
+    <h2 class="section-head">Pay What It's Worth</h2>
+    <p class="section-sub">No price tag. No ads. No subscriptions. If Friendology has helped your family, chip in what feels right.</p>
+    <div class="donate-amounts">
+      <button class="donate-btn">☕ ₹50</button>
+      <button class="donate-btn">🙏 ₹100</button>
+      <button class="donate-btn highlight">⭐ ₹251</button>
+      <button class="donate-btn">💎 ₹500</button>
+      <button class="donate-btn">🎯 Custom</button>
+    </div>
+    <p class="donate-note">UPI · Card · Net Banking — all accepted via Razorpay</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 Friendology.in — Made with ❤️ for Indian families</p>
+  <p style="margin-top:8px;">
+    <a href="#">Privacy</a> · <a href="#">Contact</a> · <a href="#">Suggest a feature</a>
+  </p>
+</footer>
+
+</body>
+</html>

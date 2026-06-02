@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Freedom Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#07080f;--bg-card:#0d1120;--bg-input:#131726;--border:#1f2a40;--border-l:#263045;--gold:#c9a84c;--gold-l:#e8c96a;--gold-d:rgba(201,168,76,.15);--blue:#4a7fff;--blue-d:rgba(74,127,255,.15);--green:#3ecf8e;--green-d:rgba(62,207,142,.15);--red:#f56565;--red-d:rgba(245,101,101,.15);--text:#e2e8f5;--muted:#6b7a99;--dim:#a0aec0;--fd:'Playfair Display',serif;--fm:'Space Mono',monospace;--fb:'Plus Jakarta Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;font-size:14px}
+.app-header{padding:14px 24px;border-bottom:1px solid var(--border);background:rgba(7,8,15,.97);backdrop-filter:blur(10px);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.app-title{font-family:var(--fd);font-size:20px;color:var(--gold);white-space:nowrap;letter-spacing:-.3px}
+.app-title span{color:var(--text);font-weight:400;font-style:italic}
+.quick-stats{display:flex;gap:20px;flex-wrap:wrap}
+.qs-item{text-align:center;min-width:80px}
+.qs-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.qs-value{font-family:var(--fm);font-size:13px;color:var(--gold);margin-top:2px}
+.app-body{display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - 53px)}
+.main-content{border-right:1px solid var(--border);overflow-y:auto;max-height:calc(100vh - 53px)}
+.tab-nav{display:flex;border-bottom:1px solid var(--border);background:var(--bg-card);overflow-x:auto;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{padding:13px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--muted);font-family:var(--fb);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-panel{display:none;padding:28px 28px 40px}
+.tab-panel.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sec-title{font-family:var(--fd);font-size:22px;color:var(--text);margin-bottom:4px}
+.sec-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:16px}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.fg3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup.full{grid-column:1/-1}
+label{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.3px}
+input[type=number],input[type=text],select{background:var(--bg-input);border:1px solid var(--border);border-radius:7px;padding:9px 11px;color:var(--text);font-family:var(--fb);font-size:13px;outline:none;transition:border-color .2s;width:100%}
+input[type=number]:focus,input[type=text]:focus,select:focus{border-color:var(--gold)}
+select option{background:var(--bg-input)}
+.ipx{position:relative}
+.ipx-pre{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;font-family:var(--fm);pointer-events:none;z-index:1}
+.ipx input{padding-left:28px}
+.btn{padding:8px 16px;border-radius:7px;font-family:var(--fb);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none}
+.btn-gold{background:var(--gold);color:#07080f}
+.btn-gold:hover{background:var(--gold-l)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-del{background:transparent;border:none;color:var(--red);font-size:13px;cursor:pointer;padding:4px 8px;border-radius:5px;transition:background .2s}
+.btn-del:hover{background:var(--red-d)}
+.toggle-grp{display:flex;background:var(--bg-input);border:1px solid var(--border);border-radius:8px;padding:3px;width:fit-content}
+.tgl-btn{padding:7px 18px;background:none;border:none;color:var(--muted);font-family:var(--fb);font-size:13px;cursor:pointer;border-radius:6px;transition:all .2s;white-space:nowrap}
+.tgl-btn.active{background:var(--gold);color:#07080f;font-weight:600}
+.list-row{display:grid;align-items:center;padding:10px 0;border-bottom:1px solid rgba(31,42,64,.6)}
+.list-row:last-child{border-bottom:none}
+.list-row.asset-row{grid-template-columns:1fr 1fr 1fr auto}
+.list-row.liab-row{grid-template-columns:1.2fr 1fr 1fr 1fr auto}
+.list-row.inv-row{grid-template-columns:1.4fr 1fr 1fr 80px auto}
+.lname{font-size:13px;font-weight:500}
+.lval{font-family:var(--fm);font-size:12px;color:var(--gold)}
+.ldtl{font-size:11px;color:var(--muted)}
+.add-row{display:grid;align-items:end;gap:12px;padding-top:14px;border-top:1px solid var(--border);margin-top:6px}
+.add-row.asset-add{grid-template-columns:1.2fr 1fr 1fr auto}
+.add-row.liab-add{grid-template-columns:1.2fr 1fr 1fr 1fr auto}
+.add-row.inv-add{grid-template-columns:1.4fr 1fr 1fr 80px auto}
+.add-row.evt-add{grid-template-columns:1.4fr 1fr 1fr auto}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.3px}
+.tag-gold{background:var(--gold-d);color:var(--gold)}
+.tag-green{background:var(--green-d);color:var(--green)}
+.tag-red{background:var(--red-d);color:var(--red)}
+.tag-blue{background:var(--blue-d);color:var(--blue)}
+.inv-hdr{display:grid;grid-template-columns:1.4fr 1fr 1fr 80px auto;gap:12px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.inv-hdr span{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.tip{background:var(--blue-d);border:1px solid rgba(74,127,255,.25);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--dim);margin-top:14px}
+.tip strong{color:var(--blue);font-size:10px;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:3px}
+.results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.res-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center}
+.res-card.pri{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,168,76,.1),var(--bg-card))}
+.res-card .rc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.res-card .rc-val{font-family:var(--fm);font-size:20px;font-weight:700;color:var(--gold)}
+.res-card .rc-unit{font-size:11px;color:var(--muted);margin-top:4px}
+.big-chart{height:280px;position:relative}
+.brkdn-tbl{width:100%;border-collapse:collapse}
+.brkdn-tbl th{text-align:left;padding:7px 10px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border)}
+.brkdn-tbl td{padding:9px 10px;font-size:13px;border-bottom:1px solid rgba(31,42,64,.4)}
+.brkdn-tbl td:last-child{font-family:var(--fm);font-size:12px;color:var(--gold);text-align:right}
+.brkdn-tbl tr:last-child td{border-bottom:none;font-weight:600}
+.rp{padding:20px 18px;overflow-y:auto;max-height:calc(100vh - 53px)}
+.rp-title{font-family:var(--fd);font-size:16px;color:var(--gold);margin-bottom:18px}
+.mc{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:15px;margin-bottom:10px}
+.mc.hl{border-color:var(--gold);background:linear-gradient(135deg,rgba(201,168,76,.08),var(--bg-card))}
+.mc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.mc-val{font-family:var(--fm);font-size:17px;font-weight:700;color:var(--gold)}
+.mc-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.prog-wrap{background:var(--bg-input);border-radius:3px;height:5px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-l));transition:width .5s ease}
+.freedom-meter{text-align:center;padding:10px 0 14px}
+.fm-pct{font-family:var(--fd);font-size:44px;font-weight:700;color:var(--gold);line-height:1}
+.fm-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.cw{display:flex;justify-content:center;margin-bottom:8px}
+.donut{transform:rotate(-90deg)}
+.mini-chart{height:130px;position:relative;margin-top:10px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-l)}
+@media(max-width:900px){.app-body{grid-template-columns:1fr}.rp{border-top:1px solid var(--border);max-height:none}.quick-stats{display:none}.results-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.tab-panel{padding:18px 14px}.results-grid{grid-template-columns:1fr}.f2{grid-template-columns:1fr}.fg{grid-template-columns:1fr 1fr}.list-row.liab-row{grid-template-columns:1fr 1fr auto}.list-row.inv-row{grid-template-columns:1fr 1fr auto}.add-row.liab-add{grid-template-columns:1fr 1fr auto}.add-row.inv-add{grid-template-columns:1fr 1fr auto}}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-title">Freedom<span>Calc</span> ✦</div>
+  <div class="quick-stats">
+    <div class="qs-item"><div class="qs-label">Net Worth</div><div class="qs-value" id="qs-nw">₹0</div></div>
+    <div class="qs-item"><div class="qs-label">Surplus/mo</div><div class="qs-value" id="qs-sur">₹0</div></div>
+    <div class="qs-item"><div class="qs-label">Freedom Number</div><div class="qs-value" id="qs-ffn">₹0</div></div>
+    <div class="qs-item"><div class="qs-label">Years Away</div><div class="qs-value" id="qs-yrs">—</div></div>
+    <div class="qs-item"><div class="qs-label">Freedom Age</div><div class="qs-value" id="qs-age">—</div></div>
+  </div>
+</header>
+
+<div class="app-body">
+<div class="main-content">
+
+  <!-- NAV -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab(this,'profile')">👤 Profile</button>
+    <button class="tab-btn" onclick="switchTab(this,'income')">💰 Income & Spend</button>
+    <button class="tab-btn" onclick="switchTab(this,'assets')">🏠 Assets & Home</button>
+    <button class="tab-btn" onclick="switchTab(this,'investments')">📊 Investments</button>
+    <button class="tab-btn" onclick="switchTab(this,'lifeevents')">🎯 Life Events</button>
+    <button class="tab-btn" onclick="switchTab(this,'results')">🏆 Results</button>
+  </nav>
+
+  <!-- ░░ PROFILE ░░ -->
+  <div class="tab-panel active" id="tab-profile">
+    <h2 class="sec-title">Your Profile</h2>
+    <p class="sec-sub">Set your personal details, location, and freedom target.</p>
+    <div class="card">
+      <div class="card-title">Personal Details</div>
+      <div class="fg">
+        <div class="fgroup"><label>Current Age</label><input type="number" id="curAge" value="30" min="18" max="79" oninput="calc()"></div>
+        <div class="fgroup"><label>Target Freedom Age</label><input type="number" id="tgtAge" value="50" min="25" max="80" oninput="calc()"></div>
+        <div class="fgroup"><label>Life Expectancy</label><input type="number" id="lifeExp" value="85" min="60" max="100" oninput="calc()"></div>
+        <div class="fgroup"><label>Currency</label>
+          <select id="currency" onchange="updateCurrency()">
+            <option value="₹">₹ Indian Rupee (INR)</option>
+            <option value="$">$ US Dollar (USD)</option>
+            <option value="€">€ Euro (EUR)</option>
+            <option value="£">£ British Pound (GBP)</option>
+            <option value="S$">S$ Singapore Dollar (SGD)</option>
+            <option value="AED">AED UAE Dirham</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Annual Inflation (%)</label><input type="number" id="inflation" value="6" step="0.5" min="1" max="15" oninput="calc()"></div>
+        <div class="fgroup"><label>Safe Withdrawal Rate (%)</label><input type="number" id="swr" value="4" step="0.1" min="2" max="7" oninput="calc()"></div>
+      </div>
+    </div>
+    <div class="f2">
+      <div class="card">
+        <div class="card-title">Current Location</div>
+        <div class="fg">
+          <div class="fgroup"><label>Country</label>
+            <select id="curCountry" onchange="loadCities('cur');applyPreset();calc()">
+              <option>India</option><option>USA</option><option>UK</option><option>Singapore</option><option>UAE</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fgroup"><label>City</label>
+            <select id="curCity" onchange="applyPreset();calc()"></select>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Post-Freedom Location</div>
+        <div class="fg">
+          <div class="fgroup"><label>Country</label>
+            <select id="futCountry" onchange="loadCities('fut');calc()">
+              <option>India</option><option>USA</option><option>UK</option><option>Singapore</option><option>UAE</option><option>Portugal</option><option>Thailand</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fgroup"><label>City</label>
+            <select id="futCity" onchange="calc()"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tip"><strong>💡 Safe Withdrawal Rate</strong>4% rule: corpus lasts 30+ years. Use 3.5% for very early retirement (FIRE). 3% for ultra-conservative.</div>
+  </div>
+
+  <!-- ░░ INCOME & SPEND ░░ -->
+  <div class="tab-panel" id="tab-income">
+    <h2 class="sec-title">Income & Spending</h2>
+    <p class="sec-sub">Current earnings, expenses, and your projected post-freedom cashflow.</p>
+    <div class="f2">
+      <div class="card">
+        <div class="card-title">Current Income</div>
+        <div class="fgroup" style="margin-bottom:10px"><label>Monthly Take-Home Salary</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="salary" value="100000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:10px"><label>Other Monthly Income (freelance, rent)</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="otherInc" value="0" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:10px"><label>Spouse Monthly Income</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="spouseInc" value="0" oninput="calc()"></div></div>
+        <div class="fgroup"><label>Annual Bonus / Variable Pay</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="bonus" value="0" oninput="calc()"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Post-Freedom Income</div>
+        <div class="fgroup" style="margin-bottom:10px"><label>Part-time / Passive Monthly</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="fiInc" value="0" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:10px"><label>Rental Income</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="fiRent" value="0" oninput="calc()"></div></div>
+        <div class="fgroup"><label>Other Post-Freedom Income</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="fiOther" value="0" oninput="calc()"></div></div>
+      </div>
+    </div>
+    <div class="f2">
+      <div class="card">
+        <div class="card-title">Current Monthly Expenses</div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Housing (Rent / EMI)</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="housing" value="20000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Food & Groceries</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="food" value="10000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Transport</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="transport" value="5000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Utilities & Bills</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="utilities" value="3000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Health & Insurance</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="health" value="3000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Entertainment & Lifestyle</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="ent" value="5000" oninput="calc()"></div></div>
+        <div class="fgroup"><label>Children & Education</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="ce" data-k="kids" value="0" oninput="calc()"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Post-Freedom Monthly Expenses</div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Housing</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="housing" value="15000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Food & Groceries</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="food" value="10000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Transport</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="transport" value="3000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Utilities & Bills</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="utilities" value="2500" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Health & Insurance</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="health" value="5000" oninput="calc()"></div></div>
+        <div class="fgroup" style="margin-bottom:9px"><label>Entertainment & Travel</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="ent" value="8000" oninput="calc()"></div></div>
+        <div class="fgroup"><label>Miscellaneous</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" class="fe" data-k="misc" value="3000" oninput="calc()"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ ASSETS & HOME ░░ -->
+  <div class="tab-panel" id="tab-assets">
+    <h2 class="sec-title">Assets, Home & Liabilities</h2>
+    <p class="sec-sub">What you own, housing decision, and outstanding debts.</p>
+
+    <div class="card">
+      <div class="card-title">🏘️ Housing Decision — Own vs Rent</div>
+      <div style="margin-bottom:16px">
+        <div class="toggle-grp">
+          <button class="tgl-btn active" id="ownBtn" onclick="setHousing('own')">Own / Buying</button>
+          <button class="tgl-btn" id="rentBtn" onclick="setHousing('rent')">Renting</button>
+        </div>
+      </div>
+      <div id="ownPanel">
+        <div class="fg">
+          <div class="fgroup"><label>Property Value</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="propVal" value="8000000" oninput="calc()"></div></div>
+          <div class="fgroup"><label>Down Payment Paid</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="downPay" value="1600000" oninput="calc()"></div></div>
+          <div class="fgroup"><label>Home Loan Balance</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="hlBal" value="6400000" oninput="calc()"></div></div>
+          <div class="fgroup"><label>Loan Interest Rate (%)</label><input type="number" id="hlRate" value="8.5" step="0.1" oninput="calc()"></div>
+          <div class="fgroup"><label>Remaining Tenure (yrs)</label><input type="number" id="hlTenure" value="20" oninput="calc()"></div>
+          <div class="fgroup"><label>Property Appreciation (%/yr)</label><input type="number" id="propApp" value="5" step="0.5" oninput="calc()"></div>
+        </div>
+        <div id="homeEMIInfo" style="margin-top:14px; padding:10px 14px; background:var(--bg-input); border-radius:7px; font-size:12px; color:var(--dim)">
+          Computed Home EMI: <span id="homeEMIVal" style="font-family:var(--fm);color:var(--gold)">₹0</span> /month
+        </div>
+      </div>
+      <div id="rentPanel" style="display:none">
+        <div class="fg">
+          <div class="fgroup"><label>Monthly Rent</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="mRent" value="20000" oninput="calc()"></div></div>
+          <div class="fgroup"><label>Annual Rent Increase (%)</label><input type="number" id="rentInc" value="5" step="0.5" oninput="calc()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💎 Other Assets</div>
+      <div id="assetList"></div>
+      <div class="add-row asset-add">
+        <div class="fgroup"><label>Asset Name</label><input type="text" id="nAName" placeholder="Car, Gold, Land…"></div>
+        <div class="fgroup"><label>Current Value</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="nAVal" placeholder="500000"></div></div>
+        <div class="fgroup"><label>Type</label>
+          <select id="nAType"><option>Vehicle</option><option>Gold / Jewellery</option><option>Land / Property</option><option>Other</option></select>
+        </div>
+        <button class="btn btn-gold" onclick="addAsset()" style="align-self:end">+ Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔴 Loans & Liabilities (excl. Home Loan)</div>
+      <div id="liabList"></div>
+      <div class="add-row liab-add">
+        <div class="fgroup"><label>Loan Name</label><input type="text" id="nLName" placeholder="Car Loan, Personal…"></div>
+        <div class="fgroup"><label>Outstanding Balance</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="nLBal" placeholder="500000"></div></div>
+        <div class="fgroup"><label>Monthly EMI</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="nLEMI" placeholder="12000"></div></div>
+        <div class="fgroup"><label>Interest Rate (%)</label><input type="number" id="nLRate" placeholder="10.5" step="0.1"></div>
+        <button class="btn btn-gold" onclick="addLiab()" style="align-self:end">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ INVESTMENTS ░░ -->
+  <div class="tab-panel" id="tab-investments">
+    <h2 class="sec-title">Investments & Returns</h2>
+    <p class="sec-sub">Track all investments with their expected XIRR / interest rate.</p>
+    <div class="card">
+      <div class="card-title">📈 Investment Portfolio</div>
+      <div class="inv-hdr"><span>Type</span><span>Current Value</span><span>Monthly SIP</span><span>XIRR %</span><span></span></div>
+      <div id="invList"></div>
+      <div class="add-row inv-add" style="margin-top:14px">
+        <div class="fgroup"><label>Investment Type</label>
+          <select id="nIType" onchange="fillXIRR()">
+            <option>Equity Mutual Fund</option><option>Index Fund / ETF</option><option>Debt Mutual Fund</option>
+            <option>Gold (ETF / SGB)</option><option>Fixed Deposit</option><option>PPF</option>
+            <option>NPS</option><option>US Stocks / ETF</option><option>Direct Stocks</option>
+            <option>Real Estate</option><option>Crypto</option><option>Other</option>
+          </select>
+        </div>
+        <div class="fgroup"><label>Current Value</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="nIVal" placeholder="100000"></div></div>
+        <div class="fgroup"><label>Monthly SIP / Contrib</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="nISIP" placeholder="5000"></div></div>
+        <div class="fgroup"><label>XIRR (%)</label><input type="number" id="nIXIRR" placeholder="12" step="0.5"></div>
+        <button class="btn btn-gold" onclick="addInv()" style="align-self:end">+ Add</button>
+      </div>
+      <div class="tip"><strong>📊 XIRR Reference Rates</strong>Equity MF: 12–15% · Index Fund: 10–12% · NPS: 9–11% · Gold: 8–10% · Debt MF: 7–8% · FD: 6.5–7.5% · PPF: 7.1% · US ETF: 10–12% · Crypto: 15–25% (high risk)</div>
+    </div>
+  </div>
+
+  <!-- ░░ LIFE EVENTS ░░ -->
+  <div class="tab-panel" id="tab-lifeevents">
+    <h2 class="sec-title">Life Events & Goals</h2>
+    <p class="sec-sub">Plan milestones that will impact your financial journey.</p>
+
+    <div class="card">
+      <div class="card-title">💑 Marriage</div>
+      <div class="fg">
+        <div class="fgroup"><label>Planning to marry?</label>
+          <select id="planMarry" onchange="toggleMarriage();calc()"><option value="no">No / Already married</option><option value="yes">Yes, planning</option></select>
+        </div>
+        <div class="fgroup" id="mAgeGrp" style="display:none"><label>At what age?</label><input type="number" id="mAge" value="32" oninput="calc()"></div>
+        <div class="fgroup" id="mCostGrp" style="display:none"><label>Estimated Wedding Cost</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="mCost" value="1500000" oninput="calc()"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">👶 Children</div>
+      <div class="fg" style="margin-bottom:14px">
+        <div class="fgroup"><label>Number of Children</label>
+          <select id="numKids" onchange="buildKidFields();calc()"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+        </div>
+        <div class="fgroup"><label>Child Higher Education Cost (today's ₹)</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="eduCost" value="2500000" oninput="calc()"></div></div>
+        <div class="fgroup"><label>Education Inflation (%)</label><input type="number" id="eduInfl" value="10" step="0.5" oninput="calc()"></div>
+      </div>
+      <div id="kidFields"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✈️ Custom Life Goals</div>
+      <div id="evtList"></div>
+      <div class="add-row evt-add">
+        <div class="fgroup"><label>Goal Name</label><input type="text" id="nEName" placeholder="Dream vacation, business, sabbatical…"></div>
+        <div class="fgroup"><label>At Age</label><input type="number" id="nEAge" placeholder="40"></div>
+        <div class="fgroup"><label>Cost (today's value)</label><div class="ipx"><span class="ipx-pre cur-sym">₹</span><input type="number" id="nECost" placeholder="500000"></div></div>
+        <button class="btn btn-gold" onclick="addEvt()" style="align-self:end">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ RESULTS ░░ -->
+  <div class="tab-panel" id="tab-results">
+    <h2 class="sec-title">Your Freedom Dashboard</h2>
+    <p class="sec-sub">Full financial independence projection based on your inputs.</p>
+
+    <div class="results-grid">
+      <div class="res-card pri"><div class="rc-lbl">Freedom Number</div><div class="rc-val" id="r-ffn">₹0</div><div class="rc-unit">Target Corpus</div></div>
+      <div class="res-card"><div class="rc-lbl">Current Net Worth</div><div class="rc-val" id="r-nw">₹0</div><div class="rc-unit">Assets − Liabilities</div></div>
+      <div class="res-card"><div class="rc-lbl">Years to Freedom</div><div class="rc-val" id="r-yrs">—</div><div class="rc-unit">Freedom at age <span id="r-fa">—</span></div></div>
+      <div class="res-card"><div class="rc-lbl">Monthly Surplus</div><div class="rc-val" id="r-sur">₹0</div><div class="rc-unit">After expenses & SIPs</div></div>
+      <div class="res-card"><div class="rc-lbl">SIP Needed / month</div><div class="rc-val" id="r-sip">₹0</div><div class="rc-unit">To hit target on time</div></div>
+      <div class="res-card"><div class="rc-lbl">Progress</div><div class="rc-val" id="r-prog">0%</div><div class="rc-unit">Towards freedom number</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📈 Wealth Projection</div>
+      <div class="big-chart"><canvas id="wealthChart"></canvas></div>
+    </div>
+
+    <div class="f2">
+      <div class="card">
+        <div class="card-title">💰 Cash Flow Breakdown</div>
+        <table class="brkdn-tbl">
+          <tr><th>Item</th><th>Monthly</th></tr>
+          <tr><td>Total Income</td><td id="b-inc">₹0</td></tr>
+          <tr><td>Total Expenses</td><td id="b-exp">₹0</td></tr>
+          <tr><td>Total EMIs</td><td id="b-emi">₹0</td></tr>
+          <tr><td>Total SIPs</td><td id="b-sip">₹0</td></tr>
+          <tr><td>Net Surplus</td><td id="b-sur">₹0</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">🏦 Balance Sheet</div>
+        <table class="brkdn-tbl">
+          <tr><th>Item</th><th>Value</th></tr>
+          <tr><td>Investments</td><td id="b-inv">₹0</td></tr>
+          <tr><td>Property</td><td id="b-prop">₹0</td></tr>
+          <tr><td>Other Assets</td><td id="b-oas">₹0</td></tr>
+          <tr><td>Total Liabilities</td><td id="b-liab" style="color:var(--red)">₹0</td></tr>
+          <tr><td>Net Worth</td><td id="b-nw">₹0</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="f2">
+      <div class="card">
+        <div class="card-title">🌅 Post-Freedom Cashflow</div>
+        <table class="brkdn-tbl">
+          <tr><th>Item</th><th>Value</th></tr>
+          <tr><td>Monthly Expenses</td><td id="pf-exp">₹0</td></tr>
+          <tr><td>Passive Income</td><td id="pf-inc">₹0</td></tr>
+          <tr><td>Net Withdrawal / mo</td><td id="pf-wit">₹0</td></tr>
+          <tr><td>Annual Withdrawal</td><td id="pf-ann">₹0</td></tr>
+          <tr><td>Corpus Duration</td><td id="pf-dur">— yrs</td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">🎯 Life Events Impact</div>
+        <div id="evtImpact"><span style="color:var(--muted);font-size:13px">No life events configured.</span></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- main-content -->
+
+<!-- ░░ RIGHT PANEL ░░ -->
+<aside class="rp">
+  <div class="rp-title">✦ Live Summary</div>
+
+  <div class="mc hl">
+    <div class="mc-lbl">Financial Freedom Progress</div>
+    <div class="freedom-meter">
+      <div class="cw">
+        <svg width="90" height="90" class="donut">
+          <circle cx="45" cy="45" r="36" fill="none" stroke="#1f2a40" stroke-width="7"/>
+          <circle cx="45" cy="45" r="36" fill="none" stroke="#c9a84c" stroke-width="7"
+            stroke-dasharray="226.2" stroke-dashoffset="226.2" id="pCircle" stroke-linecap="round"
+            style="transition:stroke-dashoffset .5s ease"/>
+        </svg>
+      </div>
+      <div class="fm-pct" id="p-pct">0%</div>
+      <div class="fm-sub">of Freedom Number achieved</div>
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="pBar" style="width:0%"></div></div>
+  </div>
+
+  <div class="mc"><div class="mc-lbl">Freedom Number</div><div class="mc-val" id="p-ffn">₹0</div><div class="mc-sub">Target corpus to retire</div></div>
+  <div class="mc"><div class="mc-lbl">Years to Freedom</div><div class="mc-val" id="p-yrs">—</div><div class="mc-sub">Freedom at age <span id="p-age">—</span></div></div>
+  <div class="mc"><div class="mc-lbl">Current Net Worth</div><div class="mc-val" id="p-nw">₹0</div><div class="mc-sub" id="p-nw-sub">Investments + Assets − Debts</div></div>
+  <div class="mc"><div class="mc-lbl">Monthly Surplus</div><div class="mc-val" id="p-sur">₹0</div><div class="mc-sub">Available to save/invest</div></div>
+  <div class="mc"><div class="mc-lbl">Weighted Portfolio Return</div><div class="mc-val" id="p-ret">—%</div><div class="mc-sub">Expected annual XIRR</div></div>
+  <div class="mc">
+    <div class="mc-lbl">10-Year Wealth Preview</div>
+    <div class="mini-chart"><canvas id="miniChart"></canvas></div>
+  </div>
+</aside>
+</div><!-- app-body -->
+
+<script>
+// ── City Data ──────────────────────────────────────────────────────────────
+const CITIES = {
+  India:     ['Mumbai','Bangalore','Delhi','Hyderabad','Chennai','Pune','Ahmedabad','Kolkata','Goa'],
+  USA:       ['New York','San Francisco','Los Angeles','Chicago','Austin','Seattle'],
+  UK:        ['London','Manchester','Birmingham','Edinburgh'],
+  Singapore: ['Singapore City'],
+  UAE:       ['Dubai','Abu Dhabi'],
+  Portugal:  ['Lisbon','Porto'],
+  Thailand:  ['Bangkok','Chiang Mai','Phuket'],
+  Other:     ['Custom']
+};
+const PRESETS = {
+  Mumbai:     {housing:35000,food:12000,transport:5000,utilities:4000,health:3000,ent:8000},
+  Bangalore:  {housing:28000,food:10000,transport:5000,utilities:3500,health:3000,ent:7000},
+  Delhi:      {housing:25000,food:10000,transport:5000,utilities:4000,health:3000,ent:6000},
+  Hyderabad:  {housing:22000,food:9000, transport:4500,utilities:3000,health:2500,ent:5000},
+  Chennai:    {housing:20000,food:9000, transport:4000,utilities:3000,health:2500,ent:5000},
+  Pune:       {housing:22000,food:9000, transport:4000,utilities:3000,health:2500,ent:5500},
+  Ahmedabad:  {housing:15000,food:8000, transport:3500,utilities:2500,health:2000,ent:4000},
+  Kolkata:    {housing:15000,food:8000, transport:3500,utilities:2500,health:2000,ent:4000},
+  Goa:        {housing:18000,food:9000, transport:3500,utilities:3000,health:2500,ent:6000},
+  'New York':      {housing:250000,food:80000,transport:30000,utilities:20000,health:50000,ent:60000},
+  'San Francisco': {housing:280000,food:80000,transport:25000,utilities:18000,health:50000,ent:60000},
+  'Los Angeles':   {housing:220000,food:70000,transport:35000,utilities:20000,health:50000,ent:55000},
+  Chicago:         {housing:180000,food:65000,transport:25000,utilities:18000,health:45000,ent:45000},
+  Austin:          {housing:170000,food:60000,transport:30000,utilities:18000,health:40000,ent:45000},
+  Seattle:         {housing:220000,food:70000,transport:25000,utilities:18000,health:45000,ent:50000},
+  London:     {housing:200000,food:50000,transport:30000,utilities:15000,health:5000,ent:40000},
+  Manchester: {housing:120000,food:40000,transport:25000,utilities:12000,health:4000,ent:30000},
+  Birmingham: {housing:110000,food:38000,transport:22000,utilities:12000,health:4000,ent:28000},
+  Edinburgh:  {housing:130000,food:42000,transport:22000,utilities:13000,health:4000,ent:32000},
+  'Singapore City':{housing:30000,food:15000,transport:8000,utilities:5000,health:8000,ent:12000},
+  Dubai:      {housing:50000,food:15000,transport:12000,utilities:8000,health:8000,ent:15000},
+  'Abu Dhabi':{housing:45000,food:14000,transport:12000,utilities:8000,health:8000,ent:14000},
+  Lisbon:     {housing:10000,food:5000,transport:3000,utilities:4000,health:3000,ent:5000},
+  Porto:      {housing:8000, food:4500,transport:2500,utilities:3500,health:3000,ent:4000},
+  Bangkok:    {housing:20000,food:8000,transport:4000,utilities:3000,health:3000,ent:8000},
+  'Chiang Mai':{housing:12000,food:6000,transport:3000,utilities:2500,health:2500,ent:5000},
+  Phuket:     {housing:18000,food:8000,transport:4000,utilities:3000,health:3000,ent:8000},
+};
+const DEF_XIRR = {
+  'Equity Mutual Fund':12,'Index Fund / ETF':11,'Debt Mutual Fund':7,
+  'Gold (ETF / SGB)':8,'Fixed Deposit':7,'PPF':7.1,'NPS':10,
+  'US Stocks / ETF':11,'Direct Stocks':13,'Real Estate':9,'Crypto':18,'Other':8
+};
+
+// ── State ──────────────────────────────────────────────────────────────────
+let S = { assets:[], liabs:[], invs:[], evts:[], housing:'own', sym:'₹', _c:null };
+let wChart=null, mChart=null;
+
+// ── Init ───────────────────────────────────────────────────────────────────
+function init(){
+  loadCities('cur'); loadCities('fut');
+  S.invs = [
+    {type:'Equity Mutual Fund', val:200000, sip:10000, xirr:12},
+    {type:'Index Fund / ETF',   val:100000, sip:5000,  xirr:11},
+    {type:'Fixed Deposit',      val:100000, sip:0,     xirr:7},
+  ];
+  renderInvs();
+  calc();
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const gv = id => parseFloat($(id)?.value)||0;
+function fmt(n){
+  if(isNaN(n)||!isFinite(n)) return '0';
+  const a=Math.abs(n);
+  if(a>=10000000) return (n/10000000).toFixed(2)+'Cr';
+  if(a>=100000)   return (n/100000).toFixed(2)+'L';
+  if(a>=1000)     return (n/1000).toFixed(1)+'K';
+  return Math.round(n).toLocaleString('en-IN');
+}
+function fc(n){ return S.sym+fmt(n); }
+function set(id,v){ const e=$(id); if(e) e.textContent=v; }
+function setC(id,v,pos){ const e=$(id); if(!e) return; e.textContent=v; e.style.color=pos?'var(--green)':'var(--red)'; }
+
+// ── City / Preset ──────────────────────────────────────────────────────────
+function loadCities(w){
+  const cEl = $(w==='cur'?'curCountry':'futCountry');
+  const sEl = $(w==='cur'?'curCity':'futCity');
+  const country = cEl.value;
+  const list = CITIES[country]||CITIES.Other;
+  sEl.innerHTML = list.map(c=>`<option>${c}</option>`).join('');
+}
+function applyPreset(){
+  const city = $('curCity').value;
+  const p = PRESETS[city];
+  if(!p) return;
+  document.querySelectorAll('.ce').forEach(el=>{
+    const k=el.dataset.k; if(p[k]!==undefined) el.value=p[k];
+  });
+  calc();
+}
+
+// ── Tab ────────────────────────────────────────────────────────────────────
+function switchTab(btn, name){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  $('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='results') renderCharts();
+}
+
+// ── Currency ───────────────────────────────────────────────────────────────
+function updateCurrency(){
+  S.sym = $('currency').value;
+  document.querySelectorAll('.cur-sym').forEach(e=>e.textContent=S.sym);
+  calc();
+}
+
+// ── Housing ────────────────────────────────────────────────────────────────
+function setHousing(t){
+  S.housing=t;
+  $('ownPanel').style.display=t==='own'?'block':'none';
+  $('rentPanel').style.display=t==='rent'?'block':'none';
+  $('ownBtn').classList.toggle('active',t==='own');
+  $('rentBtn').classList.toggle('active',t==='rent');
+  calc();
+}
+
+// ── Assets ─────────────────────────────────────────────────────────────────
+function addAsset(){
+  const n=$('nAName').value.trim(), v=parseFloat($('nAVal').value)||0, t=$('nAType').value;
+  if(!n||!v) return;
+  S.assets.push({n,v,t});
+  $('nAName').value=''; $('nAVal').value='';
+  renderAssets(); calc();
+}
+function delAsset(i){ S.assets.splice(i,1); renderAssets(); calc(); }
+function renderAssets(){
+  const el=$('assetList');
+  if(!S.assets.length){ el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:4px 0">No assets added yet.</div>'; return; }
+  el.innerHTML = S.assets.map((a,i)=>`
+    <div class="list-row asset-row">
+      <span class="lname">${a.n}</span>
+      <span class="lval">${fc(a.v)}</span>
+      <span class="ldtl"><span class="tag tag-gold">${a.t}</span></span>
+      <button class="btn-del" onclick="delAsset(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ── Liabilities ────────────────────────────────────────────────────────────
+function addLiab(){
+  const n=$('nLName').value.trim(), b=parseFloat($('nLBal').value)||0,
+        e=parseFloat($('nLEMI').value)||0, r=parseFloat($('nLRate').value)||0;
+  if(!n||!b) return;
+  S.liabs.push({n,b,e,r});
+  $('nLName').value=''; $('nLBal').value=''; $('nLEMI').value=''; $('nLRate').value='';
+  renderLiabs(); calc();
+}
+function delLiab(i){ S.liabs.splice(i,1); renderLiabs(); calc(); }
+function renderLiabs(){
+  const el=$('liabList');
+  if(!S.liabs.length){ el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:4px 0">No liabilities added yet.</div>'; return; }
+  el.innerHTML = S.liabs.map((l,i)=>`
+    <div class="list-row liab-row">
+      <span class="lname">${l.n}</span>
+      <span class="lval">${fc(l.b)}</span>
+      <span class="ldtl">EMI: ${fc(l.e)}</span>
+      <span class="ldtl">${l.r}%</span>
+      <button class="btn-del" onclick="delLiab(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ── Investments ────────────────────────────────────────────────────────────
+function fillXIRR(){ $('nIXIRR').value = DEF_XIRR[$('nIType').value]||10; }
+function addInv(){
+  const type=$('nIType').value, val=parseFloat($('nIVal').value)||0,
+        sip=parseFloat($('nISIP').value)||0, xirr=parseFloat($('nIXIRR').value)||DEF_XIRR[type]||10;
+  S.invs.push({type,val,sip,xirr});
+  $('nIVal').value=''; $('nISIP').value=''; $('nIXIRR').value='';
+  renderInvs(); calc();
+}
+function delInv(i){ S.invs.splice(i,1); renderInvs(); calc(); }
+function updInv(i,k,v){ S.invs[i][k]=parseFloat(v)||0; calc(); }
+function renderInvs(){
+  const el=$('invList');
+  if(!S.invs.length){ el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:8px 0">No investments added.</div>'; return; }
+  el.innerHTML = S.invs.map((inv,i)=>`
+    <div class="list-row inv-row" style="gap:10px">
+      <span class="lname" style="font-size:12px">${inv.type}</span>
+      <div class="ipx"><span class="ipx-pre">${S.sym}</span><input type="number" value="${inv.val}" oninput="updInv(${i},'val',this.value)" style="font-size:12px;padding:6px 8px 6px 24px"></div>
+      <div class="ipx"><span class="ipx-pre">${S.sym}</span><input type="number" value="${inv.sip}" oninput="updInv(${i},'sip',this.value)" style="font-size:12px;padding:6px 8px 6px 24px"></div>
+      <input type="number" value="${inv.xirr}" step="0.5" oninput="updInv(${i},'xirr',this.value)" style="font-size:12px;padding:6px 8px;width:72px">
+      <button class="btn-del" onclick="delInv(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ── Life Events ────────────────────────────────────────────────────────────
+function toggleMarriage(){
+  const show=$('planMarry').value==='yes';
+  $('mAgeGrp').style.display=show?'block':'none';
+  $('mCostGrp').style.display=show?'block':'none';
+}
+function buildKidFields(){
+  const n=parseInt($('numKids').value)||0, c=$('kidFields');
+  c.innerHTML='';
+  for(let i=1;i<=n;i++){
+    c.innerHTML+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Child ${i}</div>
+      <div class="fg">
+        <div class="fgroup"><label>Your age at birth</label><input type="number" id="kAge${i}" value="${30+i}" oninput="calc()"></div>
+        <div class="fgroup"><label>Monthly child cost</label><div class="ipx"><span class="ipx-pre cur-sym">${S.sym}</span><input type="number" id="kCost${i}" value="15000" oninput="calc()"></div></div>
+      </div>
+    </div>`;
+  }
+  calc();
+}
+function addEvt(){
+  const n=$('nEName').value.trim(), a=parseInt($('nEAge').value)||0, c=parseFloat($('nECost').value)||0;
+  if(!n||!a||!c) return;
+  S.evts.push({n,a,c});
+  $('nEName').value=''; $('nEAge').value=''; $('nECost').value='';
+  renderEvts(); calc();
+}
+function delEvt(i){ S.evts.splice(i,1); renderEvts(); calc(); }
+function renderEvts(){
+  const el=$('evtList');
+  if(!S.evts.length){ el.innerHTML='<div style="color:var(--muted);font-size:12px;padding:4px 0">No custom goals added yet.</div>'; return; }
+  el.innerHTML = S.evts.map((e,i)=>`
+    <div class="list-row asset-row">
+      <span class="lname">${e.n}</span>
+      <span class="lval">${fc(e.c)}</span>
+      <span class="ldtl"><span class="tag tag-blue">Age ${e.a}</span></span>
+      <button class="btn-del" onclick="delEvt(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ── Core Calculator ────────────────────────────────────────────────────────
+function calc(){
+  const curAge=gv('curAge'), tgtAge=gv('tgtAge'), lifeExp=gv('lifeExp');
+  const infl=gv('inflation')/100, swr=gv('swr')/100;
+  const yrs = Math.max(1, tgtAge-curAge);
+
+  // Income
+  const salary=gv('salary'), otherInc=gv('otherInc'), spouseInc=gv('spouseInc'), bonus=gv('bonus');
+  const totalInc = salary+otherInc+spouseInc+bonus/12;
+
+  // Current expenses
+  let totalCurExp=0;
+  document.querySelectorAll('.ce').forEach(e=>totalCurExp+=parseFloat(e.value)||0);
+
+  // Future expenses
+  let totalFutExp=0;
+  document.querySelectorAll('.fe').forEach(e=>totalFutExp+=parseFloat(e.value)||0);
+
+  // EMIs from liabilities
+  let totalEMI=0;
+  S.liabs.forEach(l=>totalEMI+=l.e);
+
+  // Home loan EMI
+  let homeEMI=0;
+  if(S.housing==='own'){
+    const hl=gv('hlBal'), hlr=gv('hlRate')/100/12, hlt=gv('hlTenure')*12;
+    if(hl>0&&hlr>0&&hlt>0) homeEMI = hl*hlr*Math.pow(1+hlr,hlt)/(Math.pow(1+hlr,hlt)-1);
+    set('homeEMIVal', fc(homeEMI));
+    // EMI included in housing expense field — show info only
+  }
+
+  // Total SIP
+  let totalSIP=0;
+  S.invs.forEach(inv=>totalSIP+=inv.sip);
+
+  const surplus = totalInc - totalCurExp - totalEMI - totalSIP;
+
+  // Post-freedom income
+  const fiTotalInc = gv('fiInc')+gv('fiRent')+gv('fiOther');
+  const netWithdrawal = Math.max(0, totalFutExp - fiTotalInc);
+  const annualWith = netWithdrawal*12;
+
+  // Inflate to freedom date
+  const futAnnualWith = annualWith * Math.pow(1+infl, yrs);
+  const ffn = futAnnualWith / swr;
+
+  // Current investment value & weighted XIRR
+  let totalInvVal=0;
+  S.invs.forEach(inv=>totalInvVal+=inv.val);
+  let wxirr = totalInvVal>0
+    ? S.invs.reduce((s,inv)=>s+(inv.val/totalInvVal)*inv.xirr, 0)
+    : 10;
+  const annRet = wxirr/100;
+  const monRet = Math.pow(1+annRet,1/12)-1;
+
+  // Assets
+  let otherAssets=0;
+  S.assets.forEach(a=>otherAssets+=a.v);
+  const propVal = S.housing==='own' ? gv('propVal') : 0;
+
+  // Liabilities
+  let totalLiab = S.liabs.reduce((s,l)=>s+l.b, 0);
+  if(S.housing==='own') totalLiab += gv('hlBal');
+
+  const netWorth = totalInvVal+otherAssets+propVal - totalLiab;
+
+  // Project wealth function
+  function proj(years){
+    const n=years*12;
+    const fvLump = totalInvVal * Math.pow(1+monRet, n);
+    const fvSIP = monRet>0 ? totalSIP*(Math.pow(1+monRet,n)-1)/monRet : totalSIP*n;
+    return fvLump+fvSIP;
+  }
+
+  // Find freedom year
+  let freeYrs=null;
+  for(let y=1;y<=60;y++){ if(proj(y)>=ffn){ freeYrs=y; break; } }
+
+  // SIP needed
+  let sipNeeded=0;
+  if(yrs>0){
+    const n=yrs*12;
+    const fvEx = totalInvVal*Math.pow(1+monRet,n);
+    const gap = Math.max(0, ffn-fvEx);
+    if(gap>0&&monRet>0) sipNeeded = gap*monRet/(Math.pow(1+monRet,n)-1);
+  }
+
+  const progress = ffn>0 ? Math.min(100, (totalInvVal/ffn)*100) : 0;
+  const freeAge = freeYrs ? curAge+freeYrs : null;
+
+  // Life events
+  const events=[];
+  let evtTotal=0;
+
+  if($('planMarry').value==='yes'){
+    const ma=gv('mAge'), mc=gv('mCost');
+    if(ma>curAge){ const ic=mc*Math.pow(1+infl,ma-curAge); events.push({n:'Marriage',a:ma,c:ic}); evtTotal+=ic; }
+  }
+  const nk=parseInt($('numKids').value)||0;
+  for(let i=1;i<=nk;i++){
+    const ka=gv(`kAge${i}`);
+    if(ka>curAge){
+      const ec=gv('eduCost')*Math.pow(1+gv('eduInfl')/100, ka+18-curAge);
+      events.push({n:`Child ${i} Higher Ed`,a:ka+18,c:ec}); evtTotal+=ec;
+    }
+  }
+  S.evts.forEach(e=>{
+    if(e.a>curAge){ const ic=e.c*Math.pow(1+infl,e.a-curAge); events.push({n:e.n,a:e.a,c:ic}); evtTotal+=ic; }
+  });
+
+  // Store for charts
+  S._c = {curAge,tgtAge,proj,ffn,freeYrs,events,totalInvVal,wxirr};
+
+  // ── Update UI ──────────────────────────────────────────────────────────
+  const yrsLabel = freeYrs ? `${freeYrs}y` : '>60y';
+  const ageLabel = freeAge ? `${freeAge}` : `>${curAge+60}`;
+
+  set('qs-nw', fc(netWorth)); set('qs-sur', fc(surplus));
+  set('qs-ffn', fc(ffn)); set('qs-yrs', yrsLabel); set('qs-age', ageLabel);
+
+  // Panel
+  set('p-ffn', fc(ffn)); set('p-nw', fc(netWorth)); set('p-sur', fc(surplus));
+  set('p-ret', wxirr.toFixed(1)+'%');
+  set('p-yrs', freeYrs ? `${freeYrs} years` : '>60 years');
+  set('p-age', freeAge ? `${freeAge}` : `>${curAge+60}`);
+  set('p-pct', progress.toFixed(1)+'%');
+  $('pBar').style.width = progress+'%';
+  const circ=226.2, off=circ*(1-progress/100);
+  $('pCircle').style.strokeDashoffset = off;
+
+  // Results tab
+  set('r-ffn', fc(ffn)); set('r-nw', fc(netWorth));
+  set('r-yrs', freeYrs ? `${freeYrs} yrs` : '>60 yrs');
+  set('r-fa', freeAge ? `${freeAge}` : `—`);
+  set('r-sur', fc(surplus)); set('r-sip', fc(sipNeeded));
+  set('r-prog', progress.toFixed(1)+'%');
+
+  // Breakdown
+  set('b-inc', fc(totalInc)); set('b-exp', fc(totalCurExp));
+  set('b-emi', fc(totalEMI)); set('b-sip', fc(totalSIP));
+  const e=$('b-sur');
+  if(e){ e.textContent=fc(surplus); e.style.color=surplus>=0?'var(--green)':'var(--red)'; }
+
+  set('b-inv', fc(totalInvVal)); set('b-prop', fc(propVal));
+  set('b-oas', fc(otherAssets)); set('b-liab', fc(totalLiab)); set('b-nw', fc(netWorth));
+
+  set('pf-exp', fc(totalFutExp)); set('pf-inc', fc(fiTotalInc));
+  set('pf-wit', fc(netWithdrawal)); set('pf-ann', fc(annualWith));
+  set('pf-dur', `${Math.max(0,lifeExp-tgtAge)}+ years`);
+
+  // Life events table
+  const evtEl=$('evtImpact');
+  if(events.length){
+    evtEl.innerHTML=`<table class="brkdn-tbl">
+      <tr><th>Event</th><th>Age</th><th>Inflated Cost</th></tr>
+      ${events.map(e=>`<tr><td>${e.n}</td><td>${e.a}</td><td>${fc(e.c)}</td></tr>`).join('')}
+      <tr><td>Total Impact</td><td></td><td>${fc(evtTotal)}</td></tr>
+    </table>`;
+  } else {
+    evtEl.innerHTML='<span style="color:var(--muted);font-size:13px">No life events configured.</span>';
+  }
+
+  // Mini chart
+  renderMiniChart(proj);
+
+  // If results tab open, refresh charts
+  if($('tab-results').classList.contains('active')) renderCharts();
+}
+
+// ── Charts ─────────────────────────────────────────────────────────────────
+function renderMiniChart(proj){
+  const ctx=$('miniChart'); if(!ctx) return;
+  const lbls=[], data=[];
+  for(let y=0;y<=10;y++){ lbls.push('Y'+y); data.push(Math.round(proj(y))); }
+  if(mChart){ mChart.destroy(); mChart=null; }
+  mChart = new Chart(ctx, {type:'line', data:{
+    labels:lbls,
+    datasets:[{data, borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.12)',
+      borderWidth:2, fill:true, tension:.4, pointRadius:0}]
+  }, options:{
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>S.sym+fmt(c.parsed.y)}}},
+    scales:{
+      x:{grid:{display:false}, ticks:{color:'#6b7a99', font:{size:9}}},
+      y:{grid:{color:'rgba(31,42,64,.5)'}, ticks:{color:'#6b7a99', font:{size:9}, callback:v=>S.sym+fmt(v)}}
+    }
+  }});
+}
+
+function renderCharts(){
+  const c=S._c; if(!c) return;
+  const {curAge, tgtAge, proj, ffn, freeYrs, events} = c;
+  const maxY = Math.max(55, (tgtAge-curAge)+15);
+  const lbls=[], wData=[], fData=[];
+
+  for(let y=0;y<=maxY;y++){
+    lbls.push(curAge+y);
+    wData.push(Math.round(proj(y)));
+    fData.push(Math.round(ffn));
+  }
+
+  // Event annotations (simplified as data points)
+  const evtPoints = events.map(e=>({x:e.a, y:proj(e.a-curAge)}));
+
+  const ctx=$('wealthChart'); if(!ctx) return;
+  if(wChart){ wChart.destroy(); wChart=null; }
+
+  wChart = new Chart(ctx, {type:'line', data:{
+    labels:lbls,
+    datasets:[
+      {label:'Projected Wealth', data:wData, borderColor:'#c9a84c',
+        backgroundColor:'rgba(201,168,76,.08)', borderWidth:2.5, fill:true, tension:.4, pointRadius:0},
+      {label:'Freedom Number', data:fData, borderColor:'#3ecf8e', borderWidth:2,
+        borderDash:[7,5], fill:false, tension:0, pointRadius:0},
+      {label:'Life Events', data:events.map(e=>({x:e.a, y:Math.round(proj(e.a-curAge))})),
+        type:'scatter', backgroundColor:'#f56565', borderColor:'#f56565',
+        pointRadius:6, pointHoverRadius:8, showLine:false}
+    ]
+  }, options:{
+    responsive:true, maintainAspectRatio:false,
+    interaction:{mode:'index', intersect:false},
+    plugins:{
+      legend:{display:true, labels:{color:'#a0aec0', font:{size:12}, boxWidth:14, padding:16}},
+      tooltip:{
+        backgroundColor:'#0d1120', borderColor:'#1f2a40', borderWidth:1,
+        titleColor:'#e2e8f5', bodyColor:'#a0aec0',
+        callbacks:{
+          title:c=>`Age ${c[0].label}`,
+          label:c=>` ${c.dataset.label}: ${S.sym}${fmt(c.parsed.y)}`
+        }
+      }
+    },
+    scales:{
+      x:{grid:{color:'rgba(31,42,64,.35)'}, ticks:{color:'#6b7a99', font:{size:11}, maxTicksLimit:14}},
+      y:{grid:{color:'rgba(31,42,64,.35)'}, ticks:{color:'#6b7a99', font:{size:11}, callback:v=>S.sym+fmt(v)}}
+    }
+  }});
+}
+
+// ── Start ──────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

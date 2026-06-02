@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Range Finder — Healthy Height &amp; Weight by Age</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f6efe2;
+    --paper:#fffbf2;
+    --ink:#2b2a25;
+    --forest:#2f5443;
+    --forest-deep:#1e3a2e;
+    --coral:#e07a52;
+    --coral-soft:#f3c9b4;
+    --sage:#a9bfa6;
+    --line:#d9cfb8;
+    --muted:#7a7466;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Karla',sans-serif;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% -5%, rgba(224,122,82,.18), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 5% 105%, rgba(47,84,67,.16), transparent 60%),
+      var(--cream);
+    color:var(--ink);
+    line-height:1.55;
+    padding:32px 18px 80px;
+    min-height:100%;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+
+  /* Header */
+  header{text-align:center;margin-bottom:34px;}
+  .eyebrow{
+    font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--coral);font-weight:700;margin-bottom:14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:clamp(2.1rem,7vw,3.4rem);line-height:1.04;
+    color:var(--forest-deep);letter-spacing:-.02em;
+  }
+  h1 em{font-style:italic;color:var(--coral);}
+  .sub{
+    margin-top:14px;color:var(--muted);font-size:1rem;
+    max-width:480px;margin-left:auto;margin-right:auto;
+  }
+
+  /* Card */
+  .card{
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:20px;
+    padding:30px 26px;
+    box-shadow:0 18px 40px -28px rgba(30,58,46,.5);
+  }
+  .card + .card{margin-top:22px;}
+
+  /* Tabs */
+  .tabs{
+    display:flex;gap:6px;background:var(--cream);
+    border:1.5px solid var(--line);border-radius:14px;
+    padding:5px;margin-bottom:26px;
+  }
+  .tab{
+    flex:1;border:none;background:transparent;cursor:pointer;
+    font-family:'Karla',sans-serif;font-weight:700;font-size:.9rem;
+    padding:11px 8px;border-radius:10px;color:var(--muted);
+    transition:.18s ease;
+  }
+  .tab.active{background:var(--forest);color:#fdfaf0;box-shadow:0 6px 14px -8px rgba(30,58,46,.7);}
+
+  /* Form */
+  .field-label{
+    display:block;font-size:.74rem;letter-spacing:.16em;
+    text-transform:uppercase;font-weight:700;color:var(--forest);
+    margin-bottom:9px;
+  }
+  .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;}
+  .col{flex:1;min-width:140px;}
+
+  input[type=number]{
+    width:100%;font-family:'Fraunces',serif;font-size:1.5rem;
+    padding:12px 14px;border:1.5px solid var(--line);
+    border-radius:12px;background:var(--cream);color:var(--ink);
+    outline:none;transition:.15s;
+  }
+  input[type=number]:focus{border-color:var(--coral);background:#fff;}
+
+  .seg{display:flex;gap:6px;}
+  .seg button{
+    flex:1;font-family:'Karla',sans-serif;font-weight:600;
+    font-size:.92rem;padding:11px 6px;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--cream);
+    color:var(--muted);border-radius:11px;transition:.15s;
+  }
+  .seg button.on{
+    background:var(--coral);border-color:var(--coral);
+    color:#fff;box-shadow:0 6px 14px -9px var(--coral);
+  }
+  .seg.sex button.on{background:var(--forest);border-color:var(--forest);}
+
+  .go{
+    width:100%;margin-top:6px;cursor:pointer;
+    font-family:'Karla',sans-serif;font-weight:700;font-size:1rem;
+    letter-spacing:.04em;padding:15px;border:none;border-radius:13px;
+    background:var(--forest-deep);color:#fdfaf0;
+    transition:.16s;
+  }
+  .go:hover{background:var(--forest);transform:translateY(-1px);}
+  .go:active{transform:translateY(0);}
+
+  /* Result */
+  .result{margin-top:24px;display:none;}
+  .result.show{display:block;animation:rise .4s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .res-head{
+    font-family:'Fraunces',serif;font-style:italic;
+    font-size:1.05rem;color:var(--muted);margin-bottom:14px;
+    padding-bottom:14px;border-bottom:1.5px dashed var(--line);
+  }
+  .metrics{display:flex;gap:14px;flex-wrap:wrap;}
+  .metric{
+    flex:1;min-width:150px;
+    background:var(--cream);border:1.5px solid var(--line);
+    border-radius:15px;padding:18px 18px 20px;
+  }
+  .metric .tag{
+    font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+    font-weight:700;color:var(--coral);
+  }
+  .metric .big{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:2.15rem;color:var(--forest-deep);line-height:1.1;
+    margin:6px 0 2px;
+  }
+  .metric .big small{font-size:1rem;color:var(--muted);font-weight:400;}
+  .metric .note{font-size:.85rem;color:var(--muted);}
+
+  .badge{
+    display:inline-block;font-weight:700;font-size:.92rem;
+    padding:6px 14px;border-radius:999px;margin-top:4px;
+  }
+  .b-under{background:#fde9cf;color:#a86b1e;}
+  .b-healthy{background:#dcebd9;color:#2f5443;}
+  .b-over{background:#fbe0cf;color:#bc5b30;}
+  .b-obese{background:#f3cdbd;color:#a23c1c;}
+
+  .callout{
+    margin-top:16px;font-size:.9rem;color:var(--muted);
+    background:rgba(169,191,166,.22);
+    border-left:3px solid var(--sage);
+    padding:11px 14px;border-radius:0 10px 10px 0;
+  }
+  .err{
+    margin-top:16px;font-size:.92rem;color:#a23c1c;
+    background:#f6d8cb;border-radius:10px;padding:11px 14px;
+    display:none;
+  }
+  .err.show{display:block;}
+
+  /* Reference table */
+  details{
+    margin-top:22px;border:1.5px solid var(--line);
+    border-radius:16px;background:var(--paper);overflow:hidden;
+  }
+  summary{
+    cursor:pointer;list-style:none;padding:16px 22px;
+    font-weight:700;color:var(--forest-deep);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:'+';font-family:'Fraunces',serif;font-size:1.5rem;color:var(--coral);}
+  details[open] summary::after{content:'–';}
+  .tbl-wrap{padding:0 18px 20px;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:380px;}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);}
+  th{
+    font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--coral);font-weight:700;
+  }
+  td:first-child{font-weight:700;color:var(--forest-deep);}
+  caption{text-align:left;font-family:'Fraunces',serif;font-style:italic;color:var(--muted);padding:6px 0 12px;}
+
+  footer{
+    margin-top:30px;text-align:center;font-size:.82rem;
+    color:var(--muted);line-height:1.7;
+  }
+  footer strong{color:var(--forest);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">WHO &amp; CDC Reference Ranges</div>
+    <h1>The Growth <em>Range</em> Finder</h1>
+    <p class="sub">There is no single "ideal" number — only healthy ranges. Enter an age to see typical height and weight, or check an adult's BMI.</p>
+  </header>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" data-mode="child" onclick="switchMode('child')">Child &amp; Teen</button>
+      <button class="tab" data-mode="adult" onclick="switchMode('adult')">Adult (BMI)</button>
+    </div>
+
+    <!-- CHILD / TEEN -->
+    <div id="pane-child">
+      <div class="row">
+        <div class="col">
+          <label class="field-label">Age</label>
+          <input type="number" id="ageVal" min="0" step="1" placeholder="e.g. 7">
+        </div>
+        <div class="col">
+          <label class="field-label">Unit</label>
+          <div class="seg" id="unitSeg">
+            <button class="on" data-unit="years" onclick="pick('unitSeg',this)">Years</button>
+            <button data-unit="months" onclick="pick('unitSeg',this)">Months</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label class="field-label">Sex</label>
+          <div class="seg sex" id="sexSeg">
+            <button class="on" data-sex="boy" onclick="pick('sexSeg',this)">Boy</button>
+            <button data-sex="girl" onclick="pick('sexSeg',this)">Girl</button>
+          </div>
+        </div>
+      </div>
+      <button class="go" onclick="calcChild()">Find Healthy Range</button>
+      <div class="err" id="childErr"></div>
+
+      <div class="result" id="childResult">
+        <div class="res-head" id="childResHead"></div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="tag">Typical Height</div>
+            <div class="big" id="cHeight"></div>
+            <div class="note">Healthy range for age</div>
+          </div>
+          <div class="metric">
+            <div class="tag">Typical Weight</div>
+            <div class="big" id="cWeight"></div>
+            <div class="note" id="cWeightNote">Healthy range for age</div>
+          </div>
+        </div>
+        <div class="callout" id="childCallout"></div>
+      </div>
+    </div>
+
+    <!-- ADULT -->
+    <div id="pane-adult" style="display:none">
+      <div class="row">
+        <div class="col">
+          <label class="field-label">Height (cm)</label>
+          <input type="number" id="aHeight" min="120" max="230" step="0.5" placeholder="e.g. 170">
+        </div>
+        <div class="col">
+          <label class="field-label">Weight (kg) — optional</label>
+          <input type="number" id="aWeight" min="20" max="250" step="0.1" placeholder="e.g. 68">
+        </div>
+      </div>
+      <button class="go" onclick="calcAdult()">Calculate</button>
+      <div class="err" id="adultErr"></div>
+
+      <div class="result" id="adultResult">
+        <div class="res-head" id="adultResHead"></div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="tag">Healthy Weight Range</div>
+            <div class="big" id="aRange"></div>
+            <div class="note">Based on BMI 18.5 – 24.9</div>
+          </div>
+          <div class="metric" id="bmiMetric" style="display:none">
+            <div class="tag">Your BMI</div>
+            <div class="big" id="aBmi"></div>
+            <span class="badge" id="aBadge"></span>
+          </div>
+        </div>
+        <div class="callout">BMI is a population screening tool. It does not account for muscle mass, bone density, age, or body composition — athletes and older adults may fall outside these ranges while perfectly healthy.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLES -->
+  <details>
+    <summary>Reference tables — infants &amp; children</summary>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Infants (WHO standards) — median height &amp; weight</caption>
+        <thead><tr><th>Age</th><th>Boy ht / wt</th><th>Girl ht / wt</th></tr></thead>
+        <tbody id="infTbl"></tbody>
+      </table>
+      <table style="margin-top:24px">
+        <caption>Children 4–12 yr — healthy average range</caption>
+        <thead><tr><th>Age</th><th>Boy ht / wt</th><th>Girl ht / wt</th></tr></thead>
+        <tbody id="kidTbl"></tbody>
+      </table>
+      <table style="margin-top:24px">
+        <caption>Teens 13–18 yr — height range (weight varies widely with puberty)</caption>
+        <thead><tr><th>Age</th><th>Boy height</th><th>Girl height</th></tr></thead>
+        <tbody id="teenTbl"></tbody>
+      </table>
+    </div>
+  </details>
+
+  <details>
+    <summary>How adult healthy weight is estimated</summary>
+    <div class="tbl-wrap">
+      <p style="font-size:.9rem;color:var(--muted);margin-bottom:14px">
+        Adult healthy weight uses Body Mass Index:
+        <strong style="font-family:'Fraunces',serif;color:var(--forest-deep)">BMI = weight (kg) ÷ height (m)²</strong>.
+        A BMI between 18.5 and 24.9 is generally considered healthy.
+      </p>
+      <table>
+        <thead><tr><th>BMI</th><th>Category</th></tr></thead>
+        <tbody>
+          <tr><td>Below 18.5</td><td>Underweight</td></tr>
+          <tr><td>18.5 – 24.9</td><td>Healthy weight</td></tr>
+          <tr><td>25.0 – 29.9</td><td>Overweight</td></tr>
+          <tr><td>30.0 and above</td><td>Obesity</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+
+  <footer>
+    <strong>This is an educational estimate, not medical advice.</strong><br>
+    Genetics, puberty timing, and individual growth curves matter more than any single number.
+    A child steadily following their own percentile is usually healthy. For real assessment,
+    consult a pediatrician or doctor — they use full WHO/CDC percentile charts.
+  </footer>
+
+</div>
+
+<script>
+/* ---------- DATA ---------- */
+// Infants: month -> {h, w} medians (WHO)
+const infant = {
+  boy:{0:[49.9,3.3],1:[54.7,4.5],3:[61.4,6.4],6:[67.6,7.9],9:[72.0,8.9],12:[76.1,9.6],18:[82.3,10.9],24:[87.8,12.2],36:[96.1,14.3]},
+  girl:{0:[49.1,3.2],1:[53.7,4.2],3:[59.8,5.8],6:[65.7,7.3],9:[70.1,8.2],12:[74.0,8.9],18:[80.7,10.2],24:[86.4,11.5],36:[95.1,13.9]}
+};
+// Children 4-12 yr: year -> {h:[lo,hi], w:[lo,hi]}
+const kid = {
+  boy:{4:[[102,105],[16,18]],5:[[108,112],[18,21]],6:[[114,118],[20,24]],7:[[119,124],[22,27]],8:[[124,130],[25,31]],9:[[129,136],[28,35]],10:[[134,141],[31,39]],11:[[139,147],[35,45]],12:[[144,154],[39,50]]},
+  girl:{4:[[101,104],[15,18]],5:[[107,111],[17,21]],6:[[113,118],[19,24]],7:[[118,124],[22,28]],8:[[124,130],[25,32]],9:[[129,137],[28,36]],10:[[134,143],[32,41]],11:[[140,149],[36,47]],12:[[147,156],[41,54]]}
+};
+// Teens 13-18 yr: year -> height [lo,hi]
+const teen = {
+  boy:{13:[151,161],14:[157,168],15:[163,174],16:[166,178],17:[168,180],18:[169,182]},
+  girl:{13:[149,159],14:[152,162],15:[154,164],16:[155,165],17:[155,166],18:[155,167]}
+};
+
+/* ---------- UI HELPERS ---------- */
+function switchMode(m){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
+  document.getElementById('pane-child').style.display = m==='child'?'block':'none';
+  document.getElementById('pane-adult').style.display = m==='adult'?'block':'none';
+}
+function pick(group,btn){
+  document.getElementById(group).querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function getSel(group,attr){
+  return document.getElementById(group).querySelector('button.on').dataset[attr];
+}
+function showErr(id,msg){
+  const e=document.getElementById(id);e.textContent=msg;e.classList.add('show');
+}
+function clearErr(id){document.getElementById(id).classList.remove('show');}
+
+// linear interpolation between known infant months
+function lerpInfant(sex,months){
+  const keys=Object.keys(infant[sex]).map(Number).sort((a,b)=>a-b);
+  if(months<=keys[0]) return infant[sex][keys[0]];
+  if(months>=keys[keys.length-1]) return infant[sex][keys[keys.length-1]];
+  for(let i=0;i<keys.length-1;i++){
+    if(months>=keys[i]&&months<=keys[i+1]){
+      const lo=keys[i],hi=keys[i+1],f=(months-lo)/(hi-lo);
+      const a=infant[sex][lo],b=infant[sex][hi];
+      return [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f];
+    }
+  }
+}
+
+/* ---------- CHILD CALC ---------- */
+function calcChild(){
+  clearErr('childErr');
+  document.getElementById('childResult').classList.remove('show');
+  const raw=parseFloat(document.getElementById('ageVal').value);
+  const unit=getSel('unitSeg','unit');
+  const sex=getSel('sexSeg','sex');
+  if(isNaN(raw)||raw<0){return showErr('childErr','Please enter a valid age.');}
+
+  const months = unit==='months'? raw : raw*12;
+  const years = months/12;
+  if(months>216){return showErr('childErr','For ages 18 and above, please use the Adult (BMI) tab.');}
+
+  const sexLabel = sex==='boy'?'boy':'girl';
+  let hTxt,wTxt,wNote='Healthy range for age',callout;
+
+  if(months<=36){
+    const [h,w]=lerpInfant(sex,months);
+    hTxt = h.toFixed(1)+'<small> cm</small>';
+    wTxt = w.toFixed(1)+'<small> kg</small>';
+    wNote='WHO median for age';
+    const ageStr = months<24 ? Math.round(months)+' month' : (years).toFixed(1)+' year';
+    document.getElementById('childResHead').textContent =
+      `A typical ${sexLabel} around ${ageStr}${months<24?'s':'s'} old measures approximately:`;
+    callout='These are WHO median values. Healthy infants vary widely — anywhere within roughly ±2 kg and ±4 cm is common. Steady growth along the same curve matters most.';
+  }
+  else if(years<13){
+    const y=Math.round(years);
+    const d=kid[sex][Math.min(Math.max(y,4),12)];
+    hTxt = d[0][0]+'–'+d[0][1]+'<small> cm</small>';
+    wTxt = d[1][0]+'–'+d[1][1]+'<small> kg</small>';
+    document.getElementById('childResHead').textContent =
+      `Most healthy ${sexLabel}s around ${y} years old fall within:`;
+    callout='These are average healthy ranges. Naturally smaller or larger children can be perfectly healthy — pediatricians look at the growth trend and percentile, not a single reading.';
+  }
+  else{
+    const y=Math.min(Math.round(years),18);
+    const h=teen[sex][Math.max(y,13)];
+    hTxt = h[0]+'–'+h[1]+'<small> cm</small>';
+    wTxt = '—';
+    wNote='Too variable to estimate';
+    document.getElementById('childResHead').textContent =
+      `Most ${sexLabel}s around ${y} years old fall within this height range:`;
+    callout='During puberty, height and weight vary enormously depending on growth-spurt timing. Weight is best assessed by a doctor using a BMI-for-age percentile rather than a fixed range.';
+  }
+
+  document.getElementById('cHeight').innerHTML=hTxt;
+  document.getElementById('cWeight').innerHTML=wTxt;
+  document.getElementById('cWeightNote').textContent=wNote;
+  document.getElementById('childCallout').textContent=callout;
+  document.getElementById('childResult').classList.add('show');
+}
+
+/* ---------- ADULT CALC ---------- */
+function calcAdult(){
+  clearErr('adultErr');
+  document.getElementById('adultResult').classList.remove('show');
+  const hCm=parseFloat(document.getElementById('aHeight').value);
+  const wKg=parseFloat(document.getElementById('aWeight').value);
+  if(isNaN(hCm)||hCm<120||hCm>230){
+    return showErr('adultErr','Please enter a height between 120 and 230 cm.');
+  }
+  const m=hCm/100;
+  const lo=18.5*m*m, hi=24.9*m*m;
+  document.getElementById('aRange').innerHTML =
+    lo.toFixed(1)+'–'+hi.toFixed(1)+'<small> kg</small>';
+  document.getElementById('adultResHead').textContent =
+    `For a height of ${hCm} cm, a healthy weight is generally:`;
+
+  const bmiMetric=document.getElementById('bmiMetric');
+  if(!isNaN(wKg)&&wKg>0){
+    const bmi=wKg/(m*m);
+    document.getElementById('aBmi').textContent=bmi.toFixed(1);
+    const badge=document.getElementById('aBadge');
+    let cat,cls;
+    if(bmi<18.5){cat='Underweight';cls='b-under';}
+    else if(bmi<25){cat='Healthy weight';cls='b-healthy';}
+    else if(bmi<30){cat='Overweight';cls='b-over';}
+    else{cat='Obesity range';cls='b-obese';}
+    badge.textContent=cat;
+    badge.className='badge '+cls;
+    bmiMetric.style.display='block';
+  }else{
+    bmiMetric.style.display='none';
+  }
+  document.getElementById('adultResult').classList.add('show');
+}
+
+/* ---------- BUILD REFERENCE TABLES ---------- */
+(function(){
+  const infRows=[0,1,3,6,9,12,18,24,36].map(mo=>{
+    const lab = mo===0?'Birth':(mo<24?mo+' mo':(mo/12)+' yr');
+    const b=infant.boy[mo],g=infant.girl[mo];
+    return `<tr><td>${lab}</td><td>${b[0]} cm / ${b[1]} kg</td><td>${g[0]} cm / ${g[1]} kg</td></tr>`;
+  }).join('');
+  document.getElementById('infTbl').innerHTML=infRows;
+
+  let kr='';
+  for(let y=4;y<=12;y++){
+    const b=kid.boy[y],g=kid.girl[y];
+    kr+=`<tr><td>${y} yr</td><td>${b[0][0]}–${b[0][1]} cm / ${b[1][0]}–${b[1][1]} kg</td><td>${g[0][0]}–${g[0][1]} cm / ${g[1][0]}–${g[1][1]} kg</td></tr>`;
+  }
+  document.getElementById('kidTbl').innerHTML=kr;
+
+  let tr='';
+  for(let y=13;y<=18;y++){
+    const b=teen.boy[y],g=teen.girl[y];
+    tr+=`<tr><td>${y} yr</td><td>${b[0]}–${b[1]} cm</td><td>${g[0]}–${g[1]} cm</td></tr>`;
+  }
+  document.getElementById('teenTbl').innerHTML=tr;
+})();
+</script>
+</body>
+</html>
