@@ -54,11 +54,12 @@ body > nav {
 .nav-right { display: flex; align-items: center; gap: 10px; }
 .nav-cta {
   font-family: 'Baloo 2', cursive;
-  font-weight: 800; font-size: .88rem;
+  font-weight: 800; font-size: .82rem;
   background: var(--sky); color: #fff;
   border: none; border-radius: 12px;
-  padding: 8px 16px; cursor: pointer;
+  padding: 9px 14px; cursor: pointer;
   text-decoration: none;
+  white-space: nowrap;
   box-shadow: 0 6px 18px -6px rgba(77,142,240,.5);
 }
 
@@ -449,7 +450,7 @@ footer a { color: rgba(255,255,255,.75); text-decoration: none; }
     <a class="nav-brand" href="#">🌟 Friendology<span>.in</span></a>
   </div>
   <div class="nav-right">
-    <a href="#donate" class="nav-cta">❤️ Support Us</a>
+    <a href="#donate" class="nav-cta">❤️ Support</a>
   </div>
 </nav>
 
@@ -465,31 +466,23 @@ footer a { color: rgba(255,255,255,.75); text-decoration: none; }
 
   <nav class="drawer-nav">
 
-    <p style="padding:10px 16px 4px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7A7FA8;margin:0;">Navigate</p>
+    <p style="padding:10px 16px 4px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7A7FA8;margin:0;">Menu</p>
 
-    <a href="#" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">≡ &nbsp; Menu</a>
+    <a href="#" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🏠 &nbsp; Home</a>
 
-    <a href="#games" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🎮 &nbsp; Learn</a>
+    <a href="tiny-words-game.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🎮 &nbsp; Tiny Words Game</a>
 
-    <a href="#community" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">👥 &nbsp; Community</a>
-
-    <a href="#tools" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🛠️ &nbsp; Tools</a>
-
-    <a href="PUNAH_Light.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">💪 &nbsp; Health</a>
-
-    <a href="#donate" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🔍 &nbsp; Search</a>
-
-    <hr style="border:none;border-top:1px solid #E2E6F5;margin:8px 16px;"/>
-
-    <p style="padding:6px 16px 4px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#7A7FA8;margin:0;">Resources</p>
+    <a href="PUNAH_Light.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">💪 &nbsp; Punah Exercise</a>
 
     <a href="PUNAH_All.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">📋 &nbsp; Exercise Database</a>
-
-    <a href="tiny-words-game.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🔤 &nbsp; Play Tiny Words</a>
 
     <a href="growth-calculator.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">📈 &nbsp; Growth Calculator</a>
 
     <a href="schedule-optimizer.html" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">🗓️ &nbsp; Schedule Optimizer</a>
+
+    <a href="#community" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">👥 &nbsp; Community</a>
+
+    <a href="#donate" onclick="closeDrawer()" style="display:block;padding:13px 18px;color:#1E2040;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;margin:1px 6px;">❤️ &nbsp; Support</a>
 
   </nav>
 
