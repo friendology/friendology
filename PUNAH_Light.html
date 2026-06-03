@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"/>
+<title>Punah — Move Every Day · Friendology.in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ THEME ============ */
+:root{
+  --bg:#F6F8FD;
+  --ink:#3B3E5C;
+  --muted:#8B8FAC;
+  --line:#E5E8F3;
+  --card:#FFFFFF;
+  --sky:#6BACE0;    --sky-bg:#EAF3FB;
+  --mint:#52C0A0;   --mint-bg:#E6F6F1;
+  --peach:#EBA078;  --peach-bg:#FBEFE7;
+  --lav:#A294DD;    --lav-bg:#EFEDFB;
+  --butter:#E2BC58; --butter-bg:#FAF3DC;
+  --berry:#C77BA8;  --berry-bg:#F7EAF1;
+  --sun:#F5A623;    --sun-bg:#FEF4E3;
+  --leaf:#3BAA6E;   --leaf-bg:#E6F5EE;
+  --accent:var(--sun);
+  --accent-bg:var(--sun-bg);
+  --shadow:0 18px 38px -16px rgba(50,60,90,.16), 0 4px 10px -4px rgba(50,60,90,.06);
+  --shadow-sm:0 8px 20px -10px rgba(50,60,90,.14), 0 2px 4px -2px rgba(50,60,90,.05);
+  --r:26px;
+  --r-sm:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'Nunito',sans-serif;color:var(--ink);
+  background:
+    radial-gradient(circle at 14% 10%, var(--accent-bg) 0%, transparent 48%),
+    radial-gradient(circle at 86% 16%, #EFEDFB 0%, transparent 42%),
+    radial-gradient(circle at 82% 90%, #E6F6F1 0%, transparent 46%),
+    radial-gradient(circle at 10% 88%, #FBEFE7 0%, transparent 42%),
+    var(--bg);
+  background-attachment:fixed;
+  overflow:hidden;
+  transition:background-color .5s ease;
+}
+.display{font-family:'Baloo 2',cursive;}
+
+/* ============ SCREENS ============ */
+.screen{position:fixed;inset:0;display:none;}
+.screen.active{display:block;}
+.screen.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.wrap{max-width:540px;margin:0 auto;padding:22px 18px;
+  padding-bottom:calc(56px + env(safe-area-inset-bottom));}
+
+@keyframes rise{from{opacity:0;transform:translateY(16px) scale(.98);}to{opacity:1;transform:none;}}
+.screen.active .wrap>*{animation:rise .5s cubic-bezier(.2,.8,.25,1) both;}
+.screen.active .wrap>*:nth-child(2){animation-delay:.06s;}
+.screen.active .wrap>*:nth-child(3){animation-delay:.12s;}
+.screen.active .wrap>*:nth-child(4){animation-delay:.18s;}
+
+@keyframes tilein{from{opacity:0;transform:translateY(10px) scale(.94);}to{opacity:1;transform:none;}}
+.menu .menu-card,.catgrid .catcard,.exgrid .excard{
+  animation:tilein .42s cubic-bezier(.2,1.05,.25,1) both;
+}
+.menu .menu-card:nth-child(1),.catgrid .catcard:nth-child(1){animation-delay:.04s;}
+.menu .menu-card:nth-child(2),.catgrid .catcard:nth-child(2){animation-delay:.10s;}
+.catgrid .catcard:nth-child(3){animation-delay:.16s;}
+.catgrid .catcard:nth-child(4){animation-delay:.22s;}
+.catgrid .catcard:nth-child(5){animation-delay:.28s;}
+.catgrid .catcard:nth-child(6){animation-delay:.34s;}
+
+/* ============ SHARED BITS ============ */
+.brand{text-align:center;margin:6px 0 4px;}
+.brand .mark{font-size:2.5rem;display:inline-block;
+  animation:sway 3s ease-in-out infinite;filter:drop-shadow(0 6px 10px rgba(59,62,92,.16));}
+@keyframes sway{0%,100%{transform:rotate(-6deg) scale(1);}50%{transform:rotate(6deg) scale(1.07);}}
+.brand h1{font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(2rem,8.5vw,2.8rem);
+  line-height:1.05;letter-spacing:.3px;margin-top:4px;}
+.brand h1 .x{color:var(--sun);} .brand h1 .y{color:var(--leaf);}
+.brand p{color:var(--muted);font-weight:600;font-size:.98rem;margin-top:6px;}
+.brand .hindi{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.5px;margin-top:2px;}
+
+.iconbtn{
+  width:46px;height:46px;flex:none;border-radius:14px;border:1.5px solid var(--line);
+  background:var(--card);font-size:1.2rem;cursor:pointer;box-shadow:var(--shadow-sm);
+  display:grid;place-items:center;transition:transform .14s,background .14s;
+}
+.iconbtn:active{transform:scale(.92);}
+
+.bigbtn{
+  width:100%;font-family:'Baloo 2',cursive;font-weight:800;font-size:1.35rem;color:#fff;
+  background:linear-gradient(180deg, color-mix(in srgb,var(--accent) 90%,white), var(--accent));
+  border:none;border-radius:20px;padding:18px;cursor:pointer;
+  box-shadow:0 14px 30px -10px color-mix(in srgb,var(--accent) 60%,transparent),
+             inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .14s,box-shadow .14s;margin-top:14px;letter-spacing:.4px;
+}
+.bigbtn:active{transform:translateY(2px) scale(.99);}
+.bigbtn.soft{background:var(--card);color:var(--ink);border:1.5px solid var(--line);
+  box-shadow:var(--shadow-sm);}
+
+/* ============ HOME ============ */
+.streak-banner{
+  background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(59,170,110,.10));
+  border:1.5px solid rgba(245,166,35,.35);
+  border-radius:var(--r-sm);padding:14px 18px;
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+}
+.streak-num{font-family:'Baloo 2',cursive;font-size:2.8rem;font-weight:800;
+  color:var(--sun);line-height:1;flex-shrink:0;}
+.streak-txt h3{font-family:'Baloo 2',cursive;font-weight:800;font-size:1.05rem;}
+.streak-txt p{color:var(--muted);font-size:.82rem;font-weight:600;margin-top:3px;}
+
+.menu{display:flex;flex-direction:column;gap:14px;margin-top:4px;}
+.menu-card{
+  display:flex;align-items:center;gap:16px;cursor:pointer;
+  background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:22px 20px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;
+  position:relative;overflow:hidden;
+}
+.menu-card::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;
+  border-radius:50%;background:var(--tint);opacity:.55;}
+.menu-card:active{transform:scale(.985);}
+.menu-card .ic{width:62px;height:62px;flex:none;border-radius:18px;display:grid;place-items:center;
+  font-size:2rem;background:var(--tint);position:relative;z-index:1;}
+.menu-card .tx{position:relative;z-index:1;}
+.menu-card .tx h3{font-family:'Baloo 2',cursive;font-weight:800;font-size:1.28rem;}
+.menu-card .tx p{color:var(--muted);font-weight:600;font-size:.88rem;margin-top:2px;}
+.menu-card .go{margin-left:auto;font-size:1.4rem;color:var(--muted);position:relative;z-index:1;}
+.tip{text-align:center;color:var(--muted);font-weight:600;font-size:.84rem;margin-top:20px;}
+
+/* ============ BROWSE ============ */
+.browse-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.browse-head .ttl{font-family:'Baloo 2',cursive;font-weight:800;font-size:1.18rem;flex:1;}
+.browse-head .ttl small{display:block;font-family:'Nunito';font-weight:600;font-size:.72rem;color:var(--muted);}
+
+.exgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.excard{
+  border:1.5px solid var(--line);border-radius:var(--r-sm);
+  padding:18px 14px;cursor:pointer;text-align:center;
+  background:var(--card);box-shadow:var(--shadow-sm);
+  transition:transform .12s,border-color .15s,background .15s;
+  position:relative;overflow:hidden;
+}
+.excard:active{transform:scale(.96);}
+.excard.sel{background:var(--accent-bg);border-color:var(--accent);}
+.excard .ic{font-size:2.2rem;display:block;line-height:1;
+  animation:gentle 3s ease-in-out infinite;}
+@keyframes gentle{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+.excard .nm{font-family:'Baloo 2',cursive;font-weight:700;font-size:.96rem;margin-top:8px;}
+.excard .hn{font-size:.68rem;font-weight:700;color:var(--muted);margin-top:2px;letter-spacing:.3px;}
+.excard .dur{font-size:.72rem;font-weight:800;color:var(--accent);
+  background:var(--accent-bg);border-radius:8px;padding:2px 8px;
+  display:inline-block;margin-top:7px;}
+
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:20px 18px;margin-top:16px;box-shadow:var(--shadow-sm);}
+.panel h2{font-family:'Baloo 2',cursive;font-weight:700;font-size:1.1rem;
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+
+/* ============ SESSION ============ */
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.dots{flex:1;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--line);transition:.2s;}
+.dot.done{background:var(--mint);}
+.dot.now{background:var(--accent);transform:scale(1.35);}
+.scoretag{display:flex;align-items:center;gap:5px;font-family:'Baloo 2',cursive;font-weight:700;
+  font-size:1.05rem;background:rgba(255,255,255,.65);
+  backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);
+  border:1.5px solid rgba(255,255,255,.7);border-radius:14px;
+  padding:7px 12px;box-shadow:var(--shadow-sm);}
+
+.ex-prompt{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);
+  padding:22px 18px;text-align:center;box-shadow:var(--shadow);margin:14px 0;}
+.ex-prompt .cat-label{font-size:.72rem;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
+  color:var(--accent);margin-bottom:10px;}
+.show-emoji{font-size:clamp(5rem,28vw,7rem);line-height:1;display:inline-block;
+  filter:drop-shadow(0 8px 14px rgba(59,62,92,.16));}
+.ex-name-big{font-family:'Baloo 2',cursive;font-weight:800;
+  font-size:clamp(1.5rem,7vw,2.2rem);margin-top:10px;color:var(--ink);}
+.ex-hindi{font-size:.84rem;font-weight:600;color:var(--muted);margin-top:3px;}
+.ex-reps{font-family:'Baloo 2',cursive;font-weight:800;font-size:1.1rem;
+  color:var(--accent);margin-top:8px;}
+
+/* timer bar */
+.timer-wrap{margin:16px 0 10px;}
+.timer-bar-bg{background:var(--line);border-radius:100px;height:10px;overflow:hidden;}
+.timer-bar-fill{height:100%;border-radius:100px;background:var(--accent);
+  transition:width 1s linear;width:100%;}
+.timer-count{font-family:'Baloo 2',cursive;font-weight:800;font-size:1.5rem;
+  color:var(--accent);text-align:center;margin-top:8px;}
+
+/* step display */
+.step-box{background:var(--accent-bg);border:1.5px solid color-mix(in srgb,var(--accent) 30%,transparent);
+  border-radius:var(--r-sm);padding:14px 16px;margin:10px 0;min-height:58px;
+  text-align:center;display:flex;align-items:center;justify-content:center;}
+.step-box p{font-weight:700;font-size:.97rem;line-height:1.55;color:var(--ink);}
+.step-nav{display:flex;gap:10px;margin-top:8px;}
+.step-prev{flex:none;font-family:'Baloo 2',cursive;font-weight:800;font-size:1rem;
+  padding:12px 16px;border-radius:16px;border:1.5px solid var(--line);
+  background:var(--card);cursor:pointer;box-shadow:var(--shadow-sm);color:var(--muted);}
+.step-next{flex:1;font-family:'Baloo 2',cursive;font-weight:800;font-size:1.1rem;color:#fff;
+  background:linear-gradient(180deg, color-mix(in srgb,var(--accent) 90%,white), var(--accent));
+  border:none;border-radius:16px;padding:14px;cursor:pointer;
+  box-shadow:0 10px 24px -8px color-mix(in srgb,var(--accent) 60%,transparent);}
+
+.feedback{text-align:center;font-family:'Baloo 2',cursive;font-weight:800;font-size:1.35rem;
+  min-height:36px;margin-top:10px;}
+.feedback.good{color:var(--mint);} .feedback.go{color:var(--accent);}
+
+/* ============ TIP POPUP ============ */
+.tip-strip{background:rgba(59,170,110,.09);border:1px solid rgba(59,170,110,.25);
+  border-radius:14px;padding:11px 14px;margin-top:12px;
+  display:flex;gap:9px;align-items:flex-start;font-size:.85rem;font-weight:700;color:#1E6B45;}
+.tip-strip .ti{flex-shrink:0;font-size:1.1rem;}
+
+/* ============ END ============ */
+.endcard{text-align:center;}
+.stars{font-size:2.7rem;margin:8px 0;}
+.star{display:inline-block;animation:popin .55s cubic-bezier(.2,1.6,.5,1) both;}
+.star:nth-child(2){animation-delay:.14s;} .star:nth-child(3){animation-delay:.28s;}
+@keyframes popin{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:none;}}
+.endscore{font-family:'Baloo 2',cursive;font-weight:800;font-size:2.1rem;color:var(--accent);}
+.endmsg{color:var(--muted);font-weight:600;font-size:1rem;margin:6px 0 2px;}
+
+/* ============ DETAIL POPUP ============ */
+#popup{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:opacity .22s,visibility .22s;cursor:pointer;}
+#popup.open{opacity:1;visibility:visible;}
+#popup-bg{position:absolute;inset:0;background:rgba(40,42,70,.32);
+  backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);}
+#popup-card{position:relative;z-index:1;background:var(--card);border:1.5px solid var(--cb);
+  border-radius:26px;width:min(92vw,420px);max-height:82vh;overflow-y:auto;
+  padding:28px 22px 24px;display:flex;flex-direction:column;gap:10px;
+  cursor:default;box-shadow:0 32px 70px -16px rgba(40,42,70,.5);
+  transform:scale(.8) translateY(20px);transition:transform .3s cubic-bezier(.34,1.5,.6,1);}
+#popup.open #popup-card{transform:none;}
+#popup-bar{position:absolute;top:0;left:0;right:0;height:6px;border-radius:26px 26px 0 0;background:var(--cb);}
+#popup-close{position:absolute;top:11px;right:13px;width:30px;height:30px;display:grid;place-items:center;
+  font-size:14px;font-weight:800;color:var(--muted);border-radius:50%;cursor:pointer;
+  border:1.5px solid var(--line);background:var(--bg);}
+#popup-emoji{font-size:clamp(60px,20vw,90px);line-height:1;text-align:center;display:block;
+  filter:drop-shadow(0 6px 14px rgba(59,62,92,.18));}
+#popup-name{font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(1.4rem,6vw,1.9rem);
+  text-align:center;color:var(--ct);}
+#popup-hindi{text-align:center;font-size:.8rem;font-weight:700;color:var(--muted);margin-top:-4px;}
+#popup-meta{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px;}
+.pmeta{background:var(--cbg);border:1.5px solid var(--cb);border-radius:100px;
+  padding:5px 14px;font-size:.78rem;font-weight:800;color:var(--ct);}
+#popup-steps{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+#popup-steps li{display:flex;gap:10px;align-items:flex-start;font-size:.93rem;font-weight:600;line-height:1.55;}
+#popup-steps li .snum{width:24px;height:24px;flex-shrink:0;border-radius:50%;
+  background:var(--cb);color:var(--ct);font-size:.72rem;font-weight:800;
+  display:grid;place-items:center;margin-top:1px;}
+#popup-tip{background:rgba(59,170,110,.09);border:1px solid rgba(59,170,110,.25);
+  border-radius:14px;padding:12px 14px;font-size:.85rem;font-weight:700;color:#1E6B45;
+  display:flex;gap:8px;align-items:flex-start;}
+#popup-start{width:100%;font-family:'Baloo 2',cursive;font-weight:800;font-size:1.2rem;color:#fff;
+  background:linear-gradient(180deg, color-mix(in srgb,var(--cb) 90%,white), var(--cb));
+  border:none;border-radius:18px;padding:16px;cursor:pointer;
+  box-shadow:0 12px 26px -8px color-mix(in srgb,var(--cb) 60%,transparent);margin-top:6px;}
+
+/* ============ EMOJI ANIMATIONS ============ */
+.anim-sway{animation:sway 2.4s ease-in-out infinite}
+.anim-bounce{animation:animBounce 1s ease infinite}
+@keyframes animBounce{0%,100%{transform:translateY(0) scale(1)}45%{transform:translateY(-22px) scale(1.1)}65%{transform:translateY(-16px) scale(1.05)}}
+.anim-float{animation:animFloat 2.2s ease-in-out infinite}
+@keyframes animFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-18px) rotate(4deg)}}
+.anim-pulse{animation:animPulse .9s ease-in-out infinite}
+@keyframes animPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.28)}}
+.anim-spin{animation:animSpin 1.2s linear infinite}
+@keyframes animSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.anim-wave{animation:animWave 1s ease-in-out infinite}
+@keyframes animWave{0%,100%{transform:translateX(0) rotate(0)}30%{transform:translateX(-14px) rotate(-8deg)}70%{transform:translateX(14px) rotate(8deg)}}
+.anim-wobble{animation:animWobble 1s ease-in-out infinite}
+@keyframes animWobble{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-12deg) scale(1.08)}75%{transform:rotate(12deg) scale(.95)}}
+.anim-grow{animation:animGrow .8s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes animGrow{0%{transform:scale(.1) rotate(-15deg)}70%{transform:scale(1.2) rotate(4deg)}100%{transform:scale(1) rotate(0)}}
+.anim-march{animation:animMarch .35s ease-in-out infinite}
+@keyframes animMarch{0%,100%{transform:translateX(0) rotate(0)}30%{transform:translateX(-6px) rotate(-5deg)}70%{transform:translateX(6px) rotate(5deg)}}
+.anim-shimmer{animation:animShimmer 1.4s ease-in-out infinite}
+@keyframes animShimmer{0%,100%{filter:brightness(1) saturate(1) hue-rotate(0deg)}50%{filter:brightness(1.4) saturate(1.8) hue-rotate(30deg)}}
+.anim-trot{animation:animTrot .6s ease-in-out infinite}
+@keyframes animTrot{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-10px) rotate(-4deg)}75%{transform:translateY(-6px) rotate(4deg)}}
+.anim-boing{animation:animBoing 1s ease-in-out infinite}
+@keyframes animBoing{0%,100%{transform:translateY(0) scaleY(1) scaleX(1)}30%{transform:translateY(-28px) scaleY(1.12) scaleX(.9)}50%{transform:translateY(0) scaleY(.82) scaleX(1.15)}70%{transform:translateY(-12px) scaleY(1.05) scaleX(.97)}}
+.anim-stretch{animation:animStretch 2s ease-in-out infinite}
+@keyframes animStretch{0%,100%{transform:scaleY(1) translateY(0)}40%{transform:scaleY(1.2) translateY(-8px)}60%{transform:scaleY(.9) translateY(4px)}}
+.anim-breathe{animation:animBreathe 4s ease-in-out infinite}
+@keyframes animBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+.anim-kick{animation:animKick .5s ease-in-out infinite}
+@keyframes animKick{0%,100%{transform:rotate(0) translateX(0)}30%{transform:rotate(-15deg) translateX(-8px)}70%{transform:rotate(12deg) translateX(8px)}}
+.anim-squat{animation:animSquat .8s ease-in-out infinite}
+@keyframes animSquat{0%,100%{transform:scaleY(1) translateY(0)}40%{transform:scaleY(.8) translateY(10px)}60%{transform:scaleY(1) translateY(0)}}
+
+/* ============ CONFETTI ============ */
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:300;overflow:hidden;}
+.conf{position:absolute;width:11px;height:11px;border-radius:3px;top:-18px;
+  animation:fall linear forwards;}
+@keyframes fall{to{transform:translateY(110vh) rotate(680deg);}}
+
+/* ============ REDUCED MOTION ============ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;}
+  .conf{display:none;} #confetti{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= HOME ================= -->
+<div class="screen scroll active" id="home">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark">💪</span>
+      <h1 class="display"><span class="x">Punah</span> <span class="y">Move</span></h1>
+      <p>Daily exercise for families</p>
+      <p class="hindi">पुनः — Again &amp; Again</p>
+    </div>
+    <div class="streak-banner" id="homeStreak">
+      <div class="streak-num" id="streakNum">0</div>
+      <div class="streak-txt">
+        <h3 id="streakLabel">Day Streak 🔥</h3>
+        <p id="streakSub">Tap a workout to begin</p>
+      </div>
+    </div>
+    <div class="menu" id="catMenu">
+      <div class="menu-card" data-cat="morning" style="--tint:var(--sun-bg)">
+        <div class="ic">🌅</div>
+        <div class="tx"><h3>Morning Routine</h3><p>Surya Namaskar · Breathing · Stretches</p></div>
+        <div class="go">›</div>
+      </div>
+      <div class="menu-card" data-cat="kids" style="--tint:var(--peach-bg)">
+        <div class="ic">👶</div>
+        <div class="tx"><h3>Kids' Play &amp; Move</h3><p>Fun games · Animal walks · Jumps</p></div>
+        <div class="go">›</div>
+      </div>
+      <div class="menu-card" data-cat="family" style="--tint:var(--mint-bg)">
+        <div class="ic">👨‍👩‍👧</div>
+        <div class="tx"><h3>Family Circuit</h3><p>Do together · All ages · Weekend special</p></div>
+        <div class="go">›</div>
+      </div>
+      <div class="menu-card" data-cat="yoga" style="--tint:var(--lav-bg)">
+        <div class="ic">🧘</div>
+        <div class="tx"><h3>Yoga &amp; Stretching</h3><p>Poses · Flexibility · Calm mind</p></div>
+        <div class="go">›</div>
+      </div>
+      <div class="menu-card" data-cat="strength" style="--tint:var(--sky-bg)">
+        <div class="ic">🏋️</div>
+        <div class="tx"><h3>Strength &amp; Core</h3><p>Push-ups · Squats · Plank · No gym</p></div>
+        <div class="go">›</div>
+      </div>
+      <div class="menu-card" data-cat="breathing" style="--tint:var(--leaf-bg)">
+        <div class="ic">🌬️</div>
+        <div class="tx"><h3>Pranayama &amp; Breathing</h3><p>Anulom Vilom · Kapalbhati · Bhramari</p></div>
+        <div class="go">›</div>
+      </div>
+    </div>
+    <p class="tip">Tip: tap a category to explore exercises 🏃</p>
+  </div>
+</div>
+
+<!-- ================= BROWSE ================= -->
+<div class="screen scroll" id="browse">
+  <div class="wrap">
+    <div class="browse-head">
+      <button class="iconbtn" id="browseBack">‹</button>
+      <div class="ttl" id="browseTtl">Morning Routine<small id="browseSub">8 exercises · 20 min</small></div>
+      <button class="iconbtn" id="sndBtn">🔊</button>
+    </div>
+    <div class="exgrid" id="exGrid"></div>
+    <div class="panel">
+      <h2>🏁 Ready to move?</h2>
+      <button class="bigbtn" id="startWorkoutBtn">Start Full Workout 🏃</button>
+      <button class="bigbtn soft" id="homeBtn">Back Home 🏠</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SESSION ================= -->
+<div class="screen scroll" id="session">
+  <div class="wrap">
+    <div class="topbar">
+      <button class="iconbtn" id="sessionBack">‹</button>
+      <div class="dots" id="dots"></div>
+      <div class="scoretag">🔥 <span id="doneNum">0</span></div>
+    </div>
+    <div class="ex-prompt" id="exPrompt"></div>
+    <div class="timer-wrap" id="timerWrap">
+      <div class="timer-bar-bg"><div class="timer-bar-fill" id="timerFill"></div></div>
+      <div class="timer-count" id="timerCount">0:30</div>
+    </div>
+    <div class="step-box" id="stepBox"><p id="stepTxt">Get ready...</p></div>
+    <div class="step-nav">
+      <button class="step-prev" id="prevStep">‹ Prev</button>
+      <button class="step-next" id="nextStep">Next Step ›</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+</div>
+
+<!-- ================= DONE ================= -->
+<div class="screen scroll" id="done">
+  <div class="wrap">
+    <div class="brand"><span class="mark">🏆</span></div>
+    <div class="panel endcard">
+      <div class="stars" id="endStars"></div>
+      <h2 class="display" style="justify-content:center">Workout Done!</h2>
+      <div class="endscore" id="endScore"></div>
+      <p class="endmsg" id="endMsg"></p>
+      <div class="streak-banner" id="doneStreak" style="margin-top:16px;">
+        <div class="streak-num" id="doneStreakNum">0</div>
+        <div class="streak-txt"><h3>Day Streak 🔥</h3><p id="doneStreakSub"></p></div>
+      </div>
+      <button class="bigbtn" id="againBtn">Do it Again 🔁</button>
+      <button class="bigbtn soft" id="chooseCatBtn">Choose Category</button>
+      <button class="bigbtn soft" id="homeBtn2">Back Home 🏠</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= EXERCISE DETAIL POPUP ================= -->
+<div id="popup" role="dialog" aria-modal="true">
+  <div id="popup-bg"></div>
+  <div id="popup-card">
+    <div id="popup-bar"></div>
+    <div id="popup-close" role="button" aria-label="Close">✕</div>
+    <div id="popup-emoji" aria-hidden="true"></div>
+    <div id="popup-name"></div>
+    <div id="popup-hindi"></div>
+    <div id="popup-meta"></div>
+    <ul id="popup-steps"></ul>
+    <div id="popup-tip"></div>
+    <button id="popup-start">Start This Exercise ▶</button>
+  </div>
+</div>
+<div id="confetti"></div>
+
+<script>
+/* ===================== AUDIO ENGINE ===================== */
+let _ac, soundOn=(function(){try{const v=localStorage.getItem('pu_sound');return v===null?true:v==='1';}catch(e){return true;}})();
+function warmAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==='suspended')_ac.resume();}
+['touchstart','mousedown','keydown'].forEach(ev=>document.addEventListener(ev,warmAC,{once:true,passive:true}));
+function getAC(){if(!_ac)_ac=new(window.AudioContext||window.webkitAudioContext)();if(_ac.state==='suspended')_ac.resume();return _ac;}
+function mkNoise(ac,dur){const buf=ac.createBuffer(1,ac.sampleRate*dur,ac.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=ac.createBufferSource();s.buffer=buf;return s;}
+function note(ac,freq,start,dur,vol=0.25,type='sine'){const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(0,start);g.gain.linearRampToValueAtTime(vol,start+.015);g.gain.exponentialRampToValueAtTime(.001,start+dur);o.connect(g);g.connect(ac.destination);o.start(start);o.stop(start+dur+.02);}
+
+const SND={
+  tick(){const ac=getAC(),t=ac.currentTime;note(ac,880,t,.08,.18,'sine');},
+  ding(){const ac=getAC(),t=ac.currentTime;note(ac,880,t,.9,.38,'sine');note(ac,1760,t+.04,.6,.14,'sine');},
+  coin(){const ac=getAC(),t=ac.currentTime;[1047,1319,1568].forEach((f,i)=>note(ac,f,t+i*.055,.55,.18,'sine'));},
+  go(){const ac=getAC(),t=ac.currentTime;[523,659,784,1047].forEach((f,i)=>note(ac,f,t+i*.07,.6,.22,'sine'));},
+  done(){const ac=getAC(),t=ac.currentTime;[523,659,784,1047,1319].forEach((f,i)=>note(ac,f,t+i*.08,.8,.25,'sine'));},
+  rest(){const ac=getAC(),t=ac.currentTime;note(ac,440,t,1.2,.28,'sine');note(ac,550,t+.15,.8,.14,'sine');},
+  warn(){const ac=getAC(),t=ac.currentTime;note(ac,660,t,.15,.25,'sine');note(ac,660,t+.22,.15,.25,'sine');},
+  tap(){const ac=getAC(),t=ac.currentTime,n=mkNoise(ac,.045),f=ac.createBiquadFilter(),g=ac.createGain();f.type='bandpass';f.frequency.value=1100;f.Q.value=3;g.gain.setValueAtTime(.38,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);n.connect(f);f.connect(g);g.connect(ac.destination);n.start(t);n.stop(t+.055);},
+  shimmer(){const ac=getAC(),t=ac.currentTime;[523,659,784,1047].forEach((f,i)=>note(ac,f,t+i*.09,.85,.11,'sine'));},
+  dflt(){}
+};
+
+/* ===================== SPEECH ===================== */
+let _voice=null;
+function pickVoice(){if(!('speechSynthesis'in window))return;const v=speechSynthesis.getVoices();if(!v.length)return;_voice=v.find(x=>/^en(-|_|$)/i.test(x.lang)&&/female|samantha|karen|zira|google us/i.test(x.name))||v.find(x=>/^en-US/i.test(x.lang))||v.find(x=>/^en/i.test(x.lang))||v[0];}
+if('speechSynthesis'in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;setInterval(()=>{try{if(speechSynthesis.speaking)speechSynthesis.resume();}catch(e){}},6000);}
+let _spWarm=false;
+function warmSpeech(){if(_spWarm||!('speechSynthesis'in window))return;_spWarm=true;try{pickVoice();const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}}
+['touchstart','mousedown','keydown'].forEach(ev=>document.addEventListener(ev,warmSpeech,{once:true,passive:true}));
+function say(text,opt){opt=opt||{};if(!soundOn||!('speechSynthesis'in window))return;try{speechSynthesis.resume();speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);if(_voice)u.voice=_voice;u.lang='en-IN';u.rate=opt.rate||0.88;u.pitch=opt.pitch||1.1;u.volume=1;setTimeout(()=>{try{speechSynthesis.speak(u);}catch(e){}},55);}catch(e){}}
+
+/* ===================== EXERCISE DATA ===================== */
+const PAL=[
+  {bo:'#ffb3ba',tx:'#c0394a',bg:'#fff8f9',ba:'#ff8fa3'},
+  {bo:'#ffc9a0',tx:'#c05a18',bg:'#fff9f5',ba:'#ff9a5c'},
+  {bo:'#ffe59a',tx:'#8a6200',bg:'#fffdf0',ba:'#ffd040'},
+  {bo:'#b8f0d0',tx:'#1a7850',bg:'#f4fdf9',ba:'#5ecf90'},
+  {bo:'#b0d8f8',tx:'#1050a0',bg:'#f3f9ff',ba:'#5aacf0'},
+  {bo:'#cab8f8',tx:'#5020a0',bg:'#f8f5ff',ba:'#9060e8'},
+  {bo:'#ffc8e0',tx:'#b0205c',bg:'#fff5fa',ba:'#ff7ab0'},
+  {bo:'#b8f0e0',tx:'#1a7068',bg:'#f3fefb',ba:'#50c8b0'},
+];
+
+const exercises={
+morning:[
+  {name:'Surya Namaskar',hindi:'सूर्य नमस्कार',emoji:'🙏',a:'float',dur:300,reps:'2 rounds',
+   steps:['Stand tall with feet together, palms joined at chest — Pranamasana position.',
+          'Inhale slowly — raise both arms overhead, gently arch your back.',
+          'Exhale — bend forward from hips, try to touch floor or toes (Hastapadasana).',
+          'Inhale — step your right leg back, drop knee down, look up gently.',
+          'Hold breath — bring left leg back too, come into a straight plank pose.',
+          'Exhale — lower knees to floor, then chest, then forehead touches ground.',
+          'Inhale — press palms, lift chest up into Cobra pose (Bhujangasana).',
+          'Exhale — push hips up and back into downward facing dog (inverted V).',
+          'Inhale — step right foot forward between hands, look up.',
+          'Exhale — bring left foot forward, fold forward, hands toward floor.',
+          'Inhale — rise up slowly, arms sweep overhead, slight backbend.',
+          'Exhale — return to standing, palms joined at chest. One round complete!'],
+   tip:'Start with 1 round if new. Build to 12 rounds over weeks. Do on an empty stomach for best results.',sound:'shimmer'},
+
+  {name:'Anulom Vilom',hindi:'अनुलोम विलोम',emoji:'🌬️',a:'breathe',dur:180,reps:'10 cycles',
+   steps:['Sit comfortably cross-legged or in a chair — keep your spine straight and tall.',
+          'Rest your left hand on your left knee. Raise your right hand.',
+          'Place right thumb on your right nostril. Ring finger on left nostril.',
+          'Close right nostril with thumb. Inhale slowly through left nostril — count 4.',
+          'Close both nostrils gently. Hold the breath — count 4.',
+          'Release thumb. Exhale slowly through right nostril — count 8.',
+          'Now inhale through right nostril (count 4), hold (count 4).',
+          'Exhale through left nostril (count 8). This completes one cycle.',
+          'Repeat for 10 cycles. Focus only on the breath — let thoughts go.',
+          'When done, breathe normally for 1 minute and notice the calm.'],
+   tip:'Do with children together — makes it a family moment. Excellent for focus, anxiety, and blood pressure.',sound:'dflt'},
+
+  {name:'Cat-Cow Stretch',hindi:'बिल्ली-गाय आसन',emoji:'🐱',a:'wobble',dur:120,reps:'15 times',
+   steps:['Start on all fours — hands directly under shoulders, knees under hips.',
+          'Keep your back flat like a table top. Look at the floor.',
+          'CAT — Exhale slowly. Round your spine up toward the ceiling.',
+          'Tuck your chin to your chest. Pull your belly button toward your spine.',
+          'COW — Inhale slowly. Let your belly drop toward the floor.',
+          'Lift your head and tailbone upward. Let your back arch.',
+          'Flow between Cat and Cow with your breath — slow and rhythmic.',
+          'Do 15 full rounds (Cat then Cow = 1 round). Keep breathing steady.'],
+   tip:'Kids love making cat meow and cow moo sounds during this. It makes them do it willingly every morning!',sound:'dflt'},
+
+  {name:'Jumping Jacks',hindi:'जंपिंग जैक',emoji:'⭐',a:'kick',dur:120,reps:'3 sets of 20',
+   steps:['Stand with feet together, arms at your sides.',
+          'Jump — spread feet wide apart (shoulder-width plus) and raise arms above head.',
+          'Both movements happen together in one jump.',
+          'Jump again — feet back together, arms back down to sides.',
+          'This is one jumping jack. Count together out loud.',
+          'Do 20 jumping jacks, rest 20 seconds, then 2 more sets.',
+          'Keep a steady rhythm — not too fast, not too slow.',
+          'Land softly on the balls of your feet, knees slightly bent.'],
+   tip:'A perfect heart-pumper to wake up the body. Count aloud as a family to make it fun.',sound:'dflt'},
+
+  {name:'Wall Push-ups',hindi:'वॉल पुश-अप',emoji:'💪',a:'march',dur:120,reps:'2 sets of 15',
+   steps:['Stand facing a wall, about arm\'s length away.',
+          'Place both palms flat on the wall at shoulder height and shoulder-width.',
+          'Step feet back slightly so your body is on a diagonal.',
+          'Inhale — bend elbows slowly, bringing chest toward the wall.',
+          'Keep your body straight — don\'t let hips stick out.',
+          'Exhale — push away from the wall to starting position.',
+          'Do 15 repetitions. Rest 30 seconds. Do 1 more set.',
+          'Progress tip: as you get stronger, move feet further from the wall.'],
+   tip:'Easier than floor push-ups, perfect for children and beginners. Builds chest, shoulders, and triceps.',sound:'dflt'},
+
+  {name:'Forward Fold',hindi:'उत्तानासन',emoji:'🤸',a:'stretch',dur:60,reps:'Hold 30 sec × 3',
+   steps:['Stand straight with feet hip-width apart.',
+          'Inhale — lengthen your spine, grow tall.',
+          'Exhale — hinge forward from your hips (not your waist).',
+          'Let your upper body hang down toward the floor.',
+          'Bend your knees slightly if needed — never force straight legs.',
+          'Let your head and neck relax completely — just hang.',
+          'Hold for 30 seconds, breathing normally.',
+          'Inhale — slowly roll up one vertebra at a time to standing.'],
+   tip:'Great for releasing lower back tension — especially after sitting all day. Children are naturally very flexible here.',sound:'dflt'},
+
+  {name:'Shavasana',hindi:'शवासन',emoji:'😴',a:'breathe',dur:300,reps:'5 minutes',
+   steps:['Lie flat on your back on a mat or firm surface.',
+          'Let your feet fall open naturally to the sides.',
+          'Place arms slightly away from your body, palms facing up.',
+          'Close your eyes gently.',
+          'Take 3 deep breaths — breathe in for 4 counts, out for 6 counts.',
+          'Consciously relax every body part — start from your feet, move up.',
+          'Relax feet, calves, thighs, hips, belly, chest, shoulders, arms, face.',
+          'Let your mind be still. Just breathe. Stay here for 5 minutes.',
+          'To come out — wiggle fingers and toes slowly, then roll to your side.'],
+   tip:'Do not skip Shavasana — it is when the body absorbs all the benefits of exercise. Even 5 minutes makes a huge difference.',sound:'dflt'},
+
+  {name:'Marching in Place',hindi:'कदम ताल',emoji:'🚶',a:'march',dur:120,reps:'2 minutes',
+   steps:['Stand with feet hip-width apart, arms relaxed at sides.',
+          'Lift your right knee to hip height while swinging left arm forward.',
+          'Lower right foot, lift left knee while swinging right arm forward.',
+          'Alternate sides in a marching rhythm.',
+          'Keep your back straight and core gently tight.',
+          'Breathe naturally — in through nose, out through mouth.',
+          'March for 2 full minutes at a comfortable pace.',
+          'Increase speed gradually for more cardio benefit.'],
+   tip:'Perfect warm-up before any workout. Gets blood flowing without any equipment or space needed.',sound:'dflt'},
+],
+
+kids:[
+  {name:'Frog Jumps',hindi:'मेंढक कूद',emoji:'🐸',a:'boing',dur:120,reps:'3 sets of 10',
+   steps:['Start in a deep squat — feet wide, hands between feet on the floor.',
+          'You look just like a frog! Say "ribbit" for fun.',
+          'From the squat, push off with both feet and jump forward as far as you can.',
+          'Land softly back in the squat position — knees bent.',
+          'Don\'t let your knees cave inward when you land.',
+          '10 frog jumps is one set. Rest 20 seconds between sets.',
+          'Challenge: try jumping BACKWARD like a frog too!',
+          'Race challenge: set a finish line and see how many jumps it takes.'],
+   tip:'Set a fun distance target — "jump from the sofa to the kitchen door" — kids stay motivated when there is a goal.',sound:'boing'},
+
+  {name:'Animal Walk Relay',hindi:'जानवर चाल',emoji:'🦁',a:'trot',dur:180,reps:'2 minutes each',
+   steps:['BEAR WALK: On all fours — hands and feet (not knees). Walk forward 5 steps.',
+          'CRAB WALK: Sit on floor, lift hips up. Walk sideways on hands and feet.',
+          'SNAKE CRAWL: Lie on belly, crawl forward using only arms dragging legs.',
+          'BUNNY HOPS: Squat down, place hands forward, hop both feet up to hands.',
+          'ELEPHANT WALK: Stand, fold forward, swing arms like a trunk side to side.',
+          'INCHWORM: Stand, fold forward, walk hands out to plank, walk feet to hands.',
+          'Parent calls out an animal name — kids switch to that animal immediately!',
+          'Play for 5 minutes cycling through all animals.'],
+   tip:'This is also great for parents! You will be surprised how challenging the crab walk and bear walk are even for adults.',sound:'dflt'},
+
+  {name:'Star Jumps',hindi:'स्टार जंप',emoji:'⭐',a:'kick',dur:120,reps:'3 sets of 20',
+   steps:['Stand with feet together, arms at your sides.',
+          'Jump off the ground and spread your legs wide.',
+          'At the same time, throw both arms up and out — make a star shape.',
+          'You should look like a starfish or a star emoji in the air!',
+          'Jump back — feet together, arms back to sides.',
+          'Land softly with slightly bent knees.',
+          'Do 20 star jumps, rest 15 seconds, repeat 3 times.',
+          'Speed challenge: how fast can you do 20 without losing form?'],
+   tip:'Count aloud together. Kids who can\'t count yet can say "STAR!" each time — builds number sense too.',sound:'dflt'},
+
+  {name:'Tree Pose Balance',hindi:'वृक्षासन',emoji:'🌳',a:'sway',dur:90,reps:'30 sec each side',
+   steps:['Stand tall on both feet. Find a spot to look at — a fixed point on the wall.',
+          'Slowly shift your weight onto your left foot.',
+          'Bend right knee, turn it out to the side.',
+          'Place right foot on your inner left calf (never on the knee itself).',
+          'When steady, raise both arms up like tree branches.',
+          'Hold for 30 seconds. Breathe normally. Focus on that fixed point.',
+          'Lower your arms and foot gently. Shake out the leg.',
+          'Switch sides — stand on right foot, raise left leg.'],
+   tip:'Tell kids to imagine being a tree in a gentle breeze — they CAN sway a little! Builds incredible focus and balance.',sound:'dflt'},
+
+  {name:'Hula Hoop Pretend',hindi:'हुला हूप',emoji:'⭕',a:'spin',dur:120,reps:'3 times 30 sec',
+   steps:['Stand with feet shoulder-width apart.',
+          'Place hands on hips as if holding an imaginary hula hoop.',
+          'Start rotating your hips in a big circle — clockwise.',
+          'Keep shoulders still. Only your hips and waist are moving.',
+          'Go around 10 times clockwise, then 10 times counter-clockwise.',
+          'Try to make the circles smooth and continuous.',
+          'Add arm swings or clapping to make it more fun.',
+          'Works the core muscles and improves coordination!'],
+   tip:'You do not need an actual hula hoop! The movement is exactly the same without it. Great core workout for kids and parents.',sound:'dflt'},
+
+  {name:'Superhero Pose',hindi:'सुपरहीरो पोज़',emoji:'🦸',a:'pulse',dur:90,reps:'Hold 1 minute',
+   steps:['Stand with feet wide apart — wider than shoulder-width.',
+          'Place hands on hips like a superhero.',
+          'Chest out, chin up, shoulders back — confident posture.',
+          'Hold this POWER POSE for 1 full minute.',
+          'While holding, take 5 deep superhero breaths — big inhale, strong exhale.',
+          'After 1 minute, raise one fist in the air and hold for 30 more seconds.',
+          'Variation: strike a new superhero pose every 15 seconds.',
+          'Research shows power poses actually boost confidence!'],
+   tip:'Ask kids to say their superhero name while holding the pose. This also teaches great posture which kids desperately need.',sound:'dflt'},
+
+  {name:'Rolling Like a Log',hindi:'लट्ठे जैसे लुढ़कना',emoji:'🪵',a:'wobble',dur:60,reps:'5 rolls each way',
+   steps:['Use a soft rug or yoga mat. Clear space around.',
+          'Lie down flat on your back, arms stretched above your head.',
+          'Make your whole body stiff like a log.',
+          'Roll to the right — keep body perfectly straight, don\'t bend.',
+          'Keep rolling in the same direction until you reach the edge.',
+          'Stop. Roll back the other way to starting point.',
+          'Do 5 rolls each way.',
+          'Challenge: try to roll in a perfectly straight line!'],
+   tip:'Great for body awareness and core stability. Kids love this and it takes zero skill — everyone can do it from day one.',sound:'dflt'},
+
+  {name:'Balloon Breathing',hindi:'गुब्बारा श्वास',emoji:'🎈',a:'breathe',dur:120,reps:'5 big breaths',
+   steps:['Sit comfortably — cross-legged on the floor or in a chair.',
+          'Place both hands flat on your belly.',
+          'Imagine your belly is a balloon.',
+          'Breathe IN slowly through your nose — feel your belly push out like a balloon filling.',
+          'Hold the breath for 3 counts.',
+          'Breathe OUT slowly through your mouth — feel the balloon deflate.',
+          'Your belly should go in as you breathe out.',
+          'Do this 5 times. Each breath bigger and slower than the last.'],
+   tip:'Teach this as a superpower for when kids feel scared, angry, or overwhelmed. It genuinely calms the nervous system.',sound:'dflt'},
+
+  {name:'Sock Slide Skate',hindi:'मोज़े स्केट',emoji:'⛸️',a:'trot',dur:120,reps:'2 minutes',
+   steps:['Put on thick socks on a smooth floor (tile or wood — not carpet).',
+          'Stand with feet apart and slightly bent knees.',
+          'Push off with one foot and GLIDE on the other — like skating!',
+          'Alternate pushing and gliding left and right.',
+          'Keep arms out for balance — like a speed skater.',
+          'Try skating forward, then learn to glide backward!',
+          'Make skating sounds for extra fun.',
+          'Build up speed gradually — always stay in control.'],
+   tip:'This is actually great exercise! Strengthens inner thighs and core. Cheap, safe, and kids absolutely love it.',sound:'dflt'},
+
+  {name:'Simon Says Fitness',hindi:'साइमन कहता है',emoji:'👆',a:'bounce',dur:300,reps:'Play 5 minutes',
+   steps:['One person is "Simon" — parent or older child.',
+          'Simon calls out fitness moves: "Simon says do 5 jumping jacks!"',
+          'Everyone must do the move ONLY if Simon says "Simon says" first.',
+          'If Simon just says "Do 5 squats" without "Simon says" — don\'t move!',
+          'Rotate who gets to be Simon every 2 minutes.',
+          'Good moves: jumping jacks, squats, touch toes, balance on one foot, push-ups.',
+          'The person who moves without "Simon says" does a fun bonus exercise.',
+          'Play for 5 minutes — gets everyone moving and laughing.'],
+   tip:'This game works for ALL ages together. Grandparents can be Simon and do movements at their own level too.',sound:'dflt'},
+],
+
+family:[
+  {name:'Family Surya Namaskar',hindi:'पारिवारिक सूर्य नमस्कार',emoji:'👨‍👩‍👧',a:'float',dur:300,reps:'Together — 3 rounds',
+   steps:['Everyone stands side by side in a row facing the same direction.',
+          'Youngest member sets the pace — do it as slow as they need.',
+          'Start with Pranamasana — all join palms at chest, bow to each other.',
+          'Follow all 12 Surya Namaskar positions together in sync.',
+          'Parent narrates each step so everyone stays together.',
+          'Younger kids can do modified versions — wide-knee plank, simplified cobra.',
+          'Complete 1 round together, rest, then do 2 more.',
+          'End by facing each other and saying "Namaste" as a family.'],
+   tip:'Sunday morning family Surya Namaskar becomes a ritual kids remember for life. No equipment, no cost, connects generations.',sound:'shimmer'},
+
+  {name:'Family Squats',hindi:'पारिवारिक स्क्वैट',emoji:'🏋️',a:'squat',dur:120,reps:'3 sets of 10',
+   steps:['Everyone stands in a circle or line facing the same direction.',
+          'Feet shoulder-width apart, toes pointing slightly outward.',
+          'Younger kids can hold parent\'s hands for balance.',
+          'Count together — "1, 2, 3..." as you sit back and down.',
+          'Thighs go parallel to floor (or as low as comfortable).',
+          'Hold for 1 second at the bottom.',
+          'Push through heels to rise back up — count "UP!"',
+          '10 squats per set, 30 seconds rest, then 2 more sets.'],
+   tip:'Holding hands with children during squats creates a lovely connected moment while giving everyone a great leg workout.',sound:'dflt'},
+
+  {name:'Partner Stretch',hindi:'साथी खिंचाव',emoji:'🤝',a:'stretch',dur:180,reps:'3 rounds each',
+   steps:['Sit facing your partner with legs straight out, feet touching each other\'s feet.',
+          'Hold each other\'s wrists or hands.',
+          'Person A gently leans back, pulling Person B into a forward fold.',
+          'Person B lets their upper body fold forward — feel the hamstring stretch.',
+          'Hold for 15 seconds — breathe deeply.',
+          'Gently come back to upright. Now Person B leans back, Person A folds forward.',
+          'Hold 15 seconds. Come back to center.',
+          'Do 3 full rounds each. Always use gentle resistance — never force.'],
+   tip:'Incredible for parent-child bonding. The gentle resistance makes the stretch much deeper than doing it alone. Best done on weekend mornings.',sound:'dflt'},
+
+  {name:'Push-up Challenge',hindi:'पुश-अप चुनौती',emoji:'💪',a:'march',dur:120,reps:'Counting game',
+   steps:['Everyone does push-ups at their own level — no judgment.',
+          'Children: wall push-ups (hands on wall, body diagonal).',
+          'Older kids: knee push-ups (knees on floor).',
+          'Adults: standard floor push-ups.',
+          'Everyone starts at the same time and counts their own reps.',
+          'Body position: straight line from head to heels (or knees).',
+          'Lower chest toward floor, push back up — breathe steadily.',
+          'See who does the most in 60 seconds — then cheer everyone!'],
+   tip:'Each family member doing their appropriate version teaches children that fitness meets you where you are. No shame, all progress.',sound:'dflt'},
+
+  {name:'Balance & Hold Game',hindi:'संतुलन खेल',emoji:'🧘',a:'sway',dur:150,reps:'Who holds longest?',
+   steps:['Everyone stands on one foot — the balance challenge begins.',
+          'Use a timer or count together: "1 Mississippi, 2 Mississippi..."',
+          'Arms can be anywhere — out, up, or at sides.',
+          'When you wobble and put your foot down — you\'re out!',
+          'Last person standing wins that round.',
+          'Play 3 rounds balancing on the right foot.',
+          'Play 3 rounds on the left foot.',
+          'Advanced: try with eyes closed for extra challenge!'],
+   tip:'Balance on one foot strengthens ankles, knees, and core. The competitive game format means everyone pushes harder than they would alone.',sound:'dflt'},
+
+  {name:'Obstacle Course',hindi:'बाधा दौड़',emoji:'🏃',a:'bounce',dur:300,reps:'3 laps each',
+   steps:['Set up a simple course using household items — takes 3 minutes.',
+          'Station 1: Jump over a row of books laid flat.',
+          'Station 2: Crawl under a dining chair or table.',
+          'Station 3: Walk along a line of tape on the floor (balance beam).',
+          'Station 4: 5 jumping jacks on a marked spot.',
+          'Station 5: Run to the far wall and run back.',
+          'Time each person — try to beat your own time.',
+          'Run 3 laps each. Change the course setup to keep it fresh.'],
+   tip:'Kids will BEG to do this on weekends. Takes minutes to set up and gives 20+ minutes of intense exercise disguised as play.',sound:'dflt'},
+
+  {name:'Towel Tug of War',hindi:'तौलिया रस्साकशी',emoji:'🏆',a:'wobble',dur:120,reps:'Best of 5',
+   steps:['Grab a large bath towel — each person holds one end.',
+          'Stand facing each other, both holding the towel firmly.',
+          'Both players sit cross-legged on the floor (safer than standing).',
+          'On "GO!" — each person pulls the towel toward themselves.',
+          'First person to pull the towel fully over a center mark wins.',
+          'Best of 5 rounds. Trade towel grips between rounds.',
+          'Parent adjusts their effort to make it competitive for kids.',
+          'This builds grip strength, arms, shoulders, and core.'],
+   tip:'Sitting down makes it safer and actually harder! Brilliant for rainy days. The laughter counts as cardio.',sound:'dflt'},
+
+  {name:'Yoga Freeze Dance',hindi:'योग फ्रीज़ डांस',emoji:'🎵',a:'bounce',dur:300,reps:'Play 5 minutes',
+   steps:['Play energetic music that everyone likes.',
+          'Everyone dances freely — any moves you like!',
+          'When music STOPS — everyone freezes in a yoga pose.',
+          'Good poses: Tree pose, Warrior I, Chair pose, Triangle, Cobra.',
+          'Hold the pose until music starts again — then dance again.',
+          'Switch who controls the music — kids love having this power.',
+          'Announce a specific pose to freeze in: "Everyone freeze in Tree!"',
+          'Play for 5 minutes. Great warm-down at the end.'],
+   tip:'This teaches yoga pose names through play. Children remember poses they learned through joy far better than instruction.',sound:'dflt'},
+],
+
+yoga:[
+  {name:'Mountain Pose',hindi:'ताड़ासन',emoji:'🏔️',a:'breathe',dur:60,reps:'Hold 1 minute',
+   steps:['Stand with feet together or hip-width apart.',
+          'Ground all four corners of both feet into the floor.',
+          'Engage thigh muscles gently — lift kneecaps slightly.',
+          'Tuck your tailbone slightly, engage your lower belly.',
+          'Lengthen your spine — imagine a string pulling you up from the crown.',
+          'Roll shoulders back and down. Chest open. Arms at sides.',
+          'Look forward with a soft gaze.',
+          'Breathe deeply — hold for 1 minute. This is perfect posture.'],
+   tip:'Tadasana is the foundation of ALL standing yoga poses. It teaches body awareness and correct posture children need for school.',sound:'dflt'},
+
+  {name:'Warrior I',hindi:'वीरभद्रासन I',emoji:'🗡️',a:'stretch',dur:90,reps:'45 sec each side',
+   steps:['Start in Mountain Pose. Step your left foot back 3-4 feet.',
+          'Turn your left foot out to about 45 degrees.',
+          'Bend your right knee until thigh is parallel to floor.',
+          'Keep right knee directly over right ankle — do not let it cave in.',
+          'Hips face forward as much as possible.',
+          'Inhale — sweep both arms up overhead, palms facing each other.',
+          'Gaze forward or slightly upward. Strong warrior energy!',
+          'Hold for 45 seconds, breathing deeply. Switch sides.'],
+   tip:'Tell children they are a great warrior protecting their family. The visualization makes them hold the pose longer and stronger.',sound:'dflt'},
+
+  {name:'Child\'s Pose',hindi:'बालासन',emoji:'🙇',a:'breathe',dur:120,reps:'Hold 2 minutes',
+   steps:['Kneel on the floor, big toes touching, knees spread wide.',
+          'Slowly fold your upper body forward between your thighs.',
+          'Let your forehead rest on the mat or floor.',
+          'Extend arms forward, palms flat on the floor.',
+          'OR rest arms alongside your body, palms up.',
+          'Let gravity do the work — no effort needed.',
+          'Breathe slowly and deeply — feel your back expand with each inhale.',
+          'This is a RESTING pose. Stay here as long as you like.'],
+   tip:'The ultimate stress-relief pose. When children feel overwhelmed, this pose in 2 minutes can completely reset their nervous system.',sound:'dflt'},
+
+  {name:'Downward Dog',hindi:'अधोमुख श्वानासन',emoji:'🐕',a:'stretch',dur:90,reps:'Hold 30 sec × 3',
+   steps:['Start on all fours — hands under shoulders, knees under hips.',
+          'Tuck your toes under.',
+          'Exhale — lift knees off the floor, push hips high toward the ceiling.',
+          'Your body makes an inverted V shape.',
+          'Press your palms firmly into the floor — especially index finger and thumb.',
+          'Straighten your arms and try to straighten your legs.',
+          'If hamstrings are tight — bend knees slightly. That\'s completely fine.',
+          'Pedal your heels alternately to stretch calves. Hold 30 seconds.'],
+   tip:'This is one of yoga\'s most complete poses — stretches hamstrings, calves, shoulders, and strengthens arms and core simultaneously.',sound:'dflt'},
+
+  {name:'Cobra Pose',hindi:'भुजंगासन',emoji:'🐍',a:'stretch',dur:60,reps:'Hold 30 sec × 3',
+   steps:['Lie face down on the floor. Place palms under your shoulders.',
+          'Legs together, feet flat, tops of feet pressing the floor.',
+          'Inhale — gently press palms and lift your chest off the floor.',
+          'Straighten arms partially — do not lock elbows.',
+          'Pull shoulders back and down. Open your chest.',
+          'Look slightly upward. Do not crane your neck.',
+          'Hold for 30 seconds, breathing normally.',
+          'Exhale — slowly lower down. Rest. Repeat twice more.'],
+   tip:'Counteracts all the forward bending from phones and desks. Excellent for the entire spine. Children love pretending to be cobras.',sound:'dflt'},
+
+  {name:'Butterfly Pose',hindi:'बद्धकोणासन',emoji:'🦋',a:'flutter',dur:120,reps:'2 minutes',
+   steps:['Sit on the floor with your spine straight.',
+          'Bend both knees and bring soles of feet together in front of you.',
+          'Hold your feet with both hands.',
+          'Sit up tall — do not round your back.',
+          'Gently press knees down toward the floor — like butterfly wings.',
+          'Flap your knees up and down slowly — you are a butterfly!',
+          'For a deeper stretch, fold forward from hips, bringing chest to feet.',
+          'Hold for 2 minutes, breathing deeply.'],
+   tip:'One of the best hip-opening poses for children who sit for long periods at school. Also very soothing before bedtime.',sound:'dflt'},
+
+  {name:'Bridge Pose',hindi:'सेतुबंधासन',emoji:'🌉',a:'stretch',dur:90,reps:'Hold 30 sec × 3',
+   steps:['Lie on your back. Bend knees, feet flat on floor hip-width apart.',
+          'Arms rest alongside body, palms facing down.',
+          'Inhale — press feet into floor, lift hips up toward ceiling.',
+          'Thighs should be parallel to the floor (or as high as comfortable).',
+          'Interlace fingers under your back and press arms into the floor.',
+          'Hold for 30 seconds. Breathe normally. Keep thighs parallel.',
+          'Exhale — unclasp hands, slowly lower spine down vertebra by vertebra.',
+          'Rest for 10 seconds, then repeat twice more.'],
+   tip:'Strengthens glutes and lower back while opening the chest. Excellent antidote to sitting. Children can hold longer than adults!',sound:'dflt'},
+
+  {name:'Seated Twist',hindi:'अर्धमत्स्येन्द्रासन',emoji:'🔄',a:'wobble',dur:90,reps:'30 sec each side',
+   steps:['Sit cross-legged or with legs straight out.',
+          'Cross right foot over left knee — right foot on floor beside left knee.',
+          'Sit up very tall — lengthen your spine.',
+          'Inhale to grow taller.',
+          'Exhale — twist your torso to the right.',
+          'Left elbow goes outside right knee to deepen the twist.',
+          'Right hand on the floor behind your back for support.',
+          'Hold for 30 seconds, breathing. Slowly unwind. Switch sides.'],
+   tip:'Spinal twists massage the digestive organs and release back tension. Great to do after meals or after long sitting.',sound:'dflt'},
+
+  {name:'Legs Up the Wall',hindi:'विपरीत करणी',emoji:'🦵',a:'float',dur:300,reps:'5 minutes',
+   steps:['Sit sideways with your hip touching a wall.',
+          'Swing your legs up the wall as you lie back.',
+          'Your back is flat on the floor, legs straight up the wall.',
+          'Adjust position so legs are comfortably straight or slightly bent.',
+          'Arms rest at sides, palms facing up.',
+          'Close your eyes. Breathe deeply.',
+          'Stay here for 5 minutes — this is deeply restorative.',
+          'To come out: bend knees, roll to one side, rest, then sit up slowly.'],
+   tip:'This is arguably the most effective recovery pose. Reverses blood flow, calms the nervous system, and reduces swollen feet and legs.',sound:'dflt'},
+
+  {name:'Savasana',hindi:'शवासन',emoji:'💆',a:'breathe',dur:300,reps:'5–10 minutes',
+   steps:['Lie flat on your back on a comfortable surface.',
+          'Feet fall naturally apart. Arms slightly away from body, palms up.',
+          'Close your eyes. Take three slow deep breaths.',
+          'Start at your feet — consciously relax every muscle.',
+          'Feet, ankles, calves, knees, thighs — relax them fully.',
+          'Hips, lower back, belly, chest — let them sink into the floor.',
+          'Shoulders, arms, hands, fingers — completely let go.',
+          'Face, jaw, eyes, forehead — soften everything. Be still.',
+          'Your only job is to breathe and be still. Stay 5-10 minutes.'],
+   tip:'Many people find this the hardest pose because doing nothing is hard! But it is when the body actually integrates the benefits of the practice.',sound:'dflt'},
+],
+
+strength:[
+  {name:'Plank Hold',hindi:'प्लैंक',emoji:'🪵',a:'breathe',dur:60,reps:'3 × 30 seconds',
+   steps:['Start in push-up position — hands under shoulders, arms straight.',
+          'Or forearm plank — elbows under shoulders, forearms on floor.',
+          'Body forms a straight line from head to heels.',
+          'Engage your core — pull belly button toward spine.',
+          'Squeeze your glutes. Keep breathing.',
+          'Don\'t let hips sag down or pike up.',
+          'Hold for 30 seconds. Rest 20 seconds. Do 3 total holds.',
+          'Progress: aim for 60 seconds, then 90 seconds over weeks.'],
+   tip:'The plank works your entire body simultaneously. Even 30 seconds a day every day will transform core strength within 3-4 weeks.',sound:'dflt'},
+
+  {name:'Squat Hold',hindi:'स्क्वैट',emoji:'🏋️',a:'squat',dur:120,reps:'3 × 15 reps',
+   steps:['Stand with feet shoulder-width apart, toes pointed slightly outward.',
+          'Keep chest up, spine neutral throughout the movement.',
+          'Inhale — hinge at hips first, then bend knees.',
+          'Sit back as if sitting on a chair. Thighs go to parallel.',
+          'Weight stays on heels and mid-foot — never roll onto toes.',
+          'Pause for 1 second at the bottom.',
+          'Exhale — drive through heels to return to standing.',
+          'Do 15 reps, rest 45 seconds, repeat 3 times.'],
+   tip:'Squats are called the "king of exercises" because they work over 200 muscles. Anyone, anywhere, any age can do them.',sound:'dflt'},
+
+  {name:'Glute Bridge',hindi:'ग्लूट ब्रिज',emoji:'🌉',a:'stretch',dur:120,reps:'3 × 15 reps',
+   steps:['Lie on your back. Bend knees, feet flat, hip-width apart.',
+          'Arms at sides, palms facing down. Feet close to hips.',
+          'Press feet firmly into the floor.',
+          'Exhale — lift hips toward ceiling, squeezing glutes hard at the top.',
+          'Hold for 2 seconds at the top. Really squeeze!',
+          'Inhale — slowly lower hips back down.',
+          'Do 15 reps. Rest 30 seconds. Repeat 3 sets.',
+          'Advanced: extend one leg out while performing the bridge.'],
+   tip:'The most important exercise almost everyone neglects. Glutes are the body\'s largest muscle group. Strengthening them prevents back pain.',sound:'dflt'},
+
+  {name:'Tricep Dips',hindi:'ट्राइसेप डिप',emoji:'🪑',a:'march',dur:90,reps:'3 × 12 reps',
+   steps:['Sit on the edge of a sturdy chair or low table.',
+          'Place hands on the edge beside your hips, fingers pointing forward.',
+          'Slide forward off the chair so your weight is on your hands.',
+          'Bend elbows straight back — lower your body down.',
+          'Lower until upper arms are nearly parallel to floor.',
+          'Push back up by straightening arms.',
+          'Keep your back close to the chair throughout.',
+          '12 reps = 1 set. Do 3 sets with 30 seconds rest.'],
+   tip:'Every household has a chair. This exercise requires zero equipment and builds strong triceps and shoulders within weeks.',sound:'dflt'},
+
+  {name:'Superman Hold',hindi:'सुपरमैन होल्ड',emoji:'🦸',a:'float',dur:90,reps:'3 × 10 reps',
+   steps:['Lie face down on the floor, arms extended forward like Superman flying.',
+          'Keep legs straight and together.',
+          'Inhale — simultaneously lift arms, chest, and legs off the floor.',
+          'Lift as high as comfortable — 4-6 inches is enough.',
+          'Hold the raised position for 2-3 seconds.',
+          'Exhale — slowly lower everything back to the floor.',
+          'Rest 2 seconds, then repeat.',
+          '10 repetitions = 1 set. Do 3 sets.'],
+   tip:'This trains the entire posterior chain — the muscles along your back and glutes that most people neglect. Transforms posture.',sound:'dflt'},
+
+  {name:'Mountain Climbers',hindi:'माउंटेन क्लाइंबर',emoji:'🏔️',a:'march',dur:60,reps:'3 × 20 seconds',
+   steps:['Start in a push-up position — hands under shoulders, arms straight.',
+          'Body in a straight line — this is your starting plank.',
+          'Drive right knee toward your chest.',
+          'Quickly switch — extend right leg back while driving left knee forward.',
+          'Alternate legs rapidly — like you are running horizontally.',
+          'Keep hips level — do not let them bounce up and down.',
+          'Breathe throughout. Go fast but maintain form.',
+          '20 seconds on, 10 seconds rest. Do 3 rounds.'],
+   tip:'One of the best full-body exercises — cardio AND strength in one move. Great for metabolism and core simultaneously.',sound:'dflt'},
+
+  {name:'Calf Raises',hindi:'काफ रेज़',emoji:'🦶',a:'bounce',dur:90,reps:'3 × 20 reps',
+   steps:['Stand with feet hip-width apart near a wall for balance.',
+          'Lightly touch the wall with fingertips — only for balance, not support.',
+          'Rise up slowly onto the balls of your feet.',
+          'Hold at the top for 1 second — really squeeze your calves.',
+          'Lower back down slowly — resist gravity.',
+          'Don\'t let heels touch the floor between reps.',
+          'Do 20 slow repetitions. Rest 30 seconds. Repeat 3 times.',
+          'Advanced: do single-leg calf raises for more challenge.'],
+   tip:'Calves are often the most neglected muscle group. Strong calves improve running, reduce injury risk, and help with all sports.',sound:'dflt'},
+
+  {name:'Dead Bug',hindi:'डेड बग',emoji:'🐛',a:'wobble',dur:90,reps:'3 × 10 each side',
+   steps:['Lie on your back. Raise arms straight up toward the ceiling.',
+          'Lift knees so thighs are vertical, shins parallel to floor (tabletop position).',
+          'Press lower back firmly into the floor — keep it there throughout.',
+          'Inhale to prepare.',
+          'Exhale — slowly extend right arm overhead AND left leg straight out.',
+          'Lower them toward but not touching the floor.',
+          'Inhale — return to starting position.',
+          'Repeat on opposite side (left arm, right leg). Do 10 each side.'],
+   tip:'The most effective core exercise that is also completely safe. Works deep stabilizing muscles that sit-ups completely miss.',sound:'dflt'},
+],
+
+breathing:[
+  {name:'Kapalbhati',hindi:'कपालभाति',emoji:'💨',a:'breathe',dur:120,reps:'2 rounds of 30',
+   steps:['Sit comfortably cross-legged with spine straight and tall.',
+          'Place hands on knees, palms facing up.',
+          'Take a normal inhale through both nostrils.',
+          'Now EXHALE forcefully — contract your lower belly inward sharply.',
+          'The inhale happens automatically — passively.',
+          'The focus is entirely on the EXHALE — sharp, forceful, rhythmic.',
+          'Build to 30 exhalations per round at a comfortable pace.',
+          'After 30 exhalations, take 3 deep normal breaths. That is one round.'],
+   tip:'Do NOT do Kapalbhati during pregnancy, high blood pressure, or heart problems. For healthy adults: amazing for energy, digestion, and focus.',sound:'dflt'},
+
+  {name:'Bhramari',hindi:'भ्रामरी',emoji:'🐝',a:'breathe',dur:120,reps:'5 rounds',
+   steps:['Sit comfortably with spine straight. Close your eyes.',
+          'Place index fingers gently on your ears (like earmuffs).',
+          'Close your eyes with middle fingers. Nose clear.',
+          'Take a full deep breath in through both nostrils.',
+          'As you exhale — make a deep humming sound: "Mmmmm..."',
+          'Feel the vibration in your skull and chest.',
+          'Keep humming until all the air is out.',
+          'Inhale again. Repeat for 5 full rounds.'],
+   tip:'The vibration in Bhramari directly stimulates the vagus nerve, reducing anxiety and calming the mind within minutes. Incredible for stress.',sound:'dflt'},
+
+  {name:'Box Breathing',hindi:'बॉक्स श्वास',emoji:'⬜',a:'breathe',dur:180,reps:'4 rounds',
+   steps:['Sit or lie down comfortably.',
+          'Exhale all air from your lungs.',
+          'INHALE for 4 counts — breathe in slowly.',
+          'HOLD for 4 counts — don\'t breathe in or out.',
+          'EXHALE for 4 counts — breathe out slowly.',
+          'HOLD for 4 counts — lungs empty.',
+          'This completes one box. Repeat for 4 full rounds.',
+          'Gradually increase to 6 counts per side as you practice.'],
+   tip:'Used by Navy SEALs and athletes to control stress and improve focus before high-pressure situations. Works for children and adults equally.',sound:'dflt'},
+
+  {name:'4-7-8 Breathing',hindi:'4-7-8 श्वास',emoji:'😴',a:'breathe',dur:180,reps:'4 cycles',
+   steps:['Sit or lie comfortably. Tip of tongue rests on ridge behind upper front teeth.',
+          'Exhale completely through your mouth, making a whoosh sound.',
+          'Close your mouth. Inhale quietly through your nose for 4 counts.',
+          'Hold your breath for 7 counts.',
+          'Exhale completely through your mouth for 8 counts — make the whoosh sound.',
+          'This is one cycle.',
+          'Repeat for 4 total cycles.',
+          'Do this whenever anxious or before sleeping.'],
+   tip:'Dr. Andrew Weil calls this the most powerful relaxation technique he knows. Extremely effective for inducing sleep within minutes.',sound:'dflt'},
+
+  {name:'Belly Breathing',hindi:'पेट से श्वास',emoji:'🎈',a:'breathe',dur:120,reps:'10 breaths',
+   steps:['Lie on your back. One hand on chest, one hand on belly.',
+          'Your goal: only the belly hand should move — not the chest hand.',
+          'Inhale slowly through your nose — belly rises and pushes your hand up.',
+          'Chest stays relatively still.',
+          'Exhale slowly through nose — belly falls, your hand lowers.',
+          'Breathe in for 4 counts, out for 6 counts.',
+          'Do 10 complete breaths.',
+          'This activates the parasympathetic (rest and digest) nervous system.'],
+   tip:'Most adults breathe incorrectly — chest only. Teaching children diaphragmatic breathing early gives them a lifelong wellness tool.',sound:'dflt'},
+
+  {name:'Nadi Shodhana',hindi:'नाड़ी शोधन',emoji:'🌿',a:'breathe',dur:180,reps:'10 cycles',
+   steps:['Similar to Anulom Vilom but with breath retention.',
+          'Sit comfortably, spine straight. Vishnu mudra with right hand.',
+          'Close right nostril, inhale through left for 4 counts.',
+          'Close both nostrils, hold for 16 counts.',
+          'Open right nostril, exhale for 8 counts.',
+          'Inhale through right for 4, close both, hold 16.',
+          'Open left, exhale 8. This is one cycle.',
+          'Complete 10 cycles. Builds to 1:4:2 ratio (4 inhale: 16 hold: 8 exhale).'],
+   tip:'More advanced than basic Anulom Vilom due to breath retention. The 1:4:2 ratio is the classical pranayama ratio for purifying the nadis.',sound:'dflt'},
+
+  {name:'Sitali Cooling Breath',hindi:'शीतली प्राणायाम',emoji:'❄️',a:'breathe',dur:90,reps:'8 rounds',
+   steps:['Sit comfortably. Open your mouth.',
+          'Roll your tongue into a tube shape (or if unable, purse lips instead).',
+          'Inhale slowly through the rolled tongue or pursed lips.',
+          'You will feel cool air flowing over your tongue.',
+          'Close your mouth at the top of the inhale.',
+          'Hold breath briefly (2-3 seconds).',
+          'Exhale slowly through your nose.',
+          'Repeat 8 times. Notice how your body cools down.'],
+   tip:'Specifically reduces body heat. Perfect in Indian summer, after exercise, or when feeling anger — it has an immediate cooling effect on the mind.',sound:'dflt'},
+
+  {name:'Humming Breath',hindi:'गुनगुनाना श्वास',emoji:'🎵',a:'breathe',dur:90,reps:'5 rounds',
+   steps:['Sit comfortably with eyes closed.',
+          'Take a full deep inhale through your nose.',
+          'As you exhale — hum on any comfortable note.',
+          'Keep the hum going until your lungs are completely empty.',
+          'Feel the vibration in your lips, face, and chest.',
+          'When the hum ends — pause and feel the silence.',
+          'Then inhale again and hum again.',
+          '5 rounds. Each hum as long as comfortable.'],
+   tip:'The simplest form of sound healing. Even 5 minutes of humming reduces cortisol, activates the vagus nerve, and creates genuine calm.',sound:'dflt'},
+]
+};
+
+const CAT_META={
+  morning:{label:'Morning Routine',sub:'8 exercises · 20 min',accent:'sun',icon:'🌅'},
+  kids:{label:'Kids\' Play & Move',sub:'10 exercises · 20 min',accent:'peach',icon:'👶'},
+  family:{label:'Family Circuit',sub:'8 exercises · 25 min',accent:'mint',icon:'👨‍👩‍👧'},
+  yoga:{label:'Yoga & Stretching',sub:'10 poses · 30 min',accent:'lav',icon:'🧘'},
+  strength:{label:'Strength & Core',sub:'8 exercises · 20 min',accent:'sky',icon:'🏋️'},
+  breathing:{label:'Pranayama & Breathing',sub:'8 techniques · 20 min',accent:'leaf',icon:'🌬️'},
+};
+
+/* ===================== STREAK ===================== */
+let doneSet=new Set(JSON.parse(localStorage.getItem('pu_done')||'[]'));
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function saveStreak(){localStorage.setItem('pu_done',JSON.stringify([...doneSet]));}
+function calcStreak(){let s=0;const t=new Date();for(let i=0;i<365;i++){const d=new Date(t);d.setDate(t.getDate()-i);const k=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(doneSet.has(k))s++;else break;}return s;}
+function updateStreakUI(){
+  const s=calcStreak();
+  $('streakNum').textContent=s;$('doneStreakNum').textContent=s;
+  const msgs=['Start today — your streak begins now!','1 day done! Keep going 🌱','2 days strong! Momentum building 💪','3 days! A habit is forming 🌟','4 days! You\'re doing amazing ✨','5 days! Almost a full week 🔥','6 days! One more for the week!','7 days!! Full week streak! 🏆'];
+  const long=s>=8?`${s} days! You are a Punah Champion! 🏆 Keep going!`:msgs[s]||msgs[7];
+  $('streakLabel').textContent=s>0?`${s} Day Streak 🔥`:'Start Your Streak 🔥';
+  $('streakSub').textContent=long;
+  $('doneStreakSub').textContent=s>0?`You have moved ${s} day${s>1?'s':''} in a row!`:'Today counts — streak started!';
+}
+updateStreakUI();
+
+/* ===================== SCREEN ROUTER ===================== */
+const $=id=>document.getElementById(id);
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  try{speechSynthesis.cancel();}catch(e){}
+}
+function setAccent(name){
+  document.body.style.setProperty('--accent','var(--'+name+')');
+  document.body.style.setProperty('--accent-bg','var(--'+name+'-bg)');
+}
+
+/* ===================== SOUND TOGGLE ===================== */
+function applySoundUI(){$('sndBtn').textContent=soundOn?'🔊':'🔇';}
+applySoundUI();
+$('sndBtn').onclick=()=>{
+  soundOn=!soundOn;try{localStorage.setItem('pu_sound',soundOn?'1':'0');}catch(e){}
+  applySoundUI();if(!soundOn)try{speechSynthesis.cancel();}catch(e){}
+};
+
+/* ===================== BROWSE ===================== */
+let curCat='morning';
+$('catMenu').addEventListener('click',e=>{
+  const card=e.target.closest('.menu-card');if(!card)return;
+  warmAC();warmSpeech();
+  curCat=card.dataset.cat;
+  openBrowse(curCat);
+});
+function openBrowse(cat){
+  const meta=CAT_META[cat];
+  setAccent(meta.accent);
+  $('browseTtl').innerHTML=meta.icon+' '+meta.label+'<small>'+meta.sub+'</small>';
+  const grid=$('exGrid');grid.innerHTML='';
+  const list=exercises[cat]||[];
+  list.forEach((ex,i)=>{
+    const pal=PAL[i%PAL.length];
+    const card=document.createElement('div');
+    card.className='excard';
+    card.innerHTML=`<span class="ic">${ex.emoji}</span>
+      <div class="nm">${ex.name}</div>
+      <div class="hn">${ex.hindi}</div>
+      <div class="dur">${ex.reps}</div>`;
+    card.style.setProperty('--accent','var(--'+meta.accent+')');
+    card.style.setProperty('--accent-bg','var(--'+meta.accent+'-bg)');
+    card.style.animationDelay=(i*.05)+'s';
+    card.onclick=()=>{try{SND.tap();}catch(_){}openPopup(ex,pal,cat,i);}
+    grid.appendChild(card);
+  });
+  show('browse');
+  say(meta.label+'. '+list.length+' exercises. Tap any exercise to see details.',{rate:.88});
+}
+$('browseBack').onclick=()=>{show('home');setAccent('sun');}
+$('homeBtn').onclick=()=>{show('home');setAccent('sun');}
+
+/* ===================== POPUP ===================== */
+const popup=$('popup');
+function openPopup(ex,pal,cat,idx){
+  $('popup-bar').style.background=pal.ba;
+  $('popup-card').style.setProperty('--cb',pal.bo);
+  $('popup-card').style.setProperty('--ct',pal.tx);
+  $('popup-card').style.setProperty('--cbg',pal.bg);
+  $('popup-emoji').textContent=ex.emoji;
+  $('popup-emoji').className='';
+  requestAnimationFrame(()=>$('popup-emoji').classList.add('anim-'+ex.a));
+  $('popup-name').textContent=ex.name;
+  $('popup-hindi').textContent=ex.hindi;
+  $('popup-meta').innerHTML=`<span class="pmeta">⏱ ${formatDur(ex.dur)}</span>
+    <span class="pmeta">🔁 ${ex.reps}</span>`;
+  const ul=$('popup-steps');ul.innerHTML='';
+  ex.steps.forEach((s,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="snum">${i+1}</span><span>${s}</span>`;
+    ul.appendChild(li);
+  });
+  $('popup-tip').innerHTML=`<span>💡</span><span>${ex.tip}</span>`;
+  $('popup-start').onclick=()=>{closePopup();startSingleEx(ex,cat,idx);};
+  if(soundOn)try{(SND[ex.sound]||SND.dflt)();}catch(_){}
+  say(ex.name+'. '+ex.reps,{rate:.85,pitch:1.1});
+  popup.classList.add('open');
+}
+function closePopup(){popup.classList.remove('open');try{speechSynthesis.cancel();}catch(e){}}
+$('popup-bg').onclick=closePopup;
+$('popup-close').onclick=e=>{e.stopPropagation();closePopup();};
+$('popup-card').onclick=e=>e.stopPropagation();
+document.addEventListener('keydown',e=>e.key==='Escape'&&closePopup());
+function formatDur(s){return s>=60?Math.round(s/60)+' min':s+' sec';}
+
+/* ===================== WORKOUT SESSION ===================== */
+let W={list:[],idx:0,step:0,timer:null,secs:0,maxSecs:0,done:0,cat:'morning'};
+
+$('startWorkoutBtn').onclick=()=>{warmAC();warmSpeech();startWorkout(curCat);};
+$('sessionBack').onclick=()=>{clearTimer();show('browse');};
+$('againBtn').onclick=()=>startWorkout(W.cat);
+$('chooseCatBtn').onclick=()=>show('browse');
+$('homeBtn2').onclick=()=>{show('home');setAccent('sun');};
+
+function startWorkout(cat){
+  W.list=exercises[cat]||[];W.idx=0;W.done=0;W.cat=cat;
+  setAccent(CAT_META[cat].accent);
+  $('doneNum').textContent='0';
+  const d=$('dots');d.innerHTML='';
+  W.list.forEach((_,i)=>{const s=document.createElement('div');s.className='dot';d.appendChild(s);});
+  show('session');
+  loadExercise();
+}
+function startSingleEx(ex,cat,idx){
+  W.list=[ex];W.idx=0;W.done=0;W.cat=cat;
+  setAccent(CAT_META[cat].accent);
+  $('doneNum').textContent='0';
+  const d=$('dots');d.innerHTML='<div class="dot now"></div>';
+  show('session');
+  loadExercise();
+}
+function loadExercise(){
+  if(W.idx>=W.list.length)return endWorkout();
+  const ex=W.list[W.idx];W.step=0;
+  clearTimer();
+  paintDots();
+  $('feedback').textContent='';
+  // render prompt
+  $('exPrompt').innerHTML=`
+    <div class="cat-label">${CAT_META[W.cat].icon} Exercise ${W.idx+1} of ${W.list.length}</div>
+    <div class="show-emoji anim-${ex.a}" id="sessionEmoji">${ex.emoji}</div>
+    <div class="ex-name-big">${ex.name}</div>
+    <div class="ex-hindi">${ex.hindi}</div>
+    <div class="ex-reps">${ex.reps}</div>`;
+  // step
+  showStep();
+  // timer
+  W.secs=ex.dur;W.maxSecs=ex.dur;
+  startTimer();
+  say(ex.name+'. '+ex.reps,{rate:.88,pitch:1.05});
+}
+function paintDots(){
+  [...$('dots').children].forEach((d,i)=>
+    d.className='dot'+(i<W.idx?' done':i===W.idx?' now':''));
+}
+function showStep(){
+  const ex=W.list[W.idx];
+  const steps=ex.steps;
+  $('stepTxt').textContent=steps[W.step]||'Great work! Move to next exercise.';
+  $('prevStep').style.opacity=W.step===0?'.35':'1';
+  $('nextStep').textContent=W.step>=steps.length-1?'Next Exercise →':'Next Step ›';
+}
+$('nextStep').onclick=()=>{
+  try{SND.tap();}catch(_){}
+  const ex=W.list[W.idx];
+  if(W.step<ex.steps.length-1){
+    W.step++;showStep();
+    say(ex.steps[W.step],{rate:.88});
+  } else {
+    // done with this exercise
+    advanceExercise();
+  }
+};
+$('prevStep').onclick=()=>{
+  if(W.step>0){W.step--;showStep();}
+};
+function advanceExercise(){
+  clearTimer();
+  W.idx++;W.done++;
+  $('doneNum').textContent=W.done;
+  try{SND.coin();}catch(_){}
+  const praise=['Great work! 💪','Well done! 🌟','Excellent! ⭐','Keep it up! 🔥','You\'re amazing! 🏆'];
+  $('feedback').textContent=praise[Math.floor(Math.random()*praise.length)];
+  $('feedback').className='feedback good';
+  confetti(20);
+  setTimeout(()=>{$('feedback').textContent='';loadExercise();},1400);
+}
+
+/* timer */
+function startTimer(){
+  $('timerFill').style.width='100%';
+  $('timerCount').textContent=fmtTime(W.secs);
+  W.timer=setInterval(()=>{
+    W.secs--;
+    const pct=(W.secs/W.maxSecs)*100;
+    $('timerFill').style.width=Math.max(0,pct)+'%';
+    $('timerCount').textContent=fmtTime(W.secs);
+    if(W.secs===10)try{SND.warn();}catch(_){}
+    if(W.secs===3||W.secs===2||W.secs===1)try{SND.tick();}catch(_){}
+    if(W.secs<=0){clearTimer();try{SND.ding();}catch(_){}
+      $('feedback').textContent='Time\'s up! 🔔';$('feedback').className='feedback go';
+      setTimeout(()=>advanceExercise(),1200);
+    }
+  },1000);
+}
+function clearTimer(){if(W.timer){clearInterval(W.timer);W.timer=null;}}
+function fmtTime(s){const m=Math.floor(Math.abs(s)/60),sc=Math.abs(s)%60;return m+':'+(sc<10?'0':'')+sc;}
+
+function endWorkout(){
+  clearTimer();
+  doneSet.add(todayKey());
+  saveStreak();
+  updateStreakUI();
+  const n=W.done,total=W.list.length;
+  const stars=n>=total?3:n>=Math.ceil(total/2)?2:1;
+  $('endStars').innerHTML=[0,1,2].map(i=>`<span class="star">${i<stars?'⭐':'☆'}</span>`).join('');
+  $('endScore').textContent=`${n} of ${total} exercises`;
+  $('endMsg').textContent=['Great start! Every day counts 🌱','Well done! You are building a habit 🌟','Perfect session! You are a Punah champion! 🏆'][stars-1];
+  show('done');
+  confetti(60);
+  try{SND.done();}catch(_){}
+  say(['Great job!','Well done!','Amazing! You are a Punah champion!'][stars-1],{pitch:1.2});
+}
+
+/* ===================== CONFETTI ===================== */
+const CC=['#F5A623','#52C0A0','#EBA078','#A294DD','#E2BC58','#3BAA6E'];
+function confetti(count){
+  const box=$('confetti');
+  for(let i=0;i<count;i++){
+    const c=document.createElement('div');c.className='conf';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=CC[Math.floor(Math.random()*CC.length)];
+    c.style.animationDuration=(1.7+Math.random()*1.7)+'s';
+    c.style.animationDelay=(Math.random()*.3)+'s';
+    if(Math.random()<.5)c.style.borderRadius='50%';
+    c.style.width=c.style.height=(8+Math.random()*8)+'px';
+    box.appendChild(c);setTimeout(()=>c.remove(),3800);
+  }
+}
+</script>
+</body>
+</html>
