@@ -6,27 +6,27 @@
 <title>Growth Range Finder — Healthy Height &amp; Weight by Age</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cream:#f6efe2;
-    --paper:#fffbf2;
-    --ink:#2b2a25;
-    --forest:#2f5443;
-    --forest-deep:#1e3a2e;
-    --coral:#e07a52;
-    --coral-soft:#f3c9b4;
-    --sage:#a9bfa6;
-    --line:#d9cfb8;
-    --muted:#7a7466;
+    --cream:#F7F9FC;        /* cloud */
+    --paper:#FFFFFF;
+    --ink:#10283F;
+    --forest:#2B66F0;       /* blue (primary) */
+    --forest-deep:#1B4ED1;  /* blue deep */
+    --coral:#DB7B0E;        /* orange (accent) */
+    --coral-soft:#FCF1E2;   /* orange soft */
+    --sage:#1CA64C;         /* green (growth) */
+    --line:#E2E8F0;
+    --muted:#5C6E7E;        /* slate */
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;}
   body{
-    font-family:'Karla',sans-serif;
+    font-family:'Plus Jakarta Sans',sans-serif;
     background:
-      radial-gradient(ellipse 60% 40% at 80% -5%, rgba(224,122,82,.18), transparent 60%),
-      radial-gradient(ellipse 50% 45% at 5% 105%, rgba(47,84,67,.16), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% -5%, rgba(219,123,14,.18), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 5% 105%, rgba(43,102,240,.16), transparent 60%),
       var(--cream);
     color:var(--ink);
     line-height:1.55;
@@ -58,7 +58,7 @@
     border:1.5px solid var(--line);
     border-radius:20px;
     padding:30px 26px;
-    box-shadow:0 18px 40px -28px rgba(30,58,46,.5);
+    box-shadow:0 18px 40px -28px rgba(27,78,209,.5);
   }
   .card + .card{margin-top:22px;}
 
@@ -70,11 +70,11 @@
   }
   .tab{
     flex:1;border:none;background:transparent;cursor:pointer;
-    font-family:'Karla',sans-serif;font-weight:700;font-size:.9rem;
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:.9rem;
     padding:11px 8px;border-radius:10px;color:var(--muted);
     transition:.18s ease;
   }
-  .tab.active{background:var(--forest);color:#fdfaf0;box-shadow:0 6px 14px -8px rgba(30,58,46,.7);}
+  .tab.active{background:var(--forest);color:#FFFFFF;box-shadow:0 6px 14px -8px rgba(27,78,209,.7);}
 
   /* Form */
   .field-label{
@@ -95,7 +95,7 @@
 
   .seg{display:flex;gap:6px;}
   .seg button{
-    flex:1;font-family:'Karla',sans-serif;font-weight:600;
+    flex:1;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;
     font-size:.92rem;padding:11px 6px;cursor:pointer;
     border:1.5px solid var(--line);background:var(--cream);
     color:var(--muted);border-radius:11px;transition:.15s;
@@ -108,9 +108,9 @@
 
   .go{
     width:100%;margin-top:6px;cursor:pointer;
-    font-family:'Karla',sans-serif;font-weight:700;font-size:1rem;
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;
     letter-spacing:.04em;padding:15px;border:none;border-radius:13px;
-    background:var(--forest-deep);color:#fdfaf0;
+    background:var(--forest-deep);color:#FFFFFF;
     transition:.16s;
   }
   .go:hover{background:var(--forest);transform:translateY(-1px);}
@@ -148,20 +148,20 @@
     display:inline-block;font-weight:700;font-size:.92rem;
     padding:6px 14px;border-radius:999px;margin-top:4px;
   }
-  .b-under{background:#fde9cf;color:#a86b1e;}
-  .b-healthy{background:#dcebd9;color:#2f5443;}
-  .b-over{background:#fbe0cf;color:#bc5b30;}
-  .b-obese{background:#f3cdbd;color:#a23c1c;}
+  .b-under{background:#FCF1E2;color:#B86208;}
+  .b-healthy{background:#E6F6EC;color:#2B66F0;}
+  .b-over{background:#FCF1E2;color:#B86208;}
+  .b-obese{background:#FCF1E2;color:#B86208;}
 
   .callout{
     margin-top:16px;font-size:.9rem;color:var(--muted);
-    background:rgba(169,191,166,.22);
+    background:rgba(28,166,76,.22);
     border-left:3px solid var(--sage);
     padding:11px 14px;border-radius:0 10px 10px 0;
   }
   .err{
-    margin-top:16px;font-size:.92rem;color:#a23c1c;
-    background:#f6d8cb;border-radius:10px;padding:11px 14px;
+    margin-top:16px;font-size:.92rem;color:#B86208;
+    background:#FCF1E2;border-radius:10px;padding:11px 14px;
     display:none;
   }
   .err.show{display:block;}
