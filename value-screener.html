@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Value Screener · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;--red-tint:#F7E6E0;
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+.display{font-family:'Fraunces',serif}
+a{color:inherit}
+
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:18px}
+.back .wm{font-family:'Fraunces',serif;font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand);font-weight:600}
+.back:active{opacity:.55}
+
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.9rem,6vw,2.5rem);line-height:1.05;letter-spacing:-.02em;margin:8px 0}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);max-width:62ch;font-size:.98rem}
+
+.disclaimer{display:flex;gap:10px;background:var(--amber-tint);border:1px solid color-mix(in srgb,var(--amber) 26%,transparent);
+  border-radius:12px;padding:12px 14px;margin:18px 0;font-size:.86rem}
+.disclaimer svg{flex:none;width:18px;height:18px;color:var(--amber);margin-top:2px}
+.disclaimer b{color:var(--amber)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(34,35,31,.04),0 10px 26px rgba(34,35,31,.05)}
+.panel h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;margin-bottom:4px}
+.panel .hint{font-size:.82rem;color:var(--faint);margin-bottom:14px}
+
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end}
+.ctl label{display:block;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ctl input[type=number]{width:100%;font-family:inherit;font-size:.95rem;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink)}
+.ctl .rng{display:flex;align-items:center;gap:8px}
+.ctl input[type=range]{flex:1;min-width:0;accent-color:var(--brand)}
+.ctl.span{grid-column:1/-1}
+.ctl .rngval{font-weight:700;color:var(--brand);min-width:62px;text-align:right;font-size:.85rem}
+.toggle{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:.92rem;font-weight:600;padding-bottom:8px}
+.toggle input{width:18px;height:18px;accent-color:var(--brand)}
+
+.btnrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.btn{font-family:inherit;font-weight:600;font-size:.88rem;border-radius:10px;padding:9px 15px;cursor:pointer;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);transition:transform .12s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.primary:active{background:var(--brand-press)}
+.btn.ghostbrand{color:var(--brand);border-color:color-mix(in srgb,var(--brand) 35%,transparent)}
+
+.tablescroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin-top:6px}
+table{border-collapse:collapse;width:100%;font-size:.82rem;white-space:nowrap}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1}
+thead th{background:var(--band);font-weight:700;font-size:.72rem;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);position:sticky;top:0}
+.grp-fund{color:var(--brand)}
+.grp-tech{color:var(--amber)}
+tbody input{width:74px;font-family:inherit;font-size:.82rem;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);text-align:right}
+tbody input.sym{width:96px;text-align:left;font-weight:600}
+tbody input.txt{width:120px;text-align:left}
+.delrow{cursor:pointer;color:var(--faint);border:none;background:none;font-size:1rem;padding:2px 6px}
+.delrow:active{color:var(--red)}
+
+.paste textarea{width:100%;min-height:90px;font-family:ui-monospace,monospace;font-size:.8rem;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);resize:vertical}
+
+/* results */
+.results th,.results td{text-align:right}
+.results th:first-child,.results td:first-child,.results th:nth-child(2),.results td:nth-child(2){text-align:left}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.v-strong{background:var(--brand);color:#fff}
+.v-buy{background:var(--brand-tint);color:var(--brand)}
+.v-watch{background:var(--amber-tint);color:var(--amber)}
+.v-neutral{background:var(--band);color:var(--muted)}
+.v-gate{background:var(--red-tint);color:var(--red)}
+.score{font-weight:700}
+.combined{font-weight:800;color:var(--brand)}
+.empty{text-align:center;color:var(--faint);padding:26px;font-size:.9rem}
+
+details.method{margin-top:8px;font-size:.86rem;color:var(--muted)}
+details.method summary{cursor:pointer;font-weight:600;color:var(--ink)}
+details.method ul{margin:10px 0 0 18px;line-height:1.7}
+details.method code{background:var(--band);padding:1px 5px;border-radius:5px;font-size:.85em}
+.foot{margin-top:24px;font-size:.78rem;color:var(--faint)}
+.sample-flag{font-size:.78rem;color:var(--amber);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html" aria-label="Back to friendology">‹ <span class="wm">friend<b>ology</b></span></a>
+
+  <div class="eyebrow">Life Tools · Investing</div>
+  <h1 class="display">Value <b>Screener</b></h1>
+  <p class="lede">A fundamental + technical screen for NSE stocks. It scores each name on how <em>cheap, healthy and stabilising</em> it looks, applies a strict value gate, and ranks the results — so you find value with confirmation, not a falling knife.</p>
+
+  <div class="disclaimer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
+    <div><b>Educational screener — not investment advice.</b> It only scores the numbers you enter; it doesn't recommend buying or selling. Verify everything on a primary source (screener.in, Tickertape, NSE), and check promoter holding &amp; pledging separately — they aren't in here. Your data stays in your browser; nothing is uploaded.</div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="panel">
+    <h2 class="display">Screen settings</h2>
+    <div class="hint">Same knobs as the original tool — weighting, the value gate, and how many results to show.</div>
+    <div class="controls">
+      <div class="ctl span">
+        <label>Fundamentals vs technicals</label>
+        <div class="rng">
+          <input type="range" id="fw" min="0" max="100" value="65">
+          <span class="rngval" id="fwLbl">65% / 35%</span>
+        </div>
+      </div>
+      <div class="ctl"><label>Min fundamental score</label><input type="number" id="minFund" value="0" min="0" max="100"></div>
+      <div class="ctl"><label>Min combined score</label><input type="number" id="minComb" value="0" min="0" max="100"></div>
+      <div class="ctl"><label>Top N (0 = all)</label><input type="number" id="topN" value="0" min="0"></div>
+      <div class="ctl"><label class="toggle"><input type="checkbox" id="valueOnly"> Value gate only</label></div>
+    </div>
+    <div class="btnrow">
+      <button class="btn primary" onclick="runScreen()">Run screen ↓</button>
+      <button class="btn ghostbrand" onclick="loadSample()">Load sample data</button>
+    </div>
+  </div>
+
+  <!-- DATA -->
+  <div class="panel">
+    <h2 class="display">Your stocks <span id="sampleFlag" class="sample-flag"></span></h2>
+    <div class="hint">Enter what you have — fundamentals drive the score; technicals are optional (rows with none are scored on fundamentals alone). Blank cells are skipped fairly.</div>
+    <div class="tablescroll">
+      <table id="inTable">
+        <thead>
+          <tr id="grpRow">
+            <th></th><th></th><th></th>
+            <th class="grp-fund" colspan="12">Fundamentals</th>
+            <th class="grp-tech" colspan="7">Technicals (optional)</th>
+            <th></th>
+          </tr>
+          <tr id="headRow"></tr>
+        </thead>
+        <tbody id="inBody"></tbody>
+      </table>
+    </div>
+    <div class="btnrow">
+      <button class="btn" onclick="addRow()">+ Add row</button>
+      <button class="btn" onclick="clearRows()">Clear all</button>
+      <button class="btn" onclick="downloadTemplate()">Download CSV template</button>
+    </div>
+    <div class="paste" style="margin-top:14px">
+      <label style="font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Or paste / import CSV</label>
+      <textarea id="csvText" placeholder="symbol,name,sector,price,pe,pb,ev_ebitda,peg,roe,margin,debt_equity,current,eps_growth,rev_growth,div_yield,rsi,sma50,sma200,hi52,lo52,vol_ratio,macd_bull"></textarea>
+      <div class="btnrow">
+        <button class="btn" onclick="parsePasted()">Load from text</button>
+        <label class="btn" style="display:inline-flex;align-items:center">Import CSV file<input type="file" accept=".csv" onchange="importFile(event)" style="display:none"></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="panel">
+    <h2 class="display">Ranked results</h2>
+    <div class="hint">Sorted by combined score. <span class="score" style="color:var(--brand)">Verdicts</span> apply only to names passing the value gate.</div>
+    <div class="tablescroll">
+      <table class="results">
+        <thead><tr id="resHead"></tr></thead>
+        <tbody id="resBody"><tr><td class="empty" colspan="16">Run the screen to see results.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="btnrow">
+      <button class="btn" onclick="exportCSV()">Download .csv</button>
+      <button class="btn" onclick="exportXLSX()">Download .xlsx</button>
+    </div>
+  </div>
+
+  <details class="method">
+    <summary>How the score works</summary>
+    <ul>
+      <li><b>Fundamental score (0–100)</b> = valuation 34% · quality 26% · health 20% · growth 14% · income 6%. Cheaper P/E, P/B, EV/EBITDA, PEG score higher; higher ROE, margins, lower debt, steady growth and dividends add quality.</li>
+      <li><b>Technical score (0–100)</b> = trend 40% · momentum 30% · entry 20% · volume 10%. Rewards price above its 200-DMA, an RSI sweet-spot (~45–65), a lower-middle position in the 52-week range, and volume confirmation.</li>
+      <li><b>Combined</b> = your fundamentals/technicals split (default 65/35). Rows with no technicals are scored on fundamentals alone.</li>
+      <li><b>Value gate</b> (must pass all): <code>P/E 0–45</code>, <code>P/B ≤ 8</code>, <code>D/E ≤ 2.5</code>, <code>ROE ≥ 8%</code>. Fails the gate → labelled “Not value”, however good the technicals.</li>
+      <li><b>Verdict</b>: ≥75 Strong Value Buy · ≥65 Value Buy · ≥55 Value Watch · else Neutral (gate-passers only).</li>
+    </ul>
+  </details>
+
+  <p class="foot">friendology is always free, and this screener runs entirely on your device. Educational tool only — not investment advice, and not a substitute for your own research or a registered adviser.</p>
+</div>
+
+<script>
+/* ============================================================
+   ENGINE — ported faithfully from the Indian Value Screener
+   ============================================================ */
+const FUND_WEIGHTS={valuation:.34,quality:.26,health:.20,growth:.14,income:.06};
+const TECH_WEIGHTS={trend:.40,momentum:.30,entry:.20,volume:.10};
+const VALUE_GATE={max_pe:45,max_pb:8,max_debt_equity:2.5,min_roe:8};
+
+const COLS=[
+  {k:'symbol',t:'Symbol',cls:'sym'},{k:'name',t:'Name',cls:'txt'},{k:'sector',t:'Sector',cls:'txt'},
+  {k:'price',t:'Price'},{k:'pe',t:'P/E'},{k:'pb',t:'P/B'},{k:'ev_ebitda',t:'EV/EBITDA'},{k:'peg',t:'PEG'},
+  {k:'roe',t:'ROE%'},{k:'margin',t:'Margin%'},{k:'debt_equity',t:'D/E'},{k:'current',t:'Current'},
+  {k:'eps_growth',t:'EPS g%'},{k:'rev_growth',t:'Rev g%'},{k:'div_yield',t:'Div%'},
+  {k:'rsi',t:'RSI'},{k:'sma50',t:'SMA50'},{k:'sma200',t:'SMA200'},{k:'hi52',t:'52w Hi'},{k:'lo52',t:'52w Lo'},
+  {k:'vol_ratio',t:'Vol ratio'},{k:'macd_bull',t:'MACD↑ (Y/N)'},
+];
+const NUMKEYS=COLS.filter(c=>!['symbol','name','sector','macd_bull'].includes(c.k)).map(c=>c.k);
+const TECHKEYS=['rsi','sma50','sma200','hi52','lo52','vol_ratio','macd_bull'];
+
+const num=v=>{ if(v===null||v===undefined||v==='') return null; const n=parseFloat(v); return isNaN(n)?null:n; };
+const isY=v=>{ if(v===null||v===undefined) return null; const s=String(v).trim().toLowerCase(); if(['y','yes','true','1'].includes(s))return true; if(['n','no','false','0'].includes(s))return false; return null; };
+
+function band(value,bands,reverse=false){
+  if(value===null||value===undefined||isNaN(value)) return null;
+  if(reverse){ for(const [th,sc] of bands){ if(value<=th) return sc; } return 0; }
+  for(let i=bands.length-1;i>=0;i--){ if(value>=bands[i][0]) return bands[i][1]; } return 0;
+}
+const mean=a=>{ const v=a.filter(x=>x!==null&&x!==undefined&&!isNaN(x)); return v.length?v.reduce((s,x)=>s+x,0)/v.length:null; };
+
+function scoreFundamentals(f){
+  const valP=[ band(f.pe,[[15,100],[25,75],[35,45],[45,20]],true),
+               band(f.pb,[[1,100],[3,75],[5,45],[8,20]],true),
+               band(f.ev_ebitda,[[8,100],[12,75],[18,45],[25,20]],true),
+               band(f.peg,[[1,100],[1.5,70],[2,40],[3,15]],true) ];
+  const valuation = valP.some(p=>p!==null)?mean(valP):50;
+  const qualP=[ band(f.roe,[[10,40],[15,70],[20,90],[25,100]]),
+                band(f.margin,[[5,40],[10,65],[15,85],[20,100]]) ];
+  const quality = qualP.some(p=>p!==null)?mean(qualP):50;
+  const hP=[ band(f.debt_equity,[[0.3,100],[0.7,80],[1.0,60],[1.5,35],[2.5,15]],true),
+             band(f.current,[[1.0,40],[1.5,75],[2.0,100]]) ];
+  const health = hP.some(p=>p!==null)?mean(hP):50;
+  const gP=[ band(f.eps_growth,[[0,35],[10,65],[20,90],[30,100]]),
+             band(f.rev_growth,[[0,35],[10,65],[20,90],[30,100]]) ];
+  const growth = gP.some(p=>p!==null)?mean(gP):50;
+  let income = band(f.div_yield,[[0,20],[1,50],[2,75],[3.5,100]]); if(income===null) income=20;
+  const bd={valuation,quality,health,growth,income};
+  let score=0; for(const k in FUND_WEIGHTS) score+=bd[k]*FUND_WEIGHTS[k];
+  return {score:Math.round(score*10)/10, bd};
+}
+
+function scoreTechnicals(f){
+  const hasTech = TECHKEYS.some(k=> (k==='macd_bull'? isY(f.macd_bull)!==null : num(f[k])!==null) );
+  if(!hasTech) return {score:null,bd:{}};
+  const price=num(f.price), sma50=num(f.sma50), sma200=num(f.sma200);
+  // trend
+  let trend=50;
+  if(sma200!==null && price!==null){
+    trend = price>sma200?75:30;
+    if(sma50!==null){
+      if(price>sma50 && sma50>sma200) trend=100;
+      else if(price>sma50 && price>sma200) trend=85;
+      else if(price<sma50 && sma50<sma200) trend=15;
+    }
+  }
+  // momentum
+  const rsi=num(f.rsi); let rsiScore=50;
+  if(rsi!==null){
+    if(rsi>=45&&rsi<=65) rsiScore=100;
+    else if((rsi>=40&&rsi<45)||(rsi>65&&rsi<=70)) rsiScore=75;
+    else if(rsi>=30&&rsi<40) rsiScore=55;
+    else if(rsi<30) rsiScore=40;
+    else rsiScore=25;
+  }
+  const mb=isY(f.macd_bull); const macdTerm = mb===null?50:(mb?90:35);
+  const momentum = 0.6*rsiScore + 0.4*macdTerm;
+  // entry
+  const hi=num(f.hi52), lo=num(f.lo52); let entry=50;
+  if(hi!==null && lo!==null && price!==null && hi>lo){
+    const p=(price-lo)/(hi-lo);
+    if(p>=0.20&&p<=0.50) entry=100;
+    else if((p>0.50&&p<=0.70)||(p>=0.10&&p<0.20)) entry=70;
+    else if(p>0.85) entry=25;
+    else entry=50;
+  }
+  // volume
+  const vr=num(f.vol_ratio); let volume= vr===null?70:(vr>=1.3?100:vr>=1.0?80:vr>=0.7?55:35);
+  const bd={trend,momentum,entry,volume};
+  let score=0; for(const k in TECH_WEIGHTS) score+=bd[k]*TECH_WEIGHTS[k];
+  return {score:Math.round(score*10)/10, bd};
+}
+
+function passesValueGate(f){
+  const pe=num(f.pe); if(pe===null||pe<=0||pe>VALUE_GATE.max_pe) return false;
+  const pb=num(f.pb); if(pb!==null&&pb>VALUE_GATE.max_pb) return false;
+  const de=num(f.debt_equity); if(de!==null&&de>VALUE_GATE.max_debt_equity) return false;
+  const roe=num(f.roe); if(roe!==null&&roe<VALUE_GATE.min_roe) return false;
+  return true;
+}
+function verdict(combined,gated){
+  if(!gated) return ['Not value','v-gate'];
+  if(combined>=75) return ['Strong Value Buy','v-strong'];
+  if(combined>=65) return ['Value Buy','v-buy'];
+  if(combined>=55) return ['Value Watch','v-watch'];
+  return ['Neutral','v-neutral'];
+}
+
+/* ============================================================
+   DATA + UI
+   ============================================================ */
+let DATA=[];
+const $=id=>document.getElementById(id);
+const blankRow=()=>Object.fromEntries(COLS.map(c=>[c.k,'']));
+
+function save(){ try{ localStorage.setItem('vs_data',JSON.stringify(DATA)); }catch(e){} }
+function load(){ try{ const d=localStorage.getItem('vs_data'); if(d){ DATA=JSON.parse(d); return true; } }catch(e){} return false; }
+
+function buildHead(){
+  $('headRow').innerHTML = COLS.map(c=>`<th>${c.t}</th>`).join('') + '<th></th>';
+}
+function renderInput(){
+  const tb=$('inBody'); tb.innerHTML='';
+  DATA.forEach((row,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = COLS.map(c=>{
+      const cls = c.cls?` ${c.cls}`:'';
+      const ph = c.k==='macd_bull'?'Y/N':'';
+      return `<td><input class="cell${cls}" data-i="${i}" data-k="${c.k}" value="${row[c.k]??''}" placeholder="${ph}"></td>`;
+    }).join('') + `<td><button class="delrow" onclick="delRow(${i})" title="Remove">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input.cell').forEach(inp=>{
+    inp.addEventListener('input',e=>{ DATA[+e.target.dataset.i][e.target.dataset.k]=e.target.value; save(); });
+  });
+}
+function addRow(){ DATA.push(blankRow()); renderInput(); save(); }
+function delRow(i){ DATA.splice(i,1); renderInput(); save(); }
+function clearRows(){ DATA=[]; renderInput(); save(); $('sampleFlag').textContent=''; }
+
+function loadSample(){
+  // ILLUSTRATIVE figures only — NOT current/live data. Replace before relying on output.
+  DATA=[
+    {symbol:'COALINDIA',name:'Coal India',sector:'Energy',price:400,pe:8,pb:3,ev_ebitda:5,peg:1.0,roe:45,margin:25,debt_equity:0.1,current:1.6,eps_growth:10,rev_growth:5,div_yield:5.5,rsi:50,sma50:410,sma200:420,hi52:540,lo52:360,vol_ratio:1.0,macd_bull:'N'},
+    {symbol:'ITC',name:'ITC',sector:'FMCG',price:480,pe:26,pb:7.5,ev_ebitda:18,peg:2.2,roe:28,margin:25,debt_equity:0.0,current:2.5,eps_growth:8,rev_growth:7,div_yield:3.0,rsi:55,sma50:470,sma200:450,hi52:520,lo52:390,vol_ratio:1.1,macd_bull:'Y'},
+    {symbol:'NTPC',name:'NTPC',sector:'Utilities',price:330,pe:15,pb:2.2,ev_ebitda:9,peg:1.3,roe:13,margin:12,debt_equity:1.4,current:1.1,eps_growth:12,rev_growth:8,div_yield:2.2,rsi:48,sma50:340,sma200:350,hi52:450,lo52:290,vol_ratio:0.9,macd_bull:'N'},
+    {symbol:'SBIN',name:'State Bank of India',sector:'Financials',price:780,pe:9,pb:1.4,ev_ebitda:'',peg:1.0,roe:17,margin:20,debt_equity:'',current:'',eps_growth:15,rev_growth:12,div_yield:1.6,rsi:52,sma50:790,sma200:760,hi52:910,lo52:680,vol_ratio:1.0,macd_bull:'Y'},
+    {symbol:'POWERGRID',name:'Power Grid',sector:'Utilities',price:300,pe:17,pb:2.8,ev_ebitda:10,peg:1.6,roe:18,margin:30,debt_equity:1.6,current:0.8,eps_growth:6,rev_growth:5,div_yield:3.4,rsi:46,sma50:305,sma200:300,hi52:370,lo52:260,vol_ratio:1.0,macd_bull:'N'},
+    {symbol:'HEROMOTOCO',name:'Hero MotoCorp',sector:'Auto',price:4500,pe:20,pb:4.5,ev_ebitda:14,peg:1.8,roe:22,margin:11,debt_equity:0.1,current:1.7,eps_growth:14,rev_growth:9,div_yield:2.8,rsi:58,sma50:4400,sma200:4200,hi52:6000,lo52:3900,vol_ratio:1.2,macd_bull:'Y'},
+    {symbol:'ONGC',name:'Oil & Natural Gas',sector:'Energy',price:250,pe:7,pb:1.0,ev_ebitda:4,peg:0.8,roe:14,margin:10,debt_equity:0.4,current:1.0,eps_growth:5,rev_growth:3,div_yield:4.2,rsi:42,sma50:260,sma200:270,hi52:345,lo52:230,vol_ratio:0.8,macd_bull:'N'},
+    {symbol:'DMART',name:'Avenue Supermarts',sector:'Retail',price:3900,pe:90,pb:12,ev_ebitda:55,peg:3.5,roe:14,margin:5,debt_equity:0.0,current:2.6,eps_growth:18,rev_growth:18,div_yield:0.0,rsi:60,sma50:3800,sma200:3900,hi52:5000,lo52:3400,vol_ratio:1.0,macd_bull:'Y'},
+  ];
+  renderInput(); save();
+  $('sampleFlag').textContent='· illustrative sample, not live data';
+}
+
+/* CSV */
+function toCSVnum(v){ return v===null||v===undefined?'':v; }
+function rowsToCSV(rows,keys){
+  const head=keys.join(',');
+  const body=rows.map(r=>keys.map(k=>{ let v=r[k]??''; v=String(v); return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v; }).join(',')).join('\n');
+  return head+'\n'+body;
+}
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/).filter(l=>l.trim()); if(!lines.length) return [];
+  const split=l=>{ const out=[];let cur='',q=false; for(let i=0;i<l.length;i++){ const ch=l[i];
+    if(q){ if(ch==='"'){ if(l[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+    else { if(ch===','){out.push(cur);cur='';} else if(ch==='"'){q=true;} else cur+=ch; } } out.push(cur); return out; };
+  const hdr=split(lines[0]).map(h=>h.trim().toLowerCase());
+  return lines.slice(1).map(l=>{ const cells=split(l); const o=blankRow(); hdr.forEach((h,idx)=>{ if(COLS.find(c=>c.k===h)) o[h]=(cells[idx]??'').trim(); }); return o; });
+}
+function parsePasted(){ const t=$('csvText').value; const rows=parseCSV(t); if(rows.length){ DATA=rows; renderInput(); save(); $('sampleFlag').textContent=''; } else alert('No rows found. Check the header line matches the template.'); }
+function importFile(e){ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=()=>{ const rows=parseCSV(r.result); if(rows.length){ DATA=rows; renderInput(); save(); $('sampleFlag').textContent=''; } else alert('No rows found in file.'); }; r.readAsText(file); }
+function downloadTemplate(){ dl('value_screener_template.csv', rowsToCSV([blankRow()], COLS.map(c=>c.k))); }
+function dl(name,text){ const b=new Blob([text],{type:'text/csv'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+
+/* RUN */
+let LAST=[];
+const RES_COLS=['Symbol','Name','Sector','Price','P/E','P/B','ROE%','D/E','Div%','RSI','>200DMA','52wPos','Fund','Tech','Combined','Verdict'];
+function runScreen(){
+  const fw=(+$('fw').value)/100, tw=1-fw;
+  const minFund=+$('minFund').value||0, minComb=+$('minComb').value||0, topN=+$('topN').value||0, valueOnly=$('valueOnly').checked;
+  let rows=DATA.filter(r=>String(r.symbol||'').trim()).map(r=>{
+    const f={}; COLS.forEach(c=>{ f[c.k]= ['symbol','name','sector','macd_bull'].includes(c.k)? (r[c.k]||'') : num(r[c.k]); });
+    f.macd_bull=r.macd_bull;
+    const fs=scoreFundamentals(f), ts=scoreTechnicals(f);
+    const techScore = ts.score;
+    const combined = techScore===null ? fs.score : Math.round((fw*fs.score+tw*techScore)*10)/10;
+    const gated = passesValueGate(f);
+    const [vtext,vcls]=verdict(combined,gated);
+    const price=num(f.price), sma200=num(f.sma200), hi=num(f.hi52), lo=num(f.lo52);
+    const pos52 = (hi!==null&&lo!==null&&price!==null&&hi>lo)? Math.round((price-lo)/(hi-lo)*100)/100 : null;
+    return {
+      Symbol:f.symbol, Name:f.name||f.symbol, Sector:f.sector||'-',
+      Price:price, 'P/E':num(f.pe),'P/B':num(f.pb),'ROE%':num(f.roe),'D/E':num(f.debt_equity),'Div%':num(f.div_yield),
+      RSI:num(f.rsi), '>200DMA':(sma200!==null&&price!==null)?(price>sma200?'Y':'N'):'-', '52wPos':pos52,
+      Fund:fs.score, Tech:techScore===null?'—':techScore, Combined:combined, Verdict:vtext, _vcls:vcls, _gated:gated
+    };
+  });
+  if(valueOnly) rows=rows.filter(r=>r._gated);
+  rows=rows.filter(r=>r.Fund>=minFund && r.Combined>=minComb);
+  rows.sort((a,b)=>b.Combined-a.Combined);
+  if(topN>0) rows=rows.slice(0,topN);
+  LAST=rows; renderResults(rows);
+}
+function fmtCell(k,v){ if(v===null||v===undefined||v==='') return '–'; return v; }
+function renderResults(rows){
+  $('resHead').innerHTML=RES_COLS.map(c=>`<th>${c}</th>`).join('');
+  const tb=$('resBody');
+  if(!rows.length){ tb.innerHTML=`<tr><td class="empty" colspan="${RES_COLS.length}">No stocks match. Add data or relax the filters.</td></tr>`; return; }
+  tb.innerHTML=rows.map(r=>{
+    return '<tr>'+RES_COLS.map(c=>{
+      if(c==='Verdict') return `<td><span class="pill ${r._vcls}">${r.Verdict}</span></td>`;
+      if(c==='Combined') return `<td class="combined">${fmtCell(c,r[c])}</td>`;
+      if(c==='Fund'||c==='Tech') return `<td class="score">${fmtCell(c,r[c])}</td>`;
+      return `<td>${fmtCell(c,r[c])}</td>`;
+    }).join('')+'</tr>';
+  }).join('');
+}
+function exportCSV(){ if(!LAST.length){ alert('Run the screen first.'); return; } dl('value_screen.csv', rowsToCSV(LAST,RES_COLS)); }
+function exportXLSX(){
+  if(!LAST.length){ alert('Run the screen first.'); return; }
+  if(typeof XLSX==='undefined'){ alert('Spreadsheet library still loading — try again in a moment.'); return; }
+  const ws=XLSX.utils.json_to_sheet(LAST.map(r=>{ const o={}; RES_COLS.forEach(c=>o[c]=r[c]); return o; }));
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Value Screen');
+  XLSX.writeFile(wb,'value_screen.xlsx');
+}
+
+/* init */
+$('fw').addEventListener('input',e=>{ const v=+e.target.value; $('fwLbl').textContent=`${v}% / ${100-v}%`; });
+buildHead();
+if(!load()) loadSample(); else renderInput();
+</script>
+</body>
+</html>

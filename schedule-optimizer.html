@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule Optimizer · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#FBFAF6}
+  #so-back{display:flex;align-items:center;gap:6px;font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:.92rem;color:#5C5E55;text-decoration:none;padding:12px 20px;background:#FBFAF6;border-bottom:1px solid #ECE8DE}
+  #so-back .wm{font-family:'Fraunces',serif;font-weight:600;color:#22231F}
+  #so-back .wm b{color:#1F6B4A;font-weight:600}
+  #so-back:active{opacity:.55}
+</style>
+</head>
+<body>
+<a id="so-back" href="index.html" aria-label="Back to friendology">‹ <span class="wm">friend<b>ology</b></span></a>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
+<script type="text/babel" data-presets="react">
+const { useState, useRef, useCallback } = React;
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const GRID_START = 5 * 60;   // 5:00 AM in minutes
+const GRID_END   = 24 * 60;  // midnight
+const SLOT_MINS  = 30;
+const TOTAL_SLOTS = (GRID_END - GRID_START) / SLOT_MINS; // 38 slots
+const ROW_H = 30; // px per 30-min slot
+const DRIVER_RATE = 150;
+
+const PEOPLE = [
+  { id:"self",     label:"Self",     icon:"👤", color:"#4a90d9" },
+  { id:"spouse",   label:"Spouse",   icon:"👫", color:"#f48fb1" },
+  { id:"kid",      label:"Kid",      icon:"👧", color:"#4caf7d" },
+  { id:"maid",     label:"Maid",     icon:"🧹", color:"#4dd0e1" },
+  { id:"cook",     label:"Cook",     icon:"🍳", color:"#ff8a50" },
+  { id:"driver",   label:"Driver",   icon:"🚗", color:"#f5a623" },
+  { id:"guardian", label:"Guardian", icon:"🏠", color:"#9b7fe8" },
+];
+const PID = Object.fromEntries(PEOPLE.map(p=>[p.id,p]));
+
+const TASK_COLORS = ["#4a90d9","#4caf7d","#f48fb1","#ff8a50","#9b7fe8","#4dd0e1","#f5a623","#e05c5c"];
+let colorIdx = 0;
+const nextColor = () => TASK_COLORS[colorIdx++ % TASK_COLORS.length];
+
+const slotToTime = s => { const m = GRID_START + s*SLOT_MINS; return `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`; };
+const timeToSlot = t => { const [h,m]=t.split(":").map(Number); return ((h*60+m)-GRID_START)/SLOT_MINS; };
+const fmt = t => { if(!t)return""; const[h,m]=t.split(":").map(Number); return`${h%12||12}:${String(m).padStart(2,"0")} ${h>=12?"PM":"AM"}`; };
+const fmtSlot = s => fmt(slotToTime(s));
+const uid = () => Math.random().toString(36).slice(2,8);
+const durLabel = d => d < 2 ? `${d*30}m` : (d*30)%60===0 ? `${d*30/60}h` : `${Math.floor(d*30/60)}h${(d*30)%60}m`;
+
+const DEFAULT_STAFF = {
+  self:     { label:"Self",     enabled:true,  from:"05:00", to:"23:00", from2:"", to2:"", eve:false },
+  spouse:   { label:"Spouse",   enabled:true,  from:"07:00", to:"22:00", from2:"", to2:"", eve:false },
+  maid:     { label:"Maid",     enabled:true,  from:"09:00", to:"12:30", from2:"", to2:"", eve:false },
+  cook:     { label:"Cook",     enabled:true,  from:"06:30", to:"09:30", from2:"17:30", to2:"21:00", eve:true },
+  driver:   { label:"Driver",   enabled:true,  from:"07:30", to:"17:00", from2:"", to2:"", eve:false },
+  guardian: { label:"Guardian", enabled:false, from:"08:00", to:"18:00", from2:"", to2:"", eve:false },
+};
+
+const DEFAULT_ROUTINE = {
+  breakfast: { on:true, time:"08:00", dur:1, people:["self","spouse","kid","cook"] },
+  lunch:     { on:true, time:"13:00", dur:1, people:["self","cook"] },
+  dinner:    { on:true, time:"20:00", dur:2, people:["self","spouse","kid","cook"] },
+  familyTime:{ on:true, from:"18:30", to:"21:00", dur:2, people:["self","spouse","kid"] },
+  windDown:  { on:true, bedtime:"22:30", windDur:1 },
+  sleep:     { on:true, bedtime:"22:30", wake:"06:15" },
+};
+
+const C = {
+  bg:"#FBFAF6", surface:"#FFFFFF", card:"#FFFFFF", border:"#ECE8DE",
+  text:"#22231F", muted:"#5C5E55", dim:"#8A8C82", accent:"#1F6B4A",
+  green:"#1F6B4A", red:"#C0492F", blue:"#2B66F0",
+};
+
+// ─── Optimizer ────────────────────────────────────────────────────────────────
+function buildRoutineTasks(routine) {
+  const out = [];
+  const m = (id,name,t,d,pp) => ({ id, name, type:"fixed", fixedTime:t, durationSlots:d, people:pp, color:"#8A8C82", _routine:true });
+  if (routine.breakfast.on) out.push(m("__bk","Breakfast",routine.breakfast.time,routine.breakfast.dur,routine.breakfast.people));
+  if (routine.lunch.on)     out.push(m("__ln","Lunch",    routine.lunch.time,    routine.lunch.dur,    routine.lunch.people));
+  if (routine.dinner.on)    out.push(m("__dn","Dinner",   routine.dinner.time,   routine.dinner.dur,   routine.dinner.people));
+  if (routine.familyTime.on) out.push({ id:"__ft", name:"Family Time", type:"flexible", earliest:routine.familyTime.from, latest:routine.familyTime.to, durationSlots:routine.familyTime.dur, people:routine.familyTime.people, color:C.muted, _routine:true });
+  return out;
+}
+
+function optimizeSchedule(userTasks, staff, routine, travelBuf) {
+  const routineTasks = buildRoutineTasks(routine);
+  const allTasks = [...routineTasks, ...userTasks].map(t => ({
+    ...t,
+    duration: t.durationSlots * SLOT_MINS,
+    requiresDriver: t.people?.includes("driver"),
+    requiresCook:   t.people?.includes("cook"),
+    requiresMaid:   t.people?.includes("maid"),
+    requiresGuardian: t.people?.includes("guardian"),
+    bufferAfter: 0, dependencies: t.dependencies||[],
+  }));
+
+  const sleepStart = routine.sleep.on ? parseInt(routine.sleep.bedtime.split(":")[0])*60+parseInt(routine.sleep.bedtime.split(":")[1]) : 23*60;
+  const wakeTime   = routine.sleep.on ? parseInt(routine.sleep.wake.split(":")[0])*60+parseInt(routine.sleep.wake.split(":")[1]) : 6*60;
+  const windDur    = routine.windDown.on ? routine.windDown.windDur * SLOT_MINS : 0;
+  const hardEnd    = sleepStart - windDur;
+
+  const checkStaff = (task, start, end) => {
+    const issues = [];
+    const chk = (sid, req) => {
+      if (!req || !staff[sid]?.enabled) return;
+      const s = staff[sid];
+      const inMain = start >= toM(s.from) && end <= toM(s.to);
+      const inEve  = s.eve && s.from2 && start >= toM(s.from2) && end <= toM(s.to2);
+      if (!inMain && !inEve) issues.push(PID[sid]?.label||sid);
+    };
+    chk("driver", task.requiresDriver); chk("cook", task.requiresCook);
+    chk("maid", task.requiresMaid); chk("guardian", task.requiresGuardian);
+    chk("self",    task.people?.includes("self"));
+    chk("spouse",  task.people?.includes("spouse"));
+    return issues;
+  };
+  const toM = t => { if(!t)return 0; const[h,m]=t.split(":").map(Number); return h*60+m; };
+
+  const fixed = allTasks.filter(t=>t.type==="fixed"&&t.fixedTime)
+    .map(t=>({...t, startMins:toM(t.fixedTime), endMins:toM(t.fixedTime)+t.duration}))
+    .sort((a,b)=>a.startMins-b.startMins);
+
+  fixed.forEach(t => { t.staffWarnings = checkStaff(t, t.startMins, t.endMins); });
+
+  const slots = []; let cursor = wakeTime;
+  for (const ev of fixed) {
+    if (ev.startMins > cursor) slots.push({start:cursor, end:Math.min(ev.startMins, hardEnd)});
+    cursor = Math.max(cursor, ev.endMins);
+  }
+  if (cursor < hardEnd) slots.push({start:cursor, end:hardEnd});
+
+  const scheduled = [...fixed];
+  const unscheduled = [];
+  const warnings = [];
+  fixed.forEach(t => { if(t.staffWarnings?.length) warnings.push({name:t.name,issues:t.staffWarnings}); });
+
+  const flexible = allTasks.filter(t=>t.type!=="fixed"||!t.fixedTime)
+    .sort((a,b)=>(a.priority||3)-(b.priority||3));
+
+  for (const task of flexible) {
+    const earliest = toM(task.earliest||slotToTime(0));
+    const latest   = toM(task.latest||slotToTime(TOTAL_SLOTS-1));
+    const needed   = task.duration + (task.requiresDriver?travelBuf:0);
+    let placed = false;
+    for (const slot of slots) {
+      const ss = Math.max(slot.start, earliest);
+      const se = Math.min(slot.end, latest+task.duration);
+      if (se-ss >= needed) {
+        const sw = checkStaff(task, ss, ss+task.duration);
+        scheduled.push({...task, startMins:ss, endMins:ss+task.duration, staffWarnings:sw});
+        if(sw.length) warnings.push({name:task.name,issues:sw});
+        slot.start = ss+needed; placed=true; break;
+      }
+    }
+    if (!placed) unscheduled.push(task);
+  }
+  scheduled.sort((a,b)=>a.startMins-b.startMins);
+
+  const dTasks = scheduled.filter(t=>t.requiresDriver).sort((a,b)=>a.startMins-b.startMins);
+  const dSessions = [];
+  if (dTasks.length) {
+    let ss=dTasks[0].startMins, se=dTasks[0].endMins;
+    for (let i=1;i<dTasks.length;i++){
+      const t=dTasks[i];
+      if(t.startMins-se<=45) se=Math.max(se,t.endMins);
+      else { dSessions.push({start:ss,end:se}); ss=t.startMins; se=t.endMins; }
+    }
+    dSessions.push({start:ss,end:se});
+  }
+  const dCost = Math.ceil(dSessions.reduce((s,d)=>s+(d.end-d.start),0)/60*DRIVER_RATE);
+  return { scheduled, unscheduled, dSessions, dCost, warnings, sleepStart, wakeTime, windDur, hardEnd };
+}
+
+// ─── MiniForm ─────────────────────────────────────────────────────────────────
+function MiniForm({ slot, task, onSave, onCancel, onDelete }) {
+  const isEdit = !!task;
+  const [name, setName]   = useState(task?.name||"");
+  const [dur,  setDur]    = useState(task?.durationSlots||1);
+  const [type, setType]   = useState(task?.type||"fixed");
+  const [ppl,  setPpl]    = useState(task?.people||["self"]);
+  const [from, setFrom]   = useState(task?.earliest||slotToTime(slot||0));
+  const [to,   setTo]     = useState(task?.latest||"21:00");
+
+  const togglePerson = id => setPpl(p => p.includes(id)?p.filter(x=>x!==id):[...p,id]);
+
+  const top = (slot||0) * ROW_H;
+
+  return (
+    <div style={{position:"absolute",left:70,top:Math.min(top, (TOTAL_SLOTS-8)*ROW_H),zIndex:30,
+      background:C.card,border:`1.5px solid ${C.accent}`,borderRadius:12,padding:14,width:280,
+      boxShadow:"0 8px 32px #22231F88"}}>
+      <div style={{fontSize:11,fontWeight:700,color:C.accent,marginBottom:10,letterSpacing:"0.06em"}}>
+        {isEdit?"EDIT TASK":"NEW TASK"} · {fmtSlot(slot||0)}
+      </div>
+
+      <input autoFocus value={name} onChange={e=>setName(e.target.value)}
+        placeholder="Task name…"
+        style={{width:"100%",background:C.surface,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"7px 10px",fontSize:14,fontFamily:"inherit",outline:"none",boxSizing:"border-box",marginBottom:10}} />
+
+      {/* Duration stepper */}
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+        <span style={{fontSize:11,color:C.muted,flex:1}}>DURATION</span>
+        <button onClick={()=>setDur(d=>Math.max(1,d-1))} style={stepBtn}>−</button>
+        <span style={{fontSize:14,fontWeight:700,color:C.text,minWidth:42,textAlign:"center"}}>{durLabel(dur)}</span>
+        <button onClick={()=>setDur(d=>Math.min(16,d+1))} style={stepBtn}>+</button>
+      </div>
+
+      {/* Fixed / Flexible toggle */}
+      <div style={{display:"flex",gap:6,marginBottom:10}}>
+        {["fixed","flexible"].map(t=>(
+          <button key={t} onClick={()=>setType(t)} style={{flex:1,background:type===t?`${C.accent}22`:"none",border:`1px solid ${type===t?C.accent:C.border}`,color:type===t?C.accent:C.muted,borderRadius:7,padding:"5px 0",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
+            {t==="fixed"?"📌 Fixed":"⚡ Flexible"}
+          </button>
+        ))}
+      </div>
+
+      {/* Flexible: window */}
+      {type==="flexible" && (
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6,marginBottom:10}}>
+          <div>
+            <div style={{fontSize:10,color:C.muted,marginBottom:2}}>EARLIEST</div>
+            <input type="time" value={from} onChange={e=>setFrom(e.target.value)}
+              style={{...timeInp}} />
+          </div>
+          <div>
+            <div style={{fontSize:10,color:C.muted,marginBottom:2}}>LATEST START</div>
+            <input type="time" value={to} onChange={e=>setTo(e.target.value)}
+              style={{...timeInp}} />
+          </div>
+        </div>
+      )}
+
+      {/* People toggles */}
+      <div style={{marginBottom:12}}>
+        <div style={{fontSize:10,color:C.muted,marginBottom:6}}>WHO'S INVOLVED</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
+          {PEOPLE.map(p=>{
+            const on = ppl.includes(p.id);
+            return (
+              <button key={p.id} onClick={()=>togglePerson(p.id)}
+                title={p.label}
+                style={{background:on?`${p.color}33`:"none",border:`1px solid ${on?p.color:C.border}`,color:on?p.color:C.muted,borderRadius:20,padding:"4px 8px",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",gap:4,fontFamily:"inherit"}}>
+                {p.icon}<span style={{fontSize:11}}>{p.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{display:"flex",gap:6}}>
+        <button onClick={()=>{if(!name.trim())return; onSave({id:task?.id||uid(),name,durationSlots:dur,type,fixedTime:type==="fixed"?slotToTime(slot||0):"",earliest:from,latest:to,people:ppl,color:task?.color||nextColor()});}}
+          style={{flex:1,background:C.accent,color:"#fff",border:"none",borderRadius:7,padding:"8px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+          {isEdit?"Save":"Add"}
+        </button>
+        <button onClick={onCancel} style={{background:"none",border:`1px solid ${C.border}`,color:C.muted,borderRadius:7,padding:"8px 12px",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>✕</button>
+        {isEdit && <button onClick={()=>onDelete(task.id)} style={{background:`${C.red}18`,border:`1px solid ${C.red}44`,color:C.red,borderRadius:7,padding:"8px 10px",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>🗑</button>}
+      </div>
+    </div>
+  );
+}
+const stepBtn = {background:"none",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,width:28,height:28,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"};
+const timeInp = {background:C.surface,border:`1px solid ${C.border}`,borderRadius:6,color:C.text,padding:"5px 8px",fontSize:12,outline:"none",width:"100%",boxSizing:"border-box",fontFamily:"inherit"};
+
+// ─── Time Grid ────────────────────────────────────────────────────────────────
+function TimeGrid({ tasks, staff, routine, onTasksChange }) {
+  const [activeSlot, setActiveSlot] = useState(null);
+  const [editTask,   setEditTask]   = useState(null);
+  const gridRef = useRef(null);
+
+  const routine_tasks = buildRoutineTasks(routine).map(t=>({...t, fixedSlot: t.type==="fixed"?timeToSlot(t.fixedTime):null}));
+  const allFixed = [...tasks.filter(t=>t.type==="fixed"), ...routine_tasks.filter(t=>t.type==="fixed")];
+  const flexTasks = tasks.filter(t=>t.type==="flexible");
+  const routineFlexTasks = routine_tasks.filter(t=>t.type==="flexible");
+
+  // Lane layout: overlapping fixed tasks sit side-by-side instead of on top of each other
+  const computeLanes = (items) => {
+    const evs = items.map(t=>({id:t.id, start:timeToSlot(t.fixedTime), end:timeToSlot(t.fixedTime)+t.durationSlots}))
+      .filter(e=>e.start<TOTAL_SLOTS && e.end>0)
+      .sort((a,b)=> a.start-b.start || a.end-b.end);
+    const map={}; let cluster=[], clusterEnd=-1;
+    const flush=()=>{ const lanes=[]; cluster.forEach(e=>{ let placed=false;
+        for(let i=0;i<lanes.length;i++){ if(lanes[i]<=e.start){ e.col=i; lanes[i]=e.end; placed=true; break; } }
+        if(!placed){ e.col=lanes.length; lanes.push(e.end); } });
+      const ncols=lanes.length; cluster.forEach(e=> map[e.id]={col:e.col,ncols}); cluster=[]; };
+    evs.forEach(e=>{ if(cluster.length && e.start>=clusterEnd){ flush(); clusterEnd=-1; }
+      cluster.push(e); clusterEnd=Math.max(clusterEnd,e.end); });
+    if(cluster.length) flush();
+    return map;
+  };
+  const laneMap = computeLanes(allFixed);
+  const laneStyle = (id) => { const L=laneMap[id]||{col:0,ncols:1};
+    return { left:`calc(62px + (100% - 66px) * ${L.col} / ${L.ncols})`,
+             width:`calc((100% - 66px) / ${L.ncols} - 2px)` }; };
+
+  // Sleep/wind-down zones
+  const sleepSlot   = routine.sleep.on    ? Math.max(0,timeToSlot(routine.sleep.bedtime))   : TOTAL_SLOTS;
+  const wakeSlot    = routine.sleep.on    ? Math.max(0,timeToSlot(routine.sleep.wake))       : 0;
+  const windSlot    = routine.windDown.on ? Math.max(0, sleepSlot-routine.windDown.windDur)  : sleepSlot;
+
+  const handleGridClick = e => {
+    if (e.target.closest("[data-taskblock]")) return;
+    const rect = gridRef.current.getBoundingClientRect();
+    const relY = e.clientY - rect.top + gridRef.current.scrollTop;
+    const slot = Math.floor(relY / ROW_H);
+    if (slot >= 0 && slot < TOTAL_SLOTS) { setActiveSlot(slot); setEditTask(null); }
+  };
+
+  const handleSave = (task) => {
+    onTasksChange(prev => {
+      const exists = prev.find(t=>t.id===task.id);
+      return exists ? prev.map(t=>t.id===task.id?task:t) : [...prev,task];
+    });
+    setActiveSlot(null); setEditTask(null);
+  };
+
+  const handleDelete = id => { onTasksChange(prev=>prev.filter(t=>t.id!==id)); setActiveSlot(null); setEditTask(null); };
+
+  const totalH = TOTAL_SLOTS * ROW_H;
+
+  return (
+    <div style={{display:"flex",gap:12}}>
+      {/* Grid */}
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:11,color:C.muted,marginBottom:8,display:"flex",justifyContent:"space-between"}}>
+          <span>FIXED SCHEDULE · Click any slot to add a task</span>
+          <span style={{color:C.dim}}>Drag to select duration →</span>
+        </div>
+        <div ref={gridRef} onClick={handleGridClick}
+          style={{position:"relative",height:Math.min(totalH,520),overflowY:"auto",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,cursor:"crosshair"}}>
+          <div style={{position:"relative",height:totalH}}>
+            {/* Hour/slot rows */}
+            {Array.from({length:TOTAL_SLOTS},(_,i)=>{
+              const onHour = (GRID_START + i*SLOT_MINS) % 60 === 0;
+              const inSleep = i < wakeSlot || i >= sleepSlot;
+              const inWind  = i >= windSlot && i < sleepSlot;
+              return (
+                <div key={i} style={{position:"absolute",top:i*ROW_H,left:0,right:0,height:ROW_H,
+                  background:inSleep?"rgba(74,144,217,0.06)":inWind?"rgba(155,127,232,0.06)":i%2===0?"transparent":"rgba(255,255,255,0.01)",
+                  borderBottom:`1px solid ${onHour?C.dim:C.border}22`,display:"flex",alignItems:"center"}}>
+                  <div style={{width:62,flexShrink:0,fontSize:onHour?11:10,color:onHour?C.muted:C.dim,fontFamily:"monospace",textAlign:"right",paddingRight:8}}>
+                    {onHour?fmtSlot(i):""}
+                  </div>
+                  {inWind && i===windSlot && <span style={{fontSize:9,color:"#9b7fe8",marginLeft:4}}>🌙 wind-down</span>}
+                  {inSleep && i===sleepSlot && <span style={{fontSize:9,color:C.blue,marginLeft:4}}>😴 sleep</span>}
+                  {i===wakeSlot && routine.sleep.on && <span style={{fontSize:9,color:C.blue,marginLeft:4}}>⏰ wake</span>}
+                </div>
+              );
+            })}
+
+            {/* Routine task blocks */}
+            {routine_tasks.filter(t=>t.type==="fixed").map(t=>{
+              const sl = timeToSlot(t.fixedTime);
+              if(sl<0||sl>=TOTAL_SLOTS) return null;
+              const pplColors = (t.people||[]).map(p=>PID[p]?.color).filter(Boolean);
+              return (
+                <div key={t.id} data-taskblock="1"
+                  style={{position:"absolute",top:sl*ROW_H+1,...laneStyle(t.id),height:t.durationSlots*ROW_H-2,background:"rgba(120,128,160,0.12)",border:`1px dashed ${C.muted}55`,borderLeft:`3px solid ${C.muted}`,borderRadius:"0 6px 6px 0",padding:"2px 6px",overflow:"hidden",zIndex:3,pointerEvents:"none"}}>
+                  <span style={{fontSize:11,color:C.muted,fontWeight:600}}>{t.name}</span>
+                  <div style={{display:"flex",gap:2,marginTop:1,flexWrap:"wrap"}}>
+                    {pplColors.map((c,i)=><span key={i} style={{width:6,height:6,borderRadius:3,background:c,display:"inline-block"}} />)}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* User task blocks */}
+            {allFixed.filter(t=>!t._routine).map(t=>{
+              const sl = timeToSlot(t.fixedTime);
+              if(sl<0||sl>=TOTAL_SLOTS) return null;
+              const pplColors = (t.people||[]).map(p=>PID[p]?.color).filter(Boolean);
+              const isEditing = editTask?.id===t.id;
+              return (
+                <div key={t.id} data-taskblock="1"
+                  onClick={e=>{e.stopPropagation(); setEditTask(t); setActiveSlot(sl);}}
+                  style={{position:"absolute",top:sl*ROW_H+1,...laneStyle(t.id),height:t.durationSlots*ROW_H-2,
+                    background:`${t.color}22`,border:`1px solid ${isEditing?C.accent:t.color}66`,
+                    borderLeft:`3px solid ${isEditing?C.accent:t.color}`,borderRadius:"0 6px 6px 0",
+                    padding:"3px 7px",overflow:"hidden",zIndex:4,cursor:"pointer"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:t.color,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{t.name}</div>
+                  <div style={{display:"flex",gap:3,marginTop:1,flexWrap:"wrap"}}>
+                    {pplColors.map((c,i)=><span key={i} style={{width:6,height:6,borderRadius:3,background:c,display:"inline-block"}} />)}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Mini form */}
+            {activeSlot !== null && (
+              <MiniForm slot={activeSlot} task={editTask}
+                onSave={handleSave}
+                onCancel={()=>{setActiveSlot(null);setEditTask(null);}}
+                onDelete={handleDelete} />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Flexible tasks sidebar */}
+      <div style={{width:200,flexShrink:0}}>
+        <div style={{fontSize:11,color:C.muted,marginBottom:8}}>⚡ FLEXIBLE TASKS</div>
+        <div style={{display:"flex",flexDirection:"column",gap:6}}>
+          {[...flexTasks, ...routineFlexTasks].map(t=>{
+            const isRoutine = !!t._routine;
+            return (
+              <div key={t.id}
+                onClick={!isRoutine?()=>{setEditTask(t);setActiveSlot(0);}:undefined}
+                style={{background:C.card,border:`1px solid ${isRoutine?C.border+"88":t.color+"66"}`,borderLeft:`3px solid ${isRoutine?C.muted:t.color}`,borderRadius:8,padding:"8px 10px",cursor:isRoutine?"default":"pointer"}}>
+                <div style={{fontSize:12,fontWeight:700,color:isRoutine?C.muted:t.color}}>{t.name}</div>
+                <div style={{fontSize:10,color:C.muted,marginTop:2}}>{durLabel(t.durationSlots)} · {fmt(t.earliest||"06:00")}–{fmt(t.latest||"21:00")}</div>
+                <div style={{display:"flex",gap:3,marginTop:4,flexWrap:"wrap"}}>
+                  {(t.people||[]).map(p=><span key={p} title={PID[p]?.label} style={{fontSize:12}}>{PID[p]?.icon}</span>)}
+                </div>
+              </div>
+            );
+          })}
+          <button onClick={()=>{setEditTask(null);setActiveSlot(0);}}
+            style={{background:"none",border:`1px dashed ${C.border}`,color:C.muted,borderRadius:8,padding:"8px",fontSize:12,cursor:"pointer",fontFamily:"inherit",textAlign:"center"}}>
+            + Add flexible task
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+function Settings({ staff, setStaff, routine, setRoutine, travelBuf, setTravelBuf }) {
+  const inp = { background:C.card, border:`1px solid ${C.border}`, borderRadius:6, color:C.text, padding:"5px 8px", fontSize:12, outline:"none", fontFamily:"inherit" };
+  const Lbl = ({c}) => <span style={{fontSize:10,color:C.muted,fontFamily:"monospace",display:"block",marginBottom:2}}>{c}</span>;
+
+  const meal = (key, icon, col) => {
+    const r = routine[key];
+    const s = v => setRoutine(p=>({...p,[key]:{...p[key],...v}}));
+    return (
+      <div style={{background:C.bg,border:`1px solid ${r.on?col+"44":C.border}`,borderRadius:8,padding:10,display:"flex",gap:10,alignItems:"flex-start"}}>
+        <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontWeight:700,fontSize:13,color:r.on?col:C.muted,whiteSpace:"nowrap",minWidth:80}}>
+          <input type="checkbox" checked={r.on} onChange={e=>s({on:e.target.checked})} />
+          {icon}
+        </label>
+        {r.on && <>
+          <div><Lbl c="TIME"/><input {...{...inp,style:{...inp,width:80}}} type="time" value={r.time} onChange={e=>s({time:e.target.value})} /></div>
+          <div><Lbl c="DURATION"/><select {...{...inp,style:{...inp,width:70}}} value={r.dur} onChange={e=>s({dur:+e.target.value})}>
+            {[1,2,3,4].map(d=><option key={d} value={d}>{durLabel(d)}</option>)}
+          </select></div>
+          <div>
+            <Lbl c="PEOPLE"/>
+            <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+              {PEOPLE.map(p=>{
+                const on=r.people.includes(p.id);
+                return <button key={p.id} onClick={()=>s({people:on?r.people.filter(x=>x!==p.id):[...r.people,p.id]})} title={p.label}
+                  style={{background:on?`${p.color}33`:"none",border:`1px solid ${on?p.color:C.border}`,color:on?p.color:C.dim,borderRadius:12,padding:"2px 5px",fontSize:11,cursor:"pointer",fontFamily:"inherit"}}>
+                  {p.icon}
+                </button>;
+              })}
+            </div>
+          </div>
+        </>}
+      </div>
+    );
+  };
+
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+      {/* Staff */}
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:14}}>
+        <div style={{fontSize:13,fontWeight:700,color:C.green,marginBottom:12}}>👥 Staff Availability</div>
+        <table style={{width:"100%",borderCollapse:"collapse"}}>
+          <thead>
+            <tr style={{fontSize:10,color:C.muted}}>
+              <td style={{paddingBottom:6}}>PERSON</td>
+              <td style={{paddingBottom:6}}>FROM</td>
+              <td style={{paddingBottom:6}}>TO</td>
+              <td style={{paddingBottom:6}}>EVE FROM</td>
+              <td style={{paddingBottom:6}}>EVE TO</td>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(staff).map(([k,v])=>{
+              const s = nv => setStaff(p=>({...p,[k]:{...p[k],...nv}}));
+              const ti = { ...inp, style:{...inp,width:68} };
+              return (
+                <tr key={k} style={{borderTop:`1px solid ${C.border}`}}>
+                  <td style={{padding:"6px 6px 6px 0"}}>
+                    <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:12,color:v.enabled?PID[k]?.color||C.text:C.dim,fontWeight:600}}>
+                      <input type="checkbox" checked={v.enabled} onChange={e=>s({enabled:e.target.checked})} />
+                      {PID[k]?.icon} {v.label}
+                    </label>
+                  </td>
+                  <td><input disabled={!v.enabled} type="time" value={v.from} onChange={e=>s({from:e.target.value})} {...ti} /></td>
+                  <td><input disabled={!v.enabled} type="time" value={v.to}   onChange={e=>s({to:e.target.value})}   {...ti} /></td>
+                  <td><input disabled={!v.enabled} type="time" value={v.from2||""} onChange={e=>s({from2:e.target.value,eve:!!e.target.value})} {...ti} placeholder="—" /></td>
+                  <td><input disabled={!v.enabled} type="time" value={v.to2||""}   onChange={e=>s({to2:e.target.value})}   {...ti} placeholder="—" /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div style={{fontSize:11,color:C.dim,marginTop:10}}>Eve From/To: optional second shift (e.g. cook evening hours)</div>
+      </div>
+
+      {/* Routine */}
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:14}}>
+        <div style={{fontSize:13,fontWeight:700,color:C.accent,marginBottom:12}}>🕐 Daily Routine</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {meal("breakfast","🥞 Breakfast","#ff8a50")}
+          {meal("lunch","🍱 Lunch","#4dd0e1")}
+          {meal("dinner","🍽 Dinner","#f48fb1")}
+
+          {/* Family time */}
+          {(()=>{
+            const r=routine.familyTime; const s=v=>setRoutine(p=>({...p,familyTime:{...p.familyTime,...v}}));
+            return <div style={{background:C.bg,border:`1px solid ${r.on?"#f48fb144":C.border}`,borderRadius:8,padding:10,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+              <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontWeight:700,fontSize:13,color:r.on?"#f48fb1":C.muted,whiteSpace:"nowrap"}}>
+                <input type="checkbox" checked={r.on} onChange={e=>s({on:e.target.checked})} />👨‍👩‍👧 Family
+              </label>
+              {r.on && <>
+                <input type="time" value={r.from} onChange={e=>s({from:e.target.value})} style={{...inp,width:84}} />
+                <span style={{color:C.muted,fontSize:11}}>to</span>
+                <input type="time" value={r.to} onChange={e=>s({to:e.target.value})} style={{...inp,width:84}} />
+                <select value={r.dur} onChange={e=>s({dur:+e.target.value})} style={{...inp,width:70}}>
+                  {[1,2,3,4].map(d=><option key={d} value={d}>{durLabel(d)}</option>)}
+                </select>
+              </>}
+            </div>;
+          })()}
+
+          {/* Wind down */}
+          {(()=>{
+            const r=routine.windDown; const s=v=>setRoutine(p=>({...p,windDown:{...p.windDown,...v}}));
+            return <div style={{background:C.bg,border:`1px solid ${r.on?"#9b7fe844":C.border}`,borderRadius:8,padding:10,display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+              <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontWeight:700,fontSize:13,color:r.on?"#9b7fe8":C.muted,whiteSpace:"nowrap"}}>
+                <input type="checkbox" checked={r.on} onChange={e=>s({on:e.target.checked})} />🌙 Wind-down
+              </label>
+              {r.on && <select value={r.windDur} onChange={e=>s({windDur:+e.target.value})} style={{...inp,width:70}}>
+                {[1,2,3].map(d=><option key={d} value={d}>{durLabel(d)}</option>)}
+              </select>}
+            </div>;
+          })()}
+
+          {/* Sleep */}
+          {(()=>{
+            const r=routine.sleep; const s=v=>setRoutine(p=>({...p,sleep:{...p.sleep,...v}}));
+            const dur = (()=>{ const b=parseInt(r.bedtime)*60+parseInt(r.bedtime.split(":")[1]), w=parseInt(r.wake)*60+parseInt(r.wake.split(":")[1]); return w<=b?(24*60-b)+w:w-b; })();
+            return <div style={{background:C.bg,border:`1px solid ${r.on?"#4a90d944":C.border}`,borderRadius:8,padding:10}}>
+              <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+                <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontWeight:700,fontSize:13,color:r.on?"#4a90d9":C.muted,whiteSpace:"nowrap"}}>
+                  <input type="checkbox" checked={r.on} onChange={e=>s({on:e.target.checked})} />😴 Sleep
+                </label>
+                {r.on && <>
+                  <div><span style={{fontSize:10,color:C.muted}}>BED </span><input type="time" value={r.bedtime} onChange={e=>s({bedtime:e.target.value})} style={{...inp,width:84}} /></div>
+                  <div><span style={{fontSize:10,color:C.muted}}>WAKE </span><input type="time" value={r.wake} onChange={e=>s({wake:e.target.value})} style={{...inp,width:84}} /></div>
+                </>}
+              </div>
+              {r.on && <div style={{fontSize:11,marginTop:6,color:dur>=7*60?C.green:C.red}}>
+                {Math.floor(dur/60)}h {dur%60}m · {dur<7*60?"⚠ under 7hrs":dur>=8*60?"✓ well rested":"✓ ok"}
+              </div>}
+            </div>;
+          })()}
+
+          <div style={{borderTop:`1px solid ${C.border}`,paddingTop:10,marginTop:2}}>
+            <Lbl c="TRAVEL BUFFER PER DRIVER TRIP"/>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginTop:4}}>
+              <input type="range" min={0} max={45} step={5} value={travelBuf} onChange={e=>setTravelBuf(+e.target.value)} style={{flex:1}} />
+              <span style={{fontSize:12,color:C.text,minWidth:40}}>{travelBuf}m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const Lbl = ({c}) => <span style={{fontSize:10,color:C.muted,fontFamily:"monospace",display:"block",marginBottom:2}}>{c}</span>;
+
+// ─── Result ───────────────────────────────────────────────────────────────────
+function Result({ result, staff, routine }) {
+  if (!result) return (
+    <div style={{textAlign:"center",padding:"60px 20px",color:C.muted}}>
+      <div style={{fontSize:44,marginBottom:12}}>⚡</div>
+      <div style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:8}}>No schedule yet</div>
+      <div style={{fontSize:13}}>Set up tasks and routine, then click Optimize</div>
+    </div>
+  );
+
+  const toM = t => { if(!t)return 0; const[h,m]=t.split(":").map(Number); return h*60+m; };
+  const fmtM = m => { const h=Math.floor(((m%1440)+1440)%1440/60),mn=m%60; return fmt(`${String(h).padStart(2,"0")}:${String(mn).padStart(2,"0")}`); };
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      {/* Summary */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+        {[
+          {l:"Scheduled",  v:result.scheduled.filter(t=>!t._routine).length, c:C.green,  i:"✅"},
+          {l:"Routine",    v:result.scheduled.filter(t=>t._routine).length,  c:C.muted,  i:"🔄"},
+          {l:"Unscheduled",v:result.unscheduled.length,  c:result.unscheduled.length?C.red:C.muted, i:"⚠"},
+          {l:"Driver Cost",v:`₹${result.driverCost}`,    c:C.accent, i:"🚗"},
+        ].map(s=>(
+          <div key={s.l} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px"}}>
+            <div style={{fontSize:18}}>{s.i}</div>
+            <div style={{fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
+            <div style={{fontSize:10,color:C.muted}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+
+      {result.warnings.length>0 && (
+        <div style={{background:"#F7E6E0",border:`1px solid ${C.red}44`,borderRadius:10,padding:14}}>
+          <div style={{fontSize:12,fontWeight:700,color:C.red,marginBottom:8}}>⚠ STAFF CONFLICTS</div>
+          {result.warnings.map((w,i)=>(
+            <div key={i} style={{fontSize:13,color:C.muted,padding:"3px 0",borderBottom:`1px solid ${C.border}`}}>
+              <span style={{fontWeight:600,color:C.text}}>{w.name}</span> — {w.issues.join(", ")} not available at this time
+            </div>
+          ))}
+        </div>
+      )}
+
+      {result.driverSessions.length>0 && (
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:14}}>
+          <div style={{fontSize:12,fontWeight:700,color:C.accent,marginBottom:10}}>🚗 DRIVER SESSIONS</div>
+          {result.driverSessions.map((d,i)=>{
+            const mins=d.end-d.start;
+            const inWin=d.start>=toM(staff.driver.from)&&d.end<=toM(staff.driver.to);
+            return (
+              <div key={i} style={{display:"flex",justifyContent:"space-between",background:C.surface,borderRadius:8,padding:"8px 12px",borderLeft:`3px solid ${inWin?C.green:C.red}`,marginBottom:5}}>
+                <div><span style={{fontFamily:"monospace",fontSize:13}}>{fmtM(d.start)} – {fmtM(d.end)}</span>{!inWin&&<span style={{fontSize:10,color:C.red,marginLeft:8}}>⚠ outside window</span>}</div>
+                <div style={{textAlign:"right"}}><div style={{fontSize:12,color:C.accent,fontWeight:700}}>₹{Math.ceil(mins/60*DRIVER_RATE)}</div><div style={{fontSize:10,color:C.muted}}>{mins}m</div></div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Schedule list */}
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:14}}>
+        <div style={{fontSize:12,fontWeight:700,color:C.muted,marginBottom:10}}>FULL SCHEDULE</div>
+        <div style={{display:"flex",flexDirection:"column",gap:4}}>
+          {result.scheduled.map(task=>{
+            const col = task.color||C.muted;
+            const warn = task.staffWarnings?.length>0;
+            return (
+              <div key={task.id} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",background:C.surface,borderRadius:8,borderLeft:`3px solid ${warn?C.red:col}`}}>
+                <div style={{fontFamily:"monospace",fontSize:11,color:C.muted,minWidth:110,flexShrink:0}}>{fmtM(task.startMins)} – {fmtM(task.startMins+task.duration)}</div>
+                <div style={{flex:1,fontSize:13,fontWeight:600}}>{task.name}</div>
+                <div style={{display:"flex",gap:3,flexShrink:0}}>
+                  {(task.people||[]).map(p=><span key={p} title={PID[p]?.label} style={{fontSize:13}}>{PID[p]?.icon}</span>)}
+                  {task._routine&&<span style={{fontSize:9,color:C.muted,background:`${C.muted}22`,borderRadius:3,padding:"1px 4px",marginLeft:4}}>ROUTINE</span>}
+                  {warn&&<span style={{fontSize:10,color:C.red,marginLeft:4}} title={task.staffWarnings.join(", ")}>⚠</span>}
+                </div>
+              </div>
+            );
+          })}
+          {routine.sleep.on && (
+            <div style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",background:`${C.blue}0d`,borderRadius:8,borderLeft:`3px solid ${C.blue}`}}>
+              <div style={{fontFamily:"monospace",fontSize:11,color:C.muted,minWidth:110}}>{fmt(routine.sleep.bedtime)} – {fmt(routine.sleep.wake)}</div>
+              <div style={{flex:1,fontSize:13,fontWeight:600}}>😴 Sleep</div>
+              <span style={{fontSize:9,color:C.blue,background:`${C.blue}22`,borderRadius:3,padding:"1px 4px"}}>ROUTINE</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [tasks,     setTasks]    = useState([
+    {id:uid(),name:"School Drop-off",  type:"fixed",    fixedTime:"08:00",durationSlots:1,people:["self","kid","driver"],    color:"#4caf7d"},
+    {id:uid(),name:"Office Work",      type:"fixed",    fixedTime:"09:30",durationSlots:8,people:["self"],                  color:"#9b7fe8"},
+    {id:uid(),name:"School Pick-up",   type:"fixed",    fixedTime:"15:30",durationSlots:1,people:["self","kid","driver"],    color:"#4caf7d"},
+    {id:uid(),name:"Grocery Errand",   type:"flexible", fixedTime:"",     durationSlots:2,people:["self","driver"],          color:"#f5a623", earliest:"11:00", latest:"16:00"},
+    {id:uid(),name:"Morning Exercise", type:"flexible", fixedTime:"",     durationSlots:2,people:["self"],                   color:"#4dd0e1", earliest:"05:00", latest:"08:00"},
+  ]);
+  const [staff,     setStaff]    = useState(DEFAULT_STAFF);
+  const [routine,   setRoutine]  = useState(DEFAULT_ROUTINE);
+  const [travelBuf, setTravelBuf]= useState(15);
+  const [result,    setResult]   = useState(null);
+  const [tab,       setTab]      = useState("grid");
+
+  const optimize = useCallback(() => {
+    setResult(optimizeSchedule(tasks, staff, routine, travelBuf));
+    setTab("result");
+  }, [tasks, staff, routine, travelBuf]);
+
+  return (
+    <div style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:C.bg,minHeight:"100vh",color:C.text}}>
+      <div style={{background:"rgba(255,255,255,.82)",borderBottom:`1px solid ${C.border}`,padding:"12px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:20,backdropFilter:"blur(10px)"}}>
+        <div>
+          <div style={{fontSize:19,fontWeight:700}}><span style={{color:C.accent}}>◆</span> DayFlow</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"monospace",letterSpacing:"0.06em"}}>HOUSEHOLD SCHEDULE OPTIMIZER</div>
+        </div>
+        <button onClick={optimize} style={{background:C.accent,color:"#fff",border:"none",borderRadius:8,padding:"10px 20px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit"}}>
+          ⚡ Optimize
+        </button>
+      </div>
+
+      <div style={{background:"rgba(255,255,255,.82)",borderBottom:`1px solid ${C.border}`,display:"flex",padding:"0 20px",backdropFilter:"blur(8px)"}}>
+        {[["grid","📅 Schedule Grid"],["settings","⚙ Settings"],["result","📊 Result"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{background:"none",border:"none",cursor:"pointer",color:tab===id?C.accent:C.muted,borderBottom:tab===id?`2px solid ${C.accent}`:"2px solid transparent",padding:"12px 14px",fontSize:13,fontWeight:600,fontFamily:"inherit"}}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{maxWidth:960,margin:"0 auto",padding:"16px"}}>
+        {tab==="grid"     && <TimeGrid tasks={tasks} staff={staff} routine={routine} onTasksChange={setTasks} />}
+        {tab==="settings" && <Settings staff={staff} setStaff={setStaff} routine={routine} setRoutine={setRoutine} travelBuf={travelBuf} setTravelBuf={setTravelBuf} />}
+        {tab==="result"   && <Result result={result} staff={staff} routine={routine} />}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
