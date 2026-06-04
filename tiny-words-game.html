@@ -72,6 +72,14 @@ body{
 .gamegrid .gamecard:nth-child(5),.choices .choice:nth-child(5){animation-delay:.28s;}
 
 /* ============ SHARED BITS ============ */
+/* exit back to the friendology homepage (home screen) */
+.back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+  font-size:.95rem;color:var(--muted);margin:0 0 4px;transition:opacity .2s ease;}
+.back .chev{font-size:1.2rem;line-height:1;}
+.back .wm{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);}
+.back .wm b{color:var(--mint);font-weight:600;}
+.back:active{opacity:.55;}
+
 .brand{text-align:center;margin:6px 0 4px;}
 .brand .mark{font-size:2.5rem;display:inline-block;
   animation:floaty 3.4s ease-in-out infinite;filter:drop-shadow(0 6px 10px rgba(34,35,31,.16));}
@@ -446,6 +454,7 @@ body{
 <!-- ================= HOME ================= -->
 <div class="screen scroll active" id="home">
   <div class="wrap">
+    <a class="back" href="index.html" aria-label="Back to friendology home"><span class="chev">‹</span><span class="wm">friend<b>ology</b></span></a>
     <div class="brand">
       <span class="mark">🐣</span>
       <h1 class="display"><span class="x">Tiny</span> <span class="y">Words</span></h1>
