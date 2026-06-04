@@ -97,6 +97,14 @@ details.method code{background:var(--band);padding:1px 5px;border-radius:5px;fon
 .guide li{margin-bottom:9px;font-size:.92rem;color:var(--ink)}
 .guide li b{color:var(--brand)}
 .guide .note{margin-top:10px;font-size:.84rem;color:var(--muted)}
+.help{font-size:.78rem;color:var(--faint);margin-top:5px;line-height:1.45}
+.help b{color:var(--muted);font-weight:600}
+.glossary dl{margin:4px 0 0}
+.glossary dt{font-weight:700;color:var(--ink);font-size:.9rem;margin-top:12px}
+.glossary dd{margin:2px 0 0;font-size:.86rem;color:var(--muted)}
+.glossary .grp{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.glossary .grp:first-child{border-top:none;margin-top:6px;padding-top:0}
+.glossary .where{margin-top:16px;background:var(--brand-tint);border-radius:10px;padding:11px 13px;font-size:.86rem;color:var(--ink)}
 th[title]{cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:3px}
 </style>
 </head>
@@ -106,7 +114,7 @@ th[title]{cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--m
 
   <div class="eyebrow">Life Tools · Investing</div>
   <h1 class="display">Value <b>Screener</b></h1>
-  <p class="lede">A fundamental + technical screen for NSE stocks. It scores each name on how <em>cheap, healthy and stabilising</em> it looks, applies a strict value gate, and ranks the results — so you find value with confirmation, not a falling knife.</p>
+  <p class="lede">Wondering whether a stock is good value? Look up a few numbers for the companies you're considering, enter them here, and this compares them side by side — flagging the ones that look <em>cheap for what you get, financially solid, and not over-priced</em>. You provide the numbers (we show you which, and where to get them free); the tool just does the scoring. It never fetches prices and never tells you to buy or sell.</p>
 
   <div class="disclaimer">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
@@ -127,19 +135,20 @@ th[title]{cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--m
   <!-- CONTROLS -->
   <div class="panel">
     <h2 class="display">Screen settings</h2>
-    <div class="hint">Same knobs as the original tool — weighting, the value gate, and how many results to show.</div>
+    <div class="hint">Control how the score is weighted and how many results you see. The defaults are fine to start.</div>
     <div class="controls">
       <div class="ctl span">
-        <label>Fundamentals vs technicals</label>
+        <label>How much to weight the company vs its price trend</label>
         <div class="rng">
           <input type="range" id="fw" min="0" max="100" value="65">
           <span class="rngval" id="fwLbl">65% / 35%</span>
         </div>
+        <div class="help">Left = the company's <b>business health</b> (profits, debt, growth). Right = its recent <b>share-price trend</b>. The figure shows the split. Most long-term value investors lean left.</div>
       </div>
-      <div class="ctl"><label>Min fundamental score</label><input type="number" id="minFund" value="0" min="0" max="100"></div>
-      <div class="ctl"><label>Min combined score</label><input type="number" id="minComb" value="0" min="0" max="100"></div>
-      <div class="ctl"><label>Top N (0 = all)</label><input type="number" id="topN" value="0" min="0"></div>
-      <div class="ctl"><label class="toggle"><input type="checkbox" id="valueOnly"> Value gate only</label></div>
+      <div class="ctl"><label>Hide weak businesses below</label><input type="number" id="minFund" value="0" min="0" max="100"><div class="help">A business-health score out of 100. Leave at 0 to see all.</div></div>
+      <div class="ctl"><label>Hide low overall scores below</label><input type="number" id="minComb" value="0" min="0" max="100"><div class="help">The overall score out of 100. Leave at 0 to see all.</div></div>
+      <div class="ctl"><label>Show only the best…</label><input type="number" id="topN" value="0" min="0"><div class="help">Keep just the top N. 0 shows every stock you entered.</div></div>
+      <div class="ctl"><label class="toggle"><input type="checkbox" id="valueOnly"> Only show real “value” picks</label><div class="help">Hides anything that fails the basic value checks — sensible price, low debt, decent returns.</div></div>
     </div>
     <div class="btnrow">
       <button class="btn primary" onclick="runScreen()">Run screen ↓</button>
@@ -147,10 +156,36 @@ th[title]{cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--m
     </div>
   </div>
 
+  <!-- GLOSSARY -->
+  <details class="panel glossary" open>
+    <summary style="cursor:pointer;font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem">What the numbers mean (in plain English)</summary>
+    <div class="grp">The 5 essentials — these power the value check</div>
+    <dl>
+      <dt>P/E — “price-to-earnings”</dt><dd>How many years of the company's profit you're paying for, at today's price. Lower is cheaper. Here it must be sensible (0–45).</dd>
+      <dt>P/B — “price-to-book”</dt><dd>The price compared with what the company is worth on paper. Lower means you're paying less for the assets.</dd>
+      <dt>ROE % — “return on equity”</dt><dd>How well the company turns owners' money into profit. Higher is better; below 8% is treated as weak.</dd>
+      <dt>D/E — “debt-to-equity”</dt><dd>How much it borrows versus its own money, as a ratio (e.g. 0.5). Lower is safer; very high debt is risky.</dd>
+      <dt>Dividend %</dt><dd>The yearly dividend as a percentage of the price — a bit of income while you hold.</dd>
+    </dl>
+    <div class="grp">Helpful extras (optional — more depth on value, quality &amp; growth)</div>
+    <dl>
+      <dt>EV/EBITDA · PEG</dt><dd>Two more “is it cheap?” measures — lower is better.</dd>
+      <dt>Margin % · Current ratio</dt><dd>Profit kept per ₹ of sales, and whether it can cover short-term bills.</dd>
+      <dt>EPS growth % · Revenue growth %</dt><dd>How fast profits and sales are growing, year on year.</dd>
+    </dl>
+    <div class="grp">Price-trend extras (optional — the “technicals” side)</div>
+    <dl>
+      <dt>Price · 52-week high / low</dt><dd>Today's price and its range over the last year — shows if it's near the top or bottom.</dd>
+      <dt>50-day / 200-day average</dt><dd>The average price recently vs longer-term — above the 200-day average is generally healthier.</dd>
+      <dt>RSI · Volume ratio · MACD↑</dt><dd>Momentum signals. Leave all of these blank and a stock is simply scored on its business alone.</dd>
+    </dl>
+    <div class="where">💡 <b>Where to get the numbers — free:</b> open the company's page on <b>screener.in</b>, <b>Tickertape</b> or <b>nseindia.com</b> and copy the figures across. You don't need every box — the 5 essentials are enough for a useful score.</div>
+  </details>
+
   <!-- DATA -->
   <div class="panel">
     <h2 class="display">Your stocks <span id="sampleFlag" class="sample-flag"></span></h2>
-    <div class="hint">Enter what you have — fundamentals drive the score; technicals are optional (rows with none are scored on fundamentals alone). Blank cells are skipped fairly.</div>
+    <div class="hint">Enter what you can — the company numbers drive the score; the price-trend ones are optional. Don't have a figure? Leave it blank — it's skipped, never guessed. Not sure what a column is? See the plain-English list just above.</div>
     <div class="tablescroll">
       <table id="inTable">
         <thead>
@@ -183,7 +218,7 @@ th[title]{cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--m
   <!-- RESULTS -->
   <div class="panel">
     <h2 class="display">Ranked results</h2>
-    <div class="hint">Sorted by combined score. <span class="score" style="color:var(--brand)">Verdicts</span> apply only to names passing the value gate.</div>
+    <div class="hint">Sorted by overall score, best first. A <span class="score" style="color:var(--brand)">verdict</span> only appears for stocks that pass the basic value checks.</div>
     <div class="tablescroll">
       <table class="results">
         <thead><tr id="resHead"></tr></thead>
