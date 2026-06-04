@@ -24,7 +24,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.4/babel.min.js"></script>
 <script type="text/babel" data-presets="react">
-const { useState, useRef, useCallback } = React;
+const { useState, useRef, useCallback, useEffect } = React;
+function useMobile(bp){
+  const q = bp||720;
+  const get = () => (typeof window!=='undefined' && window.innerWidth<=q);
+  const [m,setM] = useState(get());
+  useEffect(()=>{ const on=()=>setM(get()); window.addEventListener('resize',on); return ()=>window.removeEventListener('resize',on); },[]);
+  return m;
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const GRID_START = 5 * 60;   // 5:00 AM in minutes
@@ -192,12 +199,14 @@ function MiniForm({ slot, task, onSave, onCancel, onDelete }) {
 
   const togglePerson = id => setPpl(p => p.includes(id)?p.filter(x=>x!==id):[...p,id]);
 
-  const top = (slot||0) * ROW_H;
+  const mobile = useMobile();
 
   return (
-    <div style={{position:"absolute",left:70,top:Math.min(top, (TOTAL_SLOTS-8)*ROW_H),zIndex:30,
-      background:C.card,border:`1.5px solid ${C.accent}`,borderRadius:12,padding:14,width:280,
-      boxShadow:"0 8px 32px #22231F88"}}>
+    <>
+    <div onClick={onCancel} style={{position:"fixed",inset:0,background:"rgba(34,35,31,.45)",zIndex:999}} />
+    <div onClick={e=>e.stopPropagation()} style={{position:"fixed",left:"50%",top:"50%",transform:"translate(-50%,-50%)",zIndex:1000,
+      background:C.card,border:`1.5px solid ${C.accent}`,borderRadius:14,padding:16,width:"min(93vw,360px)",maxHeight:"86vh",overflowY:"auto",
+      boxShadow:"0 18px 50px rgba(34,35,31,.28)"}}>
       <div style={{fontSize:11,fontWeight:700,color:C.accent,marginBottom:10,letterSpacing:"0.06em"}}>
         {isEdit?"EDIT TASK":"NEW TASK"} · {fmtSlot(slot||0)}
       </div>
@@ -265,6 +274,7 @@ function MiniForm({ slot, task, onSave, onCancel, onDelete }) {
         {isEdit && <button onClick={()=>onDelete(task.id)} style={{background:`${C.red}18`,border:`1px solid ${C.red}44`,color:C.red,borderRadius:7,padding:"8px 10px",fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>🗑</button>}
       </div>
     </div>
+    </>
   );
 }
 const stepBtn = {background:"none",border:`1px solid ${C.border}`,color:C.text,borderRadius:6,width:28,height:28,cursor:"pointer",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"inherit"};
@@ -275,6 +285,7 @@ function TimeGrid({ tasks, staff, routine, onTasksChange }) {
   const [activeSlot, setActiveSlot] = useState(null);
   const [editTask,   setEditTask]   = useState(null);
   const gridRef = useRef(null);
+  const mobile = useMobile();
 
   const routine_tasks = buildRoutineTasks(routine).map(t=>({...t, fixedSlot: t.type==="fixed"?timeToSlot(t.fixedTime):null}));
   const allFixed = [...tasks.filter(t=>t.type==="fixed"), ...routine_tasks.filter(t=>t.type==="fixed")];
@@ -327,7 +338,7 @@ function TimeGrid({ tasks, staff, routine, onTasksChange }) {
   const totalH = TOTAL_SLOTS * ROW_H;
 
   return (
-    <div style={{display:"flex",gap:12}}>
+    <div style={{display:"flex",gap:12,flexDirection:mobile?"column":"row"}}>
       {/* Grid */}
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontSize:11,color:C.muted,marginBottom:8,display:"flex",justifyContent:"space-between"}}>
@@ -405,7 +416,7 @@ function TimeGrid({ tasks, staff, routine, onTasksChange }) {
       </div>
 
       {/* Flexible tasks sidebar */}
-      <div style={{width:200,flexShrink:0}}>
+      <div style={{width:mobile?"100%":200,flexShrink:0}}>
         <div style={{fontSize:11,color:C.muted,marginBottom:8}}>⚡ FLEXIBLE TASKS</div>
         <div style={{display:"flex",flexDirection:"column",gap:6}}>
           {[...flexTasks, ...routineFlexTasks].map(t=>{
