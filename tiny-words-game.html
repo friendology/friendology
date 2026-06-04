@@ -22,8 +22,8 @@
   --lav:#6B5BD6;    --lav-bg:#EDEBFB;     /* violet            */
   --butter:#B86208; --butter-bg:#FAEEDB;  /* ochre  (growth)   */
   --berry:#1F6B4A;  --berry-bg:#E7F1EC;   /* deep green        */
-  --accent:var(--peach);          /* kids product → warm amber */
-  --accent-bg:var(--peach-bg);
+  --accent:var(--mint);           /* one theme → brand green */
+  --accent-bg:var(--mint-bg);
   --shadow:0 1px 2px rgba(34,35,31,.04), 0 14px 34px rgba(34,35,31,.07);
   --shadow-sm:0 1px 2px rgba(34,35,31,.05), 0 6px 16px rgba(34,35,31,.05);
   --shadow-pop:0 2px 4px rgba(34,35,31,.05), 0 26px 56px rgba(34,35,31,.11);
@@ -78,7 +78,7 @@ body{
 @keyframes floaty{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-9px) rotate(5deg);}}
 .brand h1{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(2rem,8.5vw,2.8rem);
   line-height:1.05;letter-spacing:.3px;margin-top:4px;}
-.brand h1 .x{color:var(--mint);} .brand h1 .y{color:var(--peach);}
+.brand h1 .x{color:var(--ink);} .brand h1 .y{color:var(--mint);}
 .brand p{color:var(--muted);font-weight:600;font-size:.98rem;margin-top:6px;}
 
 .iconbtn{
@@ -291,8 +291,8 @@ body{
 .learn-len button:active{transform:scale(.94);}
 .learn-len button .sub{font-family:'Plus Jakarta Sans';font-weight:700;font-size:.6rem;color:var(--muted);
   text-transform:uppercase;letter-spacing:.6px;}
-.learn-len button.sel{background:var(--sky-bg);border-color:var(--sky);color:var(--sky);}
-.learn-len button.sel .sub{color:var(--sky);}
+.learn-len button.sel{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);}
+.learn-len button.sel .sub{color:var(--accent);}
 .learn-pages{flex:1;overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;}
 .lpage{height:100%;scroll-snap-align:start;scroll-snap-stop:always;
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(4,1fr);
@@ -324,7 +324,7 @@ body{
 #popup-bg{position:absolute;inset:0;background:rgba(34,35,31,.32);
   backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);}
 #popup-card{position:relative;z-index:1;background:var(--card);border:1.5px solid var(--cb);
-  border-radius:26px;width:min(86vw,350px);
+  border-radius:26px;overflow:hidden;width:min(86vw,350px);
   padding:34px 26px 24px;display:flex;flex-direction:column;align-items:center;gap:8px;
   cursor:default;box-shadow:0 32px 70px -16px rgba(34,35,31,.5);
   transform:scale(.8) translateY(20px);transition:transform .3s cubic-bezier(.34,1.5,.6,1);}
@@ -452,7 +452,7 @@ body{
       <p>Learn &amp; play with little words</p>
     </div>
     <div class="menu">
-      <div class="menu-card" id="goLearn" style="--tint:var(--sky-bg)">
+      <div class="menu-card" id="goLearn" style="--tint:var(--mint-bg)">
         <div class="ic">📖</div>
         <div class="tx"><h3>Learn Words</h3><p>Tap a picture — hear &amp; spell it</p></div>
         <div class="go">›</div>
@@ -1178,18 +1178,8 @@ const wordsByLen = {
 };
 const words = wordsByLen[3];
 const PAL = [
-  {bo:'#ffb3ba',tx:'#c0394a',da:'#ffd6da',ba:'#ff8fa3',bg:'#fff8f9',do:'#ff8fa3'},
-  {bo:'#ffc9a0',tx:'#c05a18',da:'#ffe3cc',ba:'#ff9a5c',bg:'#fff9f5',do:'#ff9a5c'},
-  {bo:'#ffe59a',tx:'#8a6200',da:'#fff2c4',ba:'#ffd040',bg:'#fffdf0',do:'#ffd040'},
-  {bo:'#b8f0d0',tx:'#1a7850',da:'#d4fae8',ba:'#5ecf90',bg:'#f4fdf9',do:'#5ecf90'},
-  {bo:'#b0d8f8',tx:'#1050a0',da:'#cfe8ff',ba:'#5aacf0',bg:'#f3f9ff',do:'#5aacf0'},
-  {bo:'#cab8f8',tx:'#5020a0',da:'#e4d8ff',ba:'#9060e8',bg:'#f8f5ff',do:'#9060e8'},
-  {bo:'#ffc8e0',tx:'#b0205c',da:'#ffe0ee',ba:'#ff7ab0',bg:'#fff5fa',do:'#ff7ab0'},
-  {bo:'#b8f0e0',tx:'#1a7068',da:'#d4faef',ba:'#50c8b0',bg:'#f3fefb',do:'#50c8b0'},
-  {bo:'#ffd8b0',tx:'#c05820',da:'#ffe8d0',ba:'#ff9848',bg:'#fff8f2',do:'#ff9848'},
-  {bo:'#b8e8f8',tx:'#0858a0',da:'#d0f0ff',ba:'#48b8f0',bg:'#f2fbff',do:'#48b8f0'},
-  {bo:'#e0b8f8',tx:'#7020a8',da:'#f2d8ff',ba:'#b870e8',bg:'#fdf5ff',do:'#b870e8'},
-  {bo:'#f8f0b0',tx:'#8a6800',da:'#fffad0',ba:'#e0c838',bg:'#fffef2',do:'#e0c838'},
+  /* one theme — neutral white card, single brand-green accent; no content-based color */
+  {bo:'#ECE8DE',tx:'#22231F',da:'#185539',ba:'#1F6B4A',bg:'#FFFFFF',do:'#1F6B4A'},
 ];
 
 /* ===================== ROBUST SPEECH ===================== */
@@ -1436,8 +1426,9 @@ function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor
 let S={len:3,game:'img2word',diff:1,round:0,score:0,firstTry:true,found:0,cur:null,used:[]};
 
 function setAccent(name){
-  document.body.style.setProperty('--accent','var(--'+name+')');
-  document.body.style.setProperty('--accent-bg','var(--'+name+'-bg)');
+  /* one theme — always brand green, regardless of game */
+  document.body.style.setProperty('--accent','var(--mint)');
+  document.body.style.setProperty('--accent-bg','var(--mint-bg)');
   document.body.dataset.theme=name;
 }
 
