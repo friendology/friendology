@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Freedom · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6; --surface:#FFFFFF; --line:#ECE8DE; --band:#F3F1EA;
+  --ink:#22231F; --muted:#5C5E55; --faint:#8A8C82;
+  --brand:#1F6B4A; --brand-press:#185539; --brand-tint:#E7F1EC;
+  --r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{min-height:100%}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);
+  background:
+    radial-gradient(ellipse 70% 45% at 50% -10%, var(--brand-tint) 0%, transparent 60%),
+    var(--paper);
+  background-attachment:fixed;
+  line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:660px;margin:0 auto;padding:22px 20px 56px}
+.display{font-family:'Fraunces',serif}
+
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.95rem;color:var(--muted);text-decoration:none;margin-bottom:26px;transition:opacity .2s}
+.back .chev{font-size:1.2rem;line-height:1}
+.back .wm{font-family:'Fraunces',serif;font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand);font-weight:600}
+.back:active{opacity:.55}
+
+.eyebrow{font-size:.74rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(2.1rem,8vw,2.9rem);line-height:1.05;letter-spacing:-.02em}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:1.02rem;margin-top:14px;max-width:46ch}
+
+.trust{display:flex;gap:12px;align-items:flex-start;background:var(--brand-tint);
+  border:1px solid color-mix(in srgb,var(--brand) 18%,transparent);
+  border-radius:14px;padding:14px 16px;margin:24px 0 10px}
+.trust svg{flex:none;width:20px;height:20px;color:var(--brand);margin-top:1px}
+.trust p{font-size:.9rem;color:var(--ink)}
+.trust p b{color:var(--brand)}
+
+.opts{display:grid;gap:16px;margin-top:22px}
+@media(min-width:620px){.opts{grid-template-columns:1fr 1fr}}
+
+.opt{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--r);padding:22px 20px;box-shadow:0 1px 2px rgba(34,35,31,.04),0 12px 30px rgba(34,35,31,.06)}
+.opt .ic{width:42px;height:42px;border-radius:12px;background:var(--brand-tint);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.opt .ic svg{width:22px;height:22px}
+.opt h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.3rem}
+.opt .sub{font-size:.82rem;color:var(--faint);font-weight:600;margin-top:2px}
+.opt p{font-size:.92rem;color:var(--muted);margin-top:10px;flex:1}
+.opt .safe{font-size:.82rem;color:var(--ink);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.opt .safe b{color:var(--brand)}
+
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.95rem;text-decoration:none;
+  border-radius:12px;padding:12px 18px;transition:transform .12s,background .2s}
+.cta:active{transform:scale(.98)}
+.cta-primary{background:var(--brand);color:#fff}
+.cta-primary:active{background:var(--brand-press)}
+.cta-ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.cta svg{width:17px;height:17px}
+
+.pick{margin-top:26px;font-size:.88rem;color:var(--muted)}
+.pick b{color:var(--ink);font-weight:600}
+.foot{margin-top:28px;font-size:.8rem;color:var(--faint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html" aria-label="Back to friendology"><span class="chev">‹</span><span class="wm">friend<b>ology</b></span></a>
+
+  <div class="eyebrow">Life Tools · Finance</div>
+  <h1 class="display">Financial <b>freedom</b></h1>
+  <p class="lede">Map your path to independence — income, assets, life goals and returns in one view. Pick whichever way suits you.</p>
+
+  <div class="trust">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+    <p>Your money data is yours. <b>There's no account, no upload and no tracking</b> — friendology has no server that can see your numbers, whichever option you choose.</p>
+  </div>
+
+  <div class="opts">
+    <!-- Online -->
+    <div class="opt">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+      <h2 class="display">Fill in online</h2>
+      <div class="sub">In your browser · instant</div>
+      <p>Type your numbers in and see your freedom number, net worth and year-by-year projection update live. Great for a quick run-through on your phone.</p>
+      <div class="safe">🔒 Runs <b>entirely on your device</b> — nothing is sent anywhere. Entries clear when you close the tab, so save the Excel if you want to keep them.</div>
+      <a class="cta cta-primary" href="financial-freedom-calculator.html">Open calculator
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <!-- Excel -->
+    <div class="opt">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13l6 4M15 13l-6 4"/></svg></div>
+      <h2 class="display">Download the Excel</h2>
+      <div class="sub">Yours to keep · works offline</div>
+      <p>A full spreadsheet model — Profile, Income, Assets, Investments, Life Events and Projections — that you can edit and revisit whenever you like.</p>
+      <div class="safe">🔒 Lives <b>on your own computer</b>. Works fully offline and saves your numbers between sessions; nothing ever leaves your device.</div>
+      <a class="cta cta-ghost" href="financial_freedom_calculator.xlsx" download>Download .xlsx
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M7 11l5 5 5-5M5 20h14"/></svg></a>
+    </div>
+  </div>
+
+  <p class="pick"><b>Not sure?</b> Use online for a quick look now; download the Excel if you'd like to keep your plan and update it over time. The maths is the same in both.</p>
+
+  <p class="foot">friendology is always free. If it helps, you're welcome to support us — but your data stays with you either way.</p>
+</div>
+</body>
+</html>
