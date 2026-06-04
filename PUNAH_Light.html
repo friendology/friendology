@@ -11,23 +11,25 @@
 <style>
 /* ============ THEME ============ */
 :root{
-  --bg:#F7F9FC;           /* cloud */
-  --ink:#10283F;
-  --muted:#5C6E7E;        /* slate */
-  --line:#E2E8F0;
+  --bg:#FBFAF6;           /* warm paper */
+  --ink:#22231F;          /* warm near-black */
+  --muted:#5C5E55;        /* soft ink */
+  --line:#ECE8DE;         /* hairline */
   --card:#FFFFFF;
-  --sky:#2B66F0;    --sky-bg:#EAF1FE;     /* blue */
-  --mint:#1CA64C;   --mint-bg:#E6F6EC;    /* green */
-  --peach:#DB7B0E;  --peach-bg:#FCF1E2;   /* orange */
-  --lav:#1B4ED1;    --lav-bg:#EAF1FE;     /* blue deep */
-  --butter:#B86208; --butter-bg:#FCF1E2;  /* orange deep */
-  --berry:#128039;  --berry-bg:#E6F6EC;   /* green deep */
-  --sun:#DB7B0E;    --sun-bg:#FCF1E2;     /* orange */
-  --leaf:#1CA64C;   --leaf-bg:#E6F6EC;    /* green */
-  --accent:var(--sky);
-  --accent-bg:var(--sky-bg);
-  --shadow:0 18px 38px -16px rgba(16,40,63,.16), 0 4px 10px -4px rgba(16,40,63,.06);
-  --shadow-sm:0 8px 20px -10px rgba(16,40,63,.14), 0 2px 4px -2px rgba(16,40,63,.05);
+  --sky:#2B66F0;    --sky-bg:#E8EFFE;
+  --mint:#1F6B4A;   --mint-bg:#E7F1EC;    /* brand green */
+  --peach:#C2700C;  --peach-bg:#FAEFDD;
+  --lav:#6B5BD6;    --lav-bg:#EDEBFB;
+  --butter:#B86208; --butter-bg:#FAEEDB;
+  --berry:#1F6B4A;  --berry-bg:#E7F1EC;
+  --sun:#22231F;    --sun-bg:#FAEFDD;
+  --leaf:#1F6B4A;   --leaf-bg:#E7F1EC;
+  --accent:var(--mint);          /* one theme → brand green */
+  --accent-bg:var(--mint-bg);
+  --shadow:0 1px 2px rgba(34,35,31,.04), 0 14px 34px rgba(34,35,31,.07);
+  --shadow-sm:0 1px 2px rgba(34,35,31,.05), 0 6px 16px rgba(34,35,31,.05);
+  --r:22px;
+  --r-sm:16px;
   --r:22px;
   --r-sm:16px;
 }
@@ -36,16 +38,26 @@ html,body{height:100%;}
 body{
   font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);
   background:
-    radial-gradient(circle at 14% 10%, var(--accent-bg) 0%, transparent 48%),
-    radial-gradient(circle at 86% 16%, #EAF1FE 0%, transparent 42%),
-    radial-gradient(circle at 82% 90%, #E6F6EC 0%, transparent 46%),
-    radial-gradient(circle at 10% 88%, #FCF1E2 0%, transparent 42%),
+    radial-gradient(ellipse 70% 50% at 50% -8%, var(--accent-bg) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 100% 100%, #E7F1EC 0%, transparent 55%),
     var(--bg);
   background-attachment:fixed;
   overflow:hidden;
   transition:background-color .5s ease;
 }
 .display{font-family:'Fraunces',serif;}
+
+/* exit back to the Punah hub */
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.95rem;color:var(--muted);text-decoration:none;margin-bottom:6px;transition:opacity .2s;}
+.back .chev{font-size:1.2rem;line-height:1;}
+.back .wm{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);}
+.back .wm b{color:var(--mint);font-weight:600;}
+.back:active{opacity:.55;}
+/* dynamic 'watch how' video link in a session */
+.watch{display:inline-flex;align-items:center;margin-top:14px;font-weight:600;font-size:.9rem;
+  color:var(--mint);background:var(--mint-bg);border:1px solid color-mix(in srgb,var(--mint) 25%,transparent);
+  border-radius:999px;padding:8px 16px;text-decoration:none;transition:background .2s,transform .12s;}
+.watch:active{transform:scale(.96);}
 
 /* ============ SCREENS ============ */
 .screen{position:fixed;inset:0;display:none;}
@@ -74,7 +86,7 @@ body{
 /* ============ SHARED BITS ============ */
 .brand{text-align:center;margin:6px 0 4px;}
 .brand .mark{font-size:2.5rem;display:inline-block;
-  animation:sway 3s ease-in-out infinite;filter:drop-shadow(0 6px 10px rgba(16,40,63,.16));}
+  animation:sway 3s ease-in-out infinite;filter:drop-shadow(0 6px 10px rgba(34,35,31,.16));}
 @keyframes sway{0%,100%{transform:rotate(-6deg) scale(1);}50%{transform:rotate(6deg) scale(1.07);}}
 .brand h1{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(2rem,8.5vw,2.8rem);
   line-height:1.05;letter-spacing:.3px;margin-top:4px;}
@@ -177,7 +189,7 @@ body{
 .ex-prompt .cat-label{font-size:.72rem;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
   color:var(--accent);margin-bottom:10px;}
 .show-emoji{font-size:clamp(5rem,28vw,7rem);line-height:1;display:inline-block;
-  filter:drop-shadow(0 8px 14px rgba(16,40,63,.16));}
+  filter:drop-shadow(0 8px 14px rgba(34,35,31,.16));}
 .ex-name-big{font-family:'Fraunces',serif;font-weight:800;
   font-size:clamp(1.5rem,7vw,2.2rem);margin-top:10px;color:var(--ink);}
 .ex-hindi{font-size:.84rem;font-weight:600;color:var(--muted);margin-top:3px;}
@@ -229,12 +241,12 @@ body{
 #popup{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
   opacity:0;visibility:hidden;transition:opacity .22s,visibility .22s;cursor:pointer;}
 #popup.open{opacity:1;visibility:visible;}
-#popup-bg{position:absolute;inset:0;background:rgba(16,40,63,.32);
+#popup-bg{position:absolute;inset:0;background:rgba(34,35,31,.32);
   backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);}
 #popup-card{position:relative;z-index:1;background:var(--card);border:1.5px solid var(--cb);
   border-radius:26px;width:min(92vw,420px);max-height:82vh;overflow-y:auto;
   padding:28px 22px 24px;display:flex;flex-direction:column;gap:10px;
-  cursor:default;box-shadow:0 32px 70px -16px rgba(16,40,63,.5);
+  cursor:default;box-shadow:0 32px 70px -16px rgba(34,35,31,.5);
   transform:scale(.8) translateY(20px);transition:transform .3s cubic-bezier(.34,1.5,.6,1);}
 #popup.open #popup-card{transform:none;}
 #popup-bar{position:absolute;top:0;left:0;right:0;height:6px;border-radius:26px 26px 0 0;background:var(--cb);}
@@ -242,7 +254,7 @@ body{
   font-size:14px;font-weight:800;color:var(--muted);border-radius:50%;cursor:pointer;
   border:1.5px solid var(--line);background:var(--bg);}
 #popup-emoji{font-size:clamp(60px,20vw,90px);line-height:1;text-align:center;display:block;
-  filter:drop-shadow(0 6px 14px rgba(16,40,63,.18));}
+  filter:drop-shadow(0 6px 14px rgba(34,35,31,.18));}
 #popup-name{font-family:'Fraunces',serif;font-weight:800;font-size:clamp(1.4rem,6vw,1.9rem);
   text-align:center;color:var(--ct);}
 #popup-hindi{text-align:center;font-size:.8rem;font-weight:700;color:var(--muted);margin-top:-4px;}
@@ -313,6 +325,7 @@ body{
 <!-- ================= HOME ================= -->
 <div class="screen scroll active" id="home">
   <div class="wrap">
+    <a class="back" href="punah.html" aria-label="Back to Punah"><span class="chev">‹</span><span class="wm">Pun<b>ah</b></span></a>
     <div class="brand">
       <span class="mark">💪</span>
       <h1 class="display"><span class="x">Punah</span> <span class="y">Move</span></h1>
@@ -327,12 +340,12 @@ body{
       </div>
     </div>
     <div class="menu" id="catMenu">
-      <div class="menu-card" data-cat="morning" style="--tint:var(--sun-bg)">
+      <div class="menu-card" data-cat="morning" style="--tint:var(--mint-bg)">
         <div class="ic">🌅</div>
         <div class="tx"><h3>Morning Routine</h3><p>Surya Namaskar · Breathing · Stretches</p></div>
         <div class="go">›</div>
       </div>
-      <div class="menu-card" data-cat="kids" style="--tint:var(--peach-bg)">
+      <div class="menu-card" data-cat="kids" style="--tint:var(--mint-bg)">
         <div class="ic">👶</div>
         <div class="tx"><h3>Kids' Play &amp; Move</h3><p>Fun games · Animal walks · Jumps</p></div>
         <div class="go">›</div>
@@ -342,17 +355,17 @@ body{
         <div class="tx"><h3>Family Circuit</h3><p>Do together · All ages · Weekend special</p></div>
         <div class="go">›</div>
       </div>
-      <div class="menu-card" data-cat="yoga" style="--tint:var(--lav-bg)">
+      <div class="menu-card" data-cat="yoga" style="--tint:var(--mint-bg)">
         <div class="ic">🧘</div>
         <div class="tx"><h3>Yoga &amp; Stretching</h3><p>Poses · Flexibility · Calm mind</p></div>
         <div class="go">›</div>
       </div>
-      <div class="menu-card" data-cat="strength" style="--tint:var(--sky-bg)">
+      <div class="menu-card" data-cat="strength" style="--tint:var(--mint-bg)">
         <div class="ic">🏋️</div>
         <div class="tx"><h3>Strength &amp; Core</h3><p>Push-ups · Squats · Plank · No gym</p></div>
         <div class="go">›</div>
       </div>
-      <div class="menu-card" data-cat="breathing" style="--tint:var(--leaf-bg)">
+      <div class="menu-card" data-cat="breathing" style="--tint:var(--mint-bg)">
         <div class="ic">🌬️</div>
         <div class="tx"><h3>Pranayama &amp; Breathing</h3><p>Anulom Vilom · Kapalbhati · Bhramari</p></div>
         <div class="go">›</div>
@@ -471,14 +484,8 @@ function say(text,opt){opt=opt||{};if(!soundOn||!('speechSynthesis'in window))re
 
 /* ===================== EXERCISE DATA ===================== */
 const PAL=[
-  {bo:'#ffb3ba',tx:'#c0394a',bg:'#fff8f9',ba:'#ff8fa3'},
-  {bo:'#ffc9a0',tx:'#B86208',bg:'#fff9f5',ba:'#ff9a5c'},
-  {bo:'#ffe59a',tx:'#B86208',bg:'#fffdf0',ba:'#ffd040'},
-  {bo:'#b8f0d0',tx:'#128039',bg:'#f4fdf9',ba:'#5ecf90'},
-  {bo:'#b0d8f8',tx:'#1050a0',bg:'#f3f9ff',ba:'#5aacf0'},
-  {bo:'#cab8f8',tx:'#1B4ED1',bg:'#f8f5ff',ba:'#9060e8'},
-  {bo:'#ffc8e0',tx:'#b0205c',bg:'#fff5fa',ba:'#ff7ab0'},
-  {bo:'#b8f0e0',tx:'#128039',bg:'#f3fefb',ba:'#50c8b0'},
+  /* one theme — neutral card, single green accent */
+  {bo:'#ECE8DE',tx:'#22231F',bg:'#FFFFFF',ba:'#1F6B4A'},
 ];
 
 const exercises={
@@ -1108,8 +1115,9 @@ function show(id){
   try{speechSynthesis.cancel();}catch(e){}
 }
 function setAccent(name){
-  document.body.style.setProperty('--accent','var(--'+name+')');
-  document.body.style.setProperty('--accent-bg','var(--'+name+'-bg)');
+  /* one theme — always brand green */
+  document.body.style.setProperty('--accent','var(--mint)');
+  document.body.style.setProperty('--accent-bg','var(--mint-bg)');
 }
 
 /* ===================== SOUND TOGGLE ===================== */
@@ -1142,7 +1150,7 @@ function openBrowse(cat){
       <div class="nm">${ex.name}</div>
       <div class="hn">${ex.hindi}</div>
       <div class="dur">${ex.reps}</div>`;
-    card.style.setProperty('--accent','var(--'+meta.accent+')');
+    card.style.setProperty('--accent','var(--mint)');
     card.style.setProperty('--accent-bg','var(--'+meta.accent+'-bg)');
     card.style.animationDelay=(i*.05)+'s';
     card.onclick=()=>{try{SND.tap();}catch(_){}openPopup(ex,pal,cat,i);}
@@ -1225,7 +1233,8 @@ function loadExercise(){
     <div class="show-emoji anim-${ex.a}" id="sessionEmoji">${ex.emoji}</div>
     <div class="ex-name-big">${ex.name}</div>
     <div class="ex-hindi">${ex.hindi}</div>
-    <div class="ex-reps">${ex.reps}</div>`;
+    <div class="ex-reps">${ex.reps}</div>
+    <a class="watch" href="https://www.youtube.com/results?search_query=${encodeURIComponent(ex.name+' how to')}" target="_blank" rel="noopener">▶&nbsp; Watch how</a>`;
   // step
   showStep();
   // timer
@@ -1321,6 +1330,14 @@ function confetti(count){
     box.appendChild(c);setTimeout(()=>c.remove(),3800);
   }
 }
+
+/* deep-link from the Punah hub: ?cat=morning|kids|family|yoga|strength|breathing */
+(function(){
+  try{
+    var c = new URLSearchParams(location.search).get('cat');
+    if(c && typeof CAT_META!=='undefined' && CAT_META[c]){ curCat=c; openBrowse(c); }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
