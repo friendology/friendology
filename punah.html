@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Punah — Move Every Day · Friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6; --surface:#FFFFFF; --line:#ECE8DE; --band:#F3F1EA;
+  --ink:#22231F; --muted:#5C5E55; --faint:#8A8C82;
+  --brand:#1F6B4A; --brand-press:#185539; --brand-tint:#E7F1EC;
+  --display:'Fraunces',serif; --body:'Plus Jakarta Sans',sans-serif;
+  --r:18px; --r-lg:24px; --r-pill:999px;
+  --shadow:0 1px 2px rgba(34,35,31,.05),0 14px 34px rgba(34,35,31,.07);
+  --shadow-lg:0 2px 4px rgba(34,35,31,.05),0 26px 56px rgba(34,35,31,.11);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:760px;margin:0 auto;padding:20px 18px calc(60px + env(safe-area-inset-bottom));}
+a{text-decoration:none;color:inherit}
+
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.95rem;color:var(--muted);margin-bottom:8px;transition:opacity .2s}
+.back .chev{font-size:1.2rem;line-height:1}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand);font-weight:600}
+.back:active{opacity:.55}
+
+.hero{text-align:center;padding:14px 0 8px}
+.hero h1{font-family:var(--display);font-weight:600;font-size:clamp(2.4rem,8vw,3.2rem);letter-spacing:-.02em}
+.hero h1 b{color:var(--brand);font-weight:600}
+.hero .tag{color:var(--muted);margin-top:4px;font-size:1.02rem}
+.streak{display:inline-flex;align-items:center;gap:7px;margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-pill);padding:7px 15px;font-size:.88rem;font-weight:600;color:var(--ink);box-shadow:var(--shadow)}
+
+.sec{margin-top:40px}
+.sec-head{margin-bottom:16px}
+.kicker{display:inline-flex;align-items:center;gap:8px;font-size:.74rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+.kicker .badge{color:var(--brand);background:var(--brand-tint);border-radius:var(--r-pill);padding:2px 9px;letter-spacing:.06em}
+.sec-head h2{font-family:var(--display);font-weight:600;font-size:clamp(1.6rem,5vw,2.1rem);letter-spacing:-.015em}
+.sec-head p{color:var(--muted);margin-top:6px;font-size:1rem}
+
+/* DEPTH SHOWCASE */
+.libcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 20px;box-shadow:var(--shadow)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;padding-bottom:18px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.stats .num{font-family:var(--display);font-weight:600;font-size:clamp(1.7rem,6vw,2.2rem);color:var(--brand);display:block;line-height:1}
+.stats .lbl{font-size:.76rem;color:var(--muted);margin-top:5px;display:block;letter-spacing:.01em}
+.dims{font-size:.86rem;color:var(--muted);text-align:center;margin-bottom:6px}
+.dims b{color:var(--ink);font-weight:600}
+.spans{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0 20px}
+.span{font-size:.72rem;font-weight:600;color:var(--muted);background:var(--band);border:1px solid var(--line);border-radius:var(--r-pill);padding:4px 10px}
+.pick-label{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);margin-bottom:11px}
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:18px}
+.chip{font-family:var(--body);font-size:.95rem;font-weight:600;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-pill);padding:9px 16px;cursor:pointer;transition:background .18s,border-color .18s,color .18s,transform .12s}
+.chip:active{transform:scale(.96)}
+.chip.sel{background:var(--brand-tint);border-color:var(--brand);color:var(--brand-press)}
+.chip[data-m="All"]{font-weight:700}
+.openbtn{width:100%;font-family:var(--body);font-weight:600;font-size:1rem;color:#fff;background:var(--brand);border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .12s}
+.openbtn:hover{background:var(--brand-press)}
+.openbtn:active{transform:translateY(1px)}
+.openbtn .count{opacity:.8;font-weight:500}
+.openbtn svg{width:17px;height:17px}
+
+/* GUIDED */
+.personas{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.persona{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 16px;display:flex;flex-direction:column;gap:5px;transition:transform .25s cubic-bezier(.2,.7,.3,1),box-shadow .25s,border-color .25s}
+.persona:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:transparent}
+.persona .em{font-size:1.9rem;line-height:1}
+.persona h3{font-family:var(--display);font-weight:600;font-size:1.16rem;letter-spacing:-.01em;margin-top:4px}
+.persona p{color:var(--muted);font-size:.88rem;line-height:1.4}
+.persona .hint{margin-top:auto;padding-top:10px;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--brand)}
+
+footer{text-align:center;color:var(--faint);font-size:.8rem;margin-top:44px}
+.reveal{opacity:0;transform:translateY(14px);animation:rise .6s cubic-bezier(.2,.7,.3,1) forwards}
+.d1{animation-delay:.05s}.d2{animation-delay:.12s}.d3{animation-delay:.2s}
+@keyframes rise{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.reveal{animation:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="index.html" aria-label="Back to friendology home"><span class="chev">&lsaquo;</span><span class="wm">friend<b>ology</b></span></a>
+
+  <div class="hero reveal">
+    <h1>Pun<b>ah</b></h1>
+    <div class="tag">A serious movement library &mdash; and a coach when you'd rather be guided.</div>
+    <div class="streak">&#128293; <span id="streakTxt">Move today to start your streak</span></div>
+  </div>
+
+  <!-- LIBRARY FIRST — depth on display -->
+  <section class="sec reveal d1">
+    <div class="sec-head">
+      <div class="kicker">Exercise library <span class="badge">Invincible mode</span></div>
+      <h2>573 exercises. Properly organised.</h2>
+      <p>From gentle rehab moves to advanced strength work &mdash; every one tagged by muscle, difficulty, equipment, and safety.</p>
+    </div>
+    <div class="libcard">
+      <div class="stats">
+        <div><span class="num">573</span><span class="lbl">exercises</span></div>
+        <div><span class="num">9</span><span class="lbl">muscle groups</span></div>
+        <div><span class="num">3</span><span class="lbl">levels &middot; beginner&ndash;advanced</span></div>
+      </div>
+      <div class="dims">Filter by <b>muscle</b>, <b>difficulty</b>, <b>equipment</b>, <b>injury</b>, <b>rehab phase</b> &amp; <b>category</b>.</div>
+      <div class="spans">
+        <span class="span">Rehab</span><span class="span">Physiotherapy</span><span class="span">Pilates</span>
+        <span class="span">Yoga</span><span class="span">Strength</span><span class="span">Cardio</span><span class="span">Balance</span>
+      </div>
+      <div class="pick-label">Pick your focus, then open the library</div>
+      <div class="chips" id="chips">
+        <button class="chip sel" data-m="All">All</button>
+        <button class="chip" data-m="Chest">Chest</button>
+        <button class="chip" data-m="Back">Back</button>
+        <button class="chip" data-m="Shoulders">Shoulders</button>
+        <button class="chip" data-m="Arms">Arms</button>
+        <button class="chip" data-m="Core">Core</button>
+        <button class="chip" data-m="Glutes">Glutes</button>
+        <button class="chip" data-m="Legs">Legs</button>
+        <button class="chip" data-m="Hip">Hip</button>
+        <button class="chip" data-m="Full Body">Full Body</button>
+      </div>
+      <button class="openbtn" id="openLib">
+        Open the library <span class="count" id="libCount"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- GUIDED SECOND -->
+  <section class="sec reveal d2">
+    <div class="sec-head">
+      <div class="kicker">Guided routines</div>
+      <h2>Or, let us coach you.</h2>
+      <p>Prefer it done for you? Pick who's moving &mdash; you'll get a plan, step-by-step prompts, read-aloud, and a video for each move.</p>
+    </div>
+    <div class="personas">
+      <a class="persona" href="PUNAH_Light.html?cat=morning"><span class="em">&#127749;</span><h3>Morning Routine</h3><p>A gentle wake-up for the whole house.</p><span class="hint">Plan &middot; Steps &middot; Read-aloud</span></a>
+      <a class="persona" href="PUNAH_Light.html?cat=kids"><span class="em">&#129490;</span><h3>Kids' Play &amp; Move</h3><p>Wiggles and games that burn energy.</p><span class="hint">Plan &middot; Steps &middot; Read-aloud</span></a>
+      <a class="persona" href="PUNAH_Light.html?cat=family"><span class="em">&#128106;</span><h3>Family Circuit</h3><p>Move together, no equipment needed.</p><span class="hint">Plan &middot; Steps &middot; Read-aloud</span></a>
+      <a class="persona" href="PUNAH_Light.html?cat=yoga"><span class="em">&#129496;</span><h3>Yoga &amp; Stretching</h3><p>Loosen up, unwind, breathe slow.</p><span class="hint">Plan &middot; Steps &middot; Read-aloud</span></a>
+      <a class="persona" href="PUNAH_Light.html?cat=strength"><span class="em">&#128170;</span><h3>Strength &amp; Core</h3><p>Build steady strength at home.</p><span class="hint">Plan &middot; Steps &middot; Read-aloud</span></a>
+      <a class="persona" href="PUNAH_Light.html?cat=breathing"><span class="em">&#127788;</span><h3>Pranayama &amp; Breathing</h3><p>Calm the mind in a few minutes.</p><span class="hint">Plan &middot; Steps &middot; Read-aloud</span></a>
+    </div>
+  </section>
+
+  <footer>Your activity stays on your device. No account needed.</footer>
+</div>
+
+<script>
+  try{
+    var s = parseInt(localStorage.getItem('punah_streak')||'0',10);
+    if(s>0) document.getElementById('streakTxt').innerHTML = '<b style="color:#1F6B4A">'+s+'</b> day streak';
+  }catch(e){}
+
+  var chips = document.getElementById('chips');
+  var allChip = chips.querySelector('[data-m="All"]');
+  var countEl = document.getElementById('libCount');
+  function selected(){return [].slice.call(chips.querySelectorAll('.chip.sel')).map(function(c){return c.dataset.m;});}
+  function refresh(){
+    var sel = selected().filter(function(m){return m!=='All';});
+    countEl.textContent = sel.length ? '\u00b7 '+sel.length+' focus'+(sel.length>1?'es':'') : '';
+  }
+  chips.addEventListener('click', function(e){
+    var chip = e.target.closest('.chip'); if(!chip) return;
+    if(chip===allChip){
+      [].slice.call(chips.querySelectorAll('.chip')).forEach(function(c){c.classList.remove('sel');});
+      allChip.classList.add('sel');
+    }else{
+      chip.classList.toggle('sel');
+      allChip.classList.toggle('sel', selected().filter(function(m){return m!=='All';}).length===0);
+    }
+    refresh();
+  });
+  refresh();
+  document.getElementById('openLib').addEventListener('click', function(){
+    var sel = selected().filter(function(m){return m!=='All';});
+    window.location.href = sel.length ? 'PUNAH_All.html?muscle='+encodeURIComponent(sel.join(',')) : 'PUNAH_All.html';
+  });
+</script>
+</body>
+</html>
