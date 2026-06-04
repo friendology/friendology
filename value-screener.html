@@ -93,6 +93,11 @@ details.method ul{margin:10px 0 0 18px;line-height:1.7}
 details.method code{background:var(--band);padding:1px 5px;border-radius:5px;font-size:.85em}
 .foot{margin-top:24px;font-size:.78rem;color:var(--faint)}
 .sample-flag{font-size:.78rem;color:var(--amber);font-weight:600}
+.guide ol{margin:6px 0 0 18px;padding:0}
+.guide li{margin-bottom:9px;font-size:.92rem;color:var(--ink)}
+.guide li b{color:var(--brand)}
+.guide .note{margin-top:10px;font-size:.84rem;color:var(--muted)}
+th[title]{cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -106,6 +111,17 @@ details.method code{background:var(--band);padding:1px 5px;border-radius:5px;fon
   <div class="disclaimer">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>
     <div><b>Educational screener — not investment advice.</b> It only scores the numbers you enter; it doesn't recommend buying or selling. Verify everything on a primary source (screener.in, Tickertape, NSE), and check promoter holding &amp; pledging separately — they aren't in here. Your data stays in your browser; nothing is uploaded.</div>
+  </div>
+
+  <!-- HOW TO USE -->
+  <div class="panel guide">
+    <h2 class="display">How to use it</h2>
+    <ol>
+      <li><b>Add your stocks.</b> Type them into the table below, or paste / import a CSV. Get the figures free from <b>screener.in</b>, <b>Tickertape</b> or <b>nseindia.com</b>. Tap <b>“Load sample data”</b> to see the exact format, then replace it with your own.</li>
+      <li><b>Fill in what you have.</b> Fundamentals drive the score; the value gate needs at least <b>P/E, P/B, D/E and ROE</b>. Technicals (RSI, 50/200-day averages, 52-week high/low) are <b>optional</b> — leave them blank and that row is scored on fundamentals alone. Any blank cell is skipped, never guessed.</li>
+      <li><b>Set the knobs and run.</b> Pick the fundamentals-vs-technicals split and any minimum scores, then tap <b>Run screen</b>. Hover a column header for what it means, and export the ranked table as CSV or Excel.</li>
+    </ol>
+    <p class="note">It only scores the numbers you enter — it never fetches live prices and never tells you to buy or sell. Treat the output as a shortlist to research, not a recommendation.</p>
   </div>
 
   <!-- CONTROLS -->
@@ -203,12 +219,28 @@ const TECH_WEIGHTS={trend:.40,momentum:.30,entry:.20,volume:.10};
 const VALUE_GATE={max_pe:45,max_pb:8,max_debt_equity:2.5,min_roe:8};
 
 const COLS=[
-  {k:'symbol',t:'Symbol',cls:'sym'},{k:'name',t:'Name',cls:'txt'},{k:'sector',t:'Sector',cls:'txt'},
-  {k:'price',t:'Price'},{k:'pe',t:'P/E'},{k:'pb',t:'P/B'},{k:'ev_ebitda',t:'EV/EBITDA'},{k:'peg',t:'PEG'},
-  {k:'roe',t:'ROE%'},{k:'margin',t:'Margin%'},{k:'debt_equity',t:'D/E'},{k:'current',t:'Current'},
-  {k:'eps_growth',t:'EPS g%'},{k:'rev_growth',t:'Rev g%'},{k:'div_yield',t:'Div%'},
-  {k:'rsi',t:'RSI'},{k:'sma50',t:'SMA50'},{k:'sma200',t:'SMA200'},{k:'hi52',t:'52w Hi'},{k:'lo52',t:'52w Lo'},
-  {k:'vol_ratio',t:'Vol ratio'},{k:'macd_bull',t:'MACD↑ (Y/N)'},
+  {k:'symbol',t:'Symbol',cls:'sym',h:'NSE symbol, e.g. RELIANCE (no .NS)'},
+  {k:'name',t:'Name',cls:'txt',h:'Company name (optional)'},
+  {k:'sector',t:'Sector',cls:'txt',h:'Sector (optional)'},
+  {k:'price',t:'Price',h:'Current share price (₹)'},
+  {k:'pe',t:'P/E',h:'Price ÷ earnings. Lower = cheaper. Gate needs 0–45'},
+  {k:'pb',t:'P/B',h:'Price ÷ book value. Gate needs ≤ 8'},
+  {k:'ev_ebitda',t:'EV/EBITDA',h:'Enterprise value ÷ EBITDA (optional)'},
+  {k:'peg',t:'PEG',h:'P/E ÷ earnings growth (optional)'},
+  {k:'roe',t:'ROE%',h:'Return on equity, %. Gate needs ≥ 8'},
+  {k:'margin',t:'Margin%',h:'Net profit margin, %'},
+  {k:'debt_equity',t:'D/E',h:'Debt ÷ equity as a ratio, e.g. 0.5. Gate needs ≤ 2.5'},
+  {k:'current',t:'Current',h:'Current ratio (current assets ÷ liabilities)'},
+  {k:'eps_growth',t:'EPS g%',h:'Earnings-per-share growth, % YoY'},
+  {k:'rev_growth',t:'Rev g%',h:'Revenue growth, % YoY'},
+  {k:'div_yield',t:'Div%',h:'Dividend yield, %'},
+  {k:'rsi',t:'RSI',h:'RSI(14), 0–100. Sweet spot ~45–65 (optional)'},
+  {k:'sma50',t:'SMA50',h:'50-day moving-average price (optional)'},
+  {k:'sma200',t:'SMA200',h:'200-day moving-average price (optional)'},
+  {k:'hi52',t:'52w Hi',h:'52-week high price (optional)'},
+  {k:'lo52',t:'52w Lo',h:'52-week low price (optional)'},
+  {k:'vol_ratio',t:'Vol ratio',h:'Recent vs prior average volume, e.g. 1.0 (optional)'},
+  {k:'macd_bull',t:'MACD↑',h:'Is MACD above its signal line? Y or N (optional)'},
 ];
 const NUMKEYS=COLS.filter(c=>!['symbol','name','sector','macd_bull'].includes(c.k)).map(c=>c.k);
 const TECHKEYS=['rsi','sma50','sma200','hi52','lo52','vol_ratio','macd_bull'];
@@ -311,7 +343,7 @@ function save(){ try{ localStorage.setItem('vs_data',JSON.stringify(DATA)); }cat
 function load(){ try{ const d=localStorage.getItem('vs_data'); if(d){ DATA=JSON.parse(d); return true; } }catch(e){} return false; }
 
 function buildHead(){
-  $('headRow').innerHTML = COLS.map(c=>`<th>${c.t}</th>`).join('') + '<th></th>';
+  $('headRow').innerHTML = COLS.map(c=>`<th title="${c.h||''}">${c.t}</th>`).join('') + '<th></th>';
 }
 function renderInput(){
   const tb=$('inBody'); tb.innerHTML='';
