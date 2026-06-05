@@ -184,6 +184,14 @@ h2{
 /* one theme — all category dots share the brand green */
 .t-kids,.t-health,.t-growth,.t-finance,.t-schedule{background:var(--brand-tint);color:var(--brand)}
 
+/* play & learn shelves */
+.shelf{margin-bottom:40px}
+.shelf:last-of-type{margin-bottom:0}
+.shelf-title{font-family:var(--display);font-weight:600;font-size:1.22rem;color:var(--ink);margin-bottom:16px}
+.age{align-self:flex-start;display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--brand);background:var(--brand-tint);border-radius:var(--r-pill);padding:3px 9px;margin-bottom:8px}
+.card.soon{opacity:.72}
+.shelf-note{text-align:center;color:var(--ink-faint);font-size:.9rem;margin-top:6px}
+
 /* ---------- kids feature band ---------- */
 .band{background:#F3F1EA}
 .feature{
@@ -255,7 +263,7 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
   <div class="wrap nav">
     <a class="brand" href="#top">friend<b>ology</b></a>
     <nav class="nav-links">
-      <a href="#kids">Kids</a>
+      <a href="#play">Play & Learn</a>
       <a href="#tools">Life Tools</a>
       <a href="community.html">Community</a>
       <a href="#support">Support</a>
@@ -272,7 +280,7 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
     <h1 class="reveal d1">A calmer, more <em>connected</em> family life.</h1>
     <p class="sub reveal d2">Quietly useful tools and mindfully made games for parents and kids — to learn, move, plan, and grow together. Always free.</p>
     <div class="hero-actions reveal d3">
-      <a class="btn" href="#kids">For the kids</a>
+      <a class="btn" href="#play">For the kids</a>
       <a class="btn btn-ghost" href="#tools">Explore the tools</a>
       <a class="btn btn-ghost" href="community.html">Find your people</a>
     </div>
@@ -284,27 +292,74 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
 
   <!-- LIFE TOOLS -->
   <!-- KIDS (the hook — placed before tools) -->
-  <section class="band" id="kids">
-    <div class="feature">
-      <div class="reveal">
-        <span class="pill">For the kids · parent-supervised</span>
-        <h2>Tiny Words.</h2>
-        <p class="sub" style="margin:16px 0 0 0;text-align:left">Where little ones meet new words — then make them their own through play. Calm, screen-light, and made to be enjoyed together.</p>
-        <div class="tracks">
-          <div class="track">
-            <div class="n">Learn</div>
-            <p>Meet words gently, at a child's pace.</p>
-          </div>
-          <div class="track">
-            <div class="n">Play</div>
-            <p>Put them to use through playful practice.</p>
-          </div>
-        </div>
-        <div class="hero-actions" style="justify-content:flex-start;margin-top:28px">
-          <a class="btn" href="tiny-words-game.html">Open Tiny Words</a>
+  <!-- PLAY & LEARN -->
+  <section class="block" id="play">
+    <div class="section-head reveal">
+      <div class="kicker">Play &amp; Learn</div>
+      <h2>Games that teach, gently.</h2>
+      <p>Calm, screen-light games grouped by subject — pick what your child loves. Parent-friendly, and made to be enjoyed together.</p>
+    </div>
+
+    <div class="shelf reveal">
+      <h3 class="shelf-title">Words &amp; Reading</h3>
+      <div class="grid">
+        <a class="card link" href="tiny-words-game.html">
+          <div class="dot t-kids"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 10h8M8 13h5"/></svg></div>
+          <span class="age">Ages 3–6</span>
+          <h3>Tiny Words</h3>
+          <p>Meet new words gently, then make them your own through playful practice.</p>
+          <span class="go" style="color:var(--brand)">Play <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="shelf reveal">
+      <h3 class="shelf-title">Numbers &amp; Maths</h3>
+      <div class="grid">
+        <div class="card soon">
+          <div class="dot t-kids"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/></svg></div>
+          <span class="age">Ages 6–10</span>
+          <h3>Speed Math</h3>
+          <p>Quick-fire mental maths that speeds up as your child does.</p>
+          <span class="tag-soon">Coming soon</span>
         </div>
       </div>
     </div>
+
+    <div class="shelf reveal">
+      <h3 class="shelf-title">Science Lab</h3>
+      <div class="grid">
+        <div class="card soon">
+          <div class="dot t-kids"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d="M8 16h8"/></svg></div>
+          <span class="age">Ages 8–12</span>
+          <h3>Chemistry Lab</h3>
+          <p>Mix virtual ingredients and watch safe reactions come to life.</p>
+          <span class="tag-soon">Coming soon</span>
+        </div>
+        <div class="card soon">
+          <div class="dot t-kids"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="2"/><ellipse cx="12" cy="12" rx="10" ry="4.5"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(120 12 12)"/></svg></div>
+          <span class="age">Ages 8–12</span>
+          <h3>Physics Lab</h3>
+          <p>Play with motion, forces and simple machines, hands-on.</p>
+          <span class="tag-soon">Coming soon</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="shelf reveal">
+      <h3 class="shelf-title">Curious Minds</h3>
+      <div class="grid">
+        <div class="card soon">
+          <div class="dot t-kids"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg></div>
+          <span class="age">Ages 7–12</span>
+          <h3>General Knowledge</h3>
+          <p>Bite-size quizzes about the world, at a friendly pace.</p>
+          <span class="tag-soon">Coming soon</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="shelf-note">More shelves on the way — Puzzles &amp; Logic, and Create.</p>
   </section>
 
   <!-- LIFE TOOLS -->
@@ -390,7 +445,7 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
     <div class="foot">
       <a class="brand" href="#top">friend<b>ology</b></a>
       <nav class="foot-links">
-        <a href="#kids">Kids</a>
+        <a href="#play">Play & Learn</a>
         <a href="#tools">Life Tools</a>
         <a href="#community">Community</a>
         <a href="#support">Support us</a>
