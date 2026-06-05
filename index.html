@@ -240,6 +240,16 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
 </style>
 </head>
 <body>
+<script>
+/* If a sign-in/magic link ever lands on the homepage instead of the community
+   page, forward it (token intact) so sign-in can complete. */
+(function(){
+  var h=location.hash||'', s=location.search||'';
+  if(/access_token=|refresh_token=|[?&]code=|type=(magiclink|recovery|signup|invite|email)/.test(h+s)){
+    location.replace('community.html'+s+h);
+  }
+})();
+</script>
 
 <header id="hdr">
   <div class="wrap nav">
