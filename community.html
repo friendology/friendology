@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;--red-tint:#F7E6E0;--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+.display{font-family:'Fraunces',serif}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:16px}
+.back .wm{font-family:'Fraunces',serif;font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand);font-weight:600}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.9rem,6vw,2.5rem);line-height:1.05;letter-spacing:-.02em;margin:8px 0}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);max-width:60ch;font-size:.98rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(34,35,31,.04),0 10px 26px rgba(34,35,31,.05)}
+.panel h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.2rem;margin-bottom:4px}
+.panel .hint{font-size:.84rem;color:var(--faint);margin-bottom:14px}
+label.fld{display:block;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px}
+input[type=text],input[type=email],input[type=tel],textarea,select{width:100%;font-family:inherit;font-size:.95rem;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:.85rem;font-weight:600;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;user-select:none}
+.chip.sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn{font-family:inherit;font-weight:600;font-size:.92rem;border-radius:11px;padding:11px 18px;cursor:pointer;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);transition:transform .12s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.primary:active{background:var(--brand-press)}
+.btn.sm{padding:8px 13px;font-size:.85rem}
+.btn.danger{color:var(--red);border-color:color-mix(in srgb,var(--red) 35%,transparent)}
+.btnrow{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.consent{display:flex;gap:10px;align-items:flex-start;background:var(--brand-tint);border:1px solid color-mix(in srgb,var(--brand) 20%,transparent);border-radius:12px;padding:12px 14px;margin-top:16px;font-size:.86rem}
+.consent input{width:18px;height:18px;margin-top:2px;accent-color:var(--brand);flex:none}
+.toggle{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.toggle button{font-family:inherit;font-weight:700;font-size:.82rem;padding:7px 16px;border:none;background:var(--surface);color:var(--muted);cursor:pointer}
+.toggle button.on{background:var(--brand);color:#fff}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;background:var(--surface)}
+.card .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card .score{font-family:'Fraunces',serif;font-weight:700;color:var(--brand);font-size:1.05rem;white-space:nowrap}
+.card .meta{font-size:.9rem;color:var(--muted);margin-top:4px}
+.mchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mchip{font-size:.72rem;font-weight:700;background:var(--brand-tint);color:var(--brand);padding:3px 9px;border-radius:999px}
+.pill{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:999px}
+.p-pending{background:var(--amber-tint);color:var(--amber)}
+.p-accepted{background:var(--brand-tint);color:var(--brand)}
+.contact{margin-top:10px;background:var(--brand-tint);border-radius:10px;padding:11px 13px;font-size:.92rem}
+.banner{background:var(--amber-tint);border:1px solid color-mix(in srgb,var(--amber) 30%,transparent);border-radius:12px;padding:13px 15px;font-size:.88rem;margin-bottom:16px}
+.banner b{color:var(--amber)}
+.muted{color:var(--muted);font-size:.88rem}
+.hide{display:none}
+.foot{margin-top:24px;font-size:.78rem;color:var(--faint)}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+
+  <div id="cfgBanner" class="banner hide"></div>
+
+  <!-- AUTH -->
+  <div id="authView">
+    <div class="eyebrow">Community · for parents</div>
+    <h1 class="display">Find your <b>people</b></h1>
+    <p class="lede">Meet families near you who share what matters — your society, city, languages, the festivals you keep, where you holiday, even your Thar group. You only ever swap contact details when <em>both</em> families say yes.</p>
+    <div class="panel" style="margin-top:18px">
+      <h2 class="display">Sign in</h2>
+      <div class="hint">We'll email you a magic link — no password to remember.</div>
+      <label class="fld">Email</label>
+      <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+      <div class="btnrow"><button class="btn primary" id="sendLink">Email me a link</button></div>
+      <p id="authMsg" class="muted" style="margin-top:10px"></p>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appView" class="hide">
+    <div class="topbar">
+      <div><span class="eyebrow">Community</span></div>
+      <button class="btn sm" id="signOut">Sign out</button>
+    </div>
+
+    <!-- profile -->
+    <div class="panel">
+      <h2 class="display">Your family profile</h2>
+      <div class="hint">You must be the parent/guardian (18+). Kids are stored as age-bands only — no names, no birthdays. Everything is private until you connect.</div>
+      <label class="fld">Family label (private until you connect)</label>
+      <input id="label" type="text" placeholder="e.g. The Sharmas">
+      <div class="row">
+        <div><label class="fld">Your age band</label>
+          <select id="adult"><option value="">—</option><option>20s</option><option>30s</option><option>40s</option><option>50s</option><option>60+</option></select></div>
+        <div><label class="fld">Society / gated community</label><input id="society" type="text" placeholder="e.g. Prestige Lakeside"></div>
+      </div>
+      <div class="row">
+        <div><label class="fld">City (current)</label><input id="cityC" type="text" placeholder="e.g. Bengaluru"></div>
+        <div><label class="fld">City (permanent)</label><input id="cityP" type="text" placeholder="e.g. Jaipur"></div>
+      </div>
+      <label class="fld">Kids' age bands</label><div class="chips" id="kid"></div>
+      <label class="fld">Languages</label><div class="chips" id="lang"></div>
+      <label class="fld">Festivals you celebrate</label><div class="chips" id="fest"></div>
+      <label class="fld">Travel you love / plan</label><div class="chips" id="trav"></div>
+      <label class="fld">Car / bike groups</label><div class="chips" id="veh"></div>
+      <label class="fld">Proof details (private — never shown to others)</label>
+      <textarea id="proof" placeholder="e.g. Society verified in maintenance app; Thar RC on file"></textarea>
+      <label class="fld">Your contact (shared only after a mutual match)</label>
+      <div class="row">
+        <input id="phone" type="tel" placeholder="Phone / WhatsApp">
+        <input id="cemail" type="email" placeholder="Email">
+      </div>
+      <input id="cnote" type="text" placeholder="Best way to reach you (optional)" style="margin-top:12px">
+      <label class="consent"><input type="checkbox" id="consent"><span>I'm the parent/guardian, 18 or older, and I consent to friendology storing these details to find matches. I understand contacts are shared only when both families accept.</span></label>
+      <div class="btnrow"><button class="btn primary" id="saveProfile">Save profile</button><span id="profMsg" class="muted"></span></div>
+    </div>
+
+    <!-- find -->
+    <div class="panel">
+      <h2 class="display">Find families</h2>
+      <div class="hint">Pick what matters, choose how to combine it, and see who lines up — ranked by how much you share. Cards are anonymous until you connect.</div>
+      <label class="fld">Match on</label>
+      <div class="chips" id="crit"></div>
+      <label class="fld">Combine with</label>
+      <div class="toggle" id="mode">
+        <button data-m="or" class="on">Any (OR)</button><button data-m="and">All (AND)</button>
+      </div>
+      <div class="btnrow"><button class="btn primary" id="run">Find matches</button></div>
+      <div id="matches"></div>
+    </div>
+
+    <!-- connections -->
+    <div class="panel">
+      <h2 class="display">Requests &amp; connections</h2>
+      <div class="hint">Approve a request to swap contacts. Either family can stop here — nothing is shared without both saying yes.</div>
+      <button class="btn sm" id="refreshConn">Refresh</button>
+      <div id="conns"></div>
+    </div>
+  </div>
+
+  <p class="foot">friendology is always free. Your details stay private and are shared only with families you both approve. You can delete your profile anytime.</p>
+</div>
+
+<script>
+// ============================================================
+// 1) PASTE YOUR SUPABASE KEYS  (Project Settings → API)
+// ============================================================
+const SUPABASE_URL = "YOUR_SUPABASE_URL";       // e.g. https://abcd.supabase.co
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+// ============================================================
+
+const OPTS = {
+  kid:  ['0–2','3–5','6–8','9–12','13–17'],
+  lang: ['Hindi','English','Kannada','Tamil','Telugu','Marathi','Bengali','Gujarati','Malayalam','Punjabi','Urdu'],
+  fest: ['Diwali','Holi','Eid','Christmas','Pongal','Onam','Navratri','Durga Puja','Ganesh Chaturthi','Republic Day','Independence Day'],
+  trav: ['Goa','Kerala','Himachal','Rajasthan','Andaman','Northeast','Hill stations','Beaches','Pilgrimage','International'],
+  veh:  ['Thar','Royal Enfield','SUV','Sedan','EV owners','Cyclists','Bikers'],
+};
+const CRIT = [
+  ['society','Society'],['city','City'],['kid_age',"Kids' ages"],['adult_age','Your age'],
+  ['language','Language'],['festival','Festivals'],['travel','Travel'],['vehicle','Car/bike'],
+];
+const AXIS_LABEL = {city:'City',society:'Society',language:'Language',festival:'Festival',travel:'Travel',vehicle:'Car/bike',adult_age:'Your age',kid_age:"Kids' ages"};
+
+const $ = id => document.getElementById(id);
+let sb, mode='or';
+
+function chipBox(box, options){
+  box.innerHTML='';
+  options.forEach(o=>{ const b=document.createElement('div'); b.className='chip'; b.textContent=o;
+    b.onclick=()=>b.classList.toggle('sel'); box.appendChild(b); });
+}
+const getChips = box => [...box.querySelectorAll('.chip.sel')].map(c=>c.textContent);
+const setChips = (box,vals)=>{ (vals||[]).forEach(v=>{ [...box.querySelectorAll('.chip')].forEach(c=>{ if(c.textContent===v) c.classList.add('sel'); }); }); };
+
+function buildUI(){
+  chipBox($('kid'),OPTS.kid); chipBox($('lang'),OPTS.lang); chipBox($('fest'),OPTS.fest);
+  chipBox($('trav'),OPTS.trav); chipBox($('veh'),OPTS.veh);
+  const cb=$('crit'); cb.innerHTML='';
+  CRIT.forEach(([k,t])=>{ const b=document.createElement('div'); b.className='chip'; b.dataset.k=k; b.textContent=t;
+    b.onclick=()=>b.classList.toggle('sel'); cb.appendChild(b); });
+  $('mode').querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+    mode=btn.dataset.m; $('mode').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===btn));
+  });
+}
+
+async function boot(){
+  buildUI();
+  if(SUPABASE_URL.startsWith('YOUR_') || SUPABASE_ANON_KEY.startsWith('YOUR_')){
+    const b=$('cfgBanner'); b.classList.remove('hide');
+    b.innerHTML='<b>Setup needed:</b> open this file and paste your Supabase URL and anon key (Project Settings → API), then run <code>community-schema.sql</code> in the SQL editor. Until then, sign-in is disabled.';
+    return;
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((_e,session)=>render(session));
+  const { data:{ session } } = await sb.auth.getSession();
+  render(session);
+}
+
+function render(session){
+  const inApp = !!session;
+  $('authView').classList.toggle('hide', inApp);
+  $('appView').classList.toggle('hide', !inApp);
+  if(inApp){ loadProfile(); loadConnections(); }
+}
+
+$('sendLink').onclick = async ()=>{
+  const email=$('email').value.trim(); if(!email) return;
+  $('authMsg').textContent='Sending…';
+  const { error } = await sb.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.href.split('#')[0] }});
+  $('authMsg').textContent = error ? ('Error: '+error.message) : 'Check your email for the sign-in link.';
+};
+$('signOut').onclick = async ()=>{ await sb.auth.signOut(); };
+
+async function loadProfile(){
+  const { data } = await sb.from('families').select('*').maybeSingle();
+  if(!data) return;
+  $('label').value=data.label||''; $('adult').value=data.adult_age_band||'';
+  $('society').value=data.society||''; $('cityC').value=data.city_current||''; $('cityP').value=data.city_permanent||'';
+  $('proof').value=data.proof_details||''; $('consent').checked=!!data.consent_adult;
+  setChips($('kid'),data.kid_age_bands); setChips($('lang'),data.languages); setChips($('fest'),data.festivals);
+  setChips($('trav'),data.travel_plans); setChips($('veh'),data.vehicle_groups);
+  const { data:c } = await sb.from('contacts').select('*').maybeSingle();
+  if(c){ $('phone').value=c.phone||''; $('cemail').value=c.email||''; $('cnote').value=c.note||''; }
+}
+
+$('saveProfile').onclick = async ()=>{
+  if(!$('consent').checked){ $('profMsg').textContent='Please tick the consent box.'; return; }
+  $('profMsg').textContent='Saving…';
+  const { data:{ user } } = await sb.auth.getUser();
+  const payload = {
+    user_id:user.id, label:$('label').value.trim(), adult_age_band:$('adult').value,
+    society:$('society').value.trim(), city_current:$('cityC').value.trim(), city_permanent:$('cityP').value.trim(),
+    kid_age_bands:getChips($('kid')), languages:getChips($('lang')), festivals:getChips($('fest')),
+    travel_plans:getChips($('trav')), vehicle_groups:getChips($('veh')),
+    proof_details:$('proof').value.trim(), consent_adult:true, consent_at:new Date().toISOString(), updated_at:new Date().toISOString()
+  };
+  const { data:fam, error } = await sb.from('families').upsert(payload,{ onConflict:'user_id' }).select().single();
+  if(error){ $('profMsg').textContent='Error: '+error.message; return; }
+  const { error:ce } = await sb.from('contacts').upsert({ family_id:fam.id, phone:$('phone').value.trim(), email:$('cemail').value.trim(), note:$('cnote').value.trim() });
+  $('profMsg').textContent = ce ? ('Error: '+ce.message) : 'Saved ✓';
+};
+
+$('run').onclick = async ()=>{
+  const crit=[...$('crit').querySelectorAll('.chip.sel')].map(c=>c.dataset.k);
+  const box=$('matches');
+  if(!crit.length){ box.innerHTML='<p class="muted" style="margin-top:12px">Pick at least one thing to match on.</p>'; return; }
+  box.innerHTML='<p class="muted" style="margin-top:12px">Searching…</p>';
+  const { data, error } = await sb.rpc('find_matches',{ p_criteria:crit, p_mode:mode });
+  if(error){ box.innerHTML='<p class="muted">Error: '+error.message+'</p>'; return; }
+  if(!data.length){ box.innerHTML='<p class="muted" style="margin-top:12px">No families match yet — try fewer criteria or “Any”.</p>'; return; }
+  box.innerHTML = data.map(m=>{
+    const where=[m.society,m.city_current].filter(Boolean).join(' · ')||'A family nearby';
+    const kids=(m.kid_age_bands||[]).length?(' · kids '+m.kid_age_bands.join(', ')):'';
+    const chips=(m.matched||[]).map(a=>`<span class="mchip">${AXIS_LABEL[a]||a}</span>`).join('');
+    let action;
+    if(m.conn_status==='accepted') action=`<span class="pill p-accepted">Connected</span>`;
+    else if(m.conn_status==='pending') action=`<span class="pill p-pending">${m.i_requested?'Requested':'Awaiting you'}</span>`;
+    else action=`<button class="btn sm primary" onclick="requestConn('${m.family_id}',this)">Request to connect</button>`;
+    return `<div class="card"><div class="top"><div><div style="font-weight:700">${where}</div>
+      <div class="meta">${m.adult_age_band?('Parent '+m.adult_age_band):''}${kids}</div></div>
+      <div class="score">${m.match_count} match${m.match_count>1?'es':''}</div></div>
+      <div class="mchips">${chips}</div><div style="margin-top:12px">${action}</div></div>`;
+  }).join('');
+};
+
+window.requestConn = async (id,btn)=>{
+  btn.disabled=true; btn.textContent='Sending…';
+  const { error } = await sb.rpc('request_connection',{ p_target:id });
+  btn.outerHTML = error ? ('<span class="muted">'+error.message+'</span>') : '<span class="pill p-pending">Requested</span>';
+  loadConnections();
+};
+
+async function loadConnections(){
+  const { data, error } = await sb.rpc('list_connections');
+  const box=$('conns');
+  if(error){ box.innerHTML='<p class="muted">'+error.message+'</p>'; return; }
+  if(!data || !data.length){ box.innerHTML='<p class="muted" style="margin-top:12px">No requests yet.</p>'; return; }
+  box.innerHTML = data.map(c=>{
+    const where=[c.society,c.city_current].filter(Boolean).join(' · ')||'A family';
+    const chips=(c.matched_list||[]).map(a=>`<span class="mchip">${AXIS_LABEL[a]||a}</span>`).join('');
+    let foot='';
+    if(c.status==='pending' && c.direction==='incoming')
+      foot=`<div class="btnrow"><button class="btn sm primary" onclick="respond('${c.conn_id}',true)">Approve &amp; share contacts</button>
+            <button class="btn sm danger" onclick="respond('${c.conn_id}',false)">Decline</button></div>`;
+    else if(c.status==='pending')
+      foot=`<div class="btnrow"><span class="pill p-pending">Waiting for them</span>
+            <button class="btn sm" onclick="cancelConn('${c.conn_id}')">Cancel</button></div>`;
+    else if(c.status==='accepted')
+      foot=`<div class="btnrow"><span class="pill p-accepted">Connected${c.label?(' · '+c.label):''}</span>
+            <button class="btn sm primary" onclick="reveal('${c.other_family}',this)">Show contact</button></div><div id="ct_${c.other_family}"></div>`;
+    return `<div class="card"><div class="top"><div><div style="font-weight:700">${where}</div>
+      <div class="meta">${c.direction==='incoming'?'Wants to connect':'You requested'}</div></div>
+      <div class="score">${c.matched_count} shared</div></div>
+      <div class="mchips">${chips}</div>${foot}</div>`;
+  }).join('');
+}
+$('refreshConn').onclick=loadConnections;
+
+window.respond = async (id,ok)=>{ const { error}=await sb.rpc('respond_connection',{ p_conn:id, p_accept:ok }); if(error) alert(error.message); loadConnections(); };
+window.cancelConn = async (id)=>{ const { error}=await sb.rpc('cancel_connection',{ p_conn:id }); if(error) alert(error.message); loadConnections(); };
+window.reveal = async (fam,btn)=>{
+  btn.disabled=true;
+  const { data, error } = await sb.rpc('get_contact',{ p_family:fam });
+  if(error){ alert(error.message); btn.disabled=false; return; }
+  const c=data[0]||{};
+  $('ct_'+fam).innerHTML=`<div class="contact"><b>${c.label||'Family'}</b><br>
+    ${c.phone?('📞 '+c.phone+'<br>'):''}${c.email?('✉️ '+c.email+'<br>'):''}${c.note?('<span class="muted">'+c.note+'</span>'):''}</div>`;
+};
+
+boot();
+</script>
+</body>
+</html>
