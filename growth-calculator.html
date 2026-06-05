@@ -9,24 +9,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --cream:#F7F9FC;        /* cloud */
+    --cream:#FBFAF6;        /* warm paper */
     --paper:#FFFFFF;
-    --ink:#10283F;
-    --forest:#2B66F0;       /* blue (primary) */
-    --forest-deep:#1B4ED1;  /* blue deep */
-    --coral:#DB7B0E;        /* orange (accent) */
-    --coral-soft:#FCF1E2;   /* orange soft */
-    --sage:#1CA64C;         /* green (growth) */
-    --line:#E2E8F0;
-    --muted:#5C6E7E;        /* slate */
+    --ink:#22231F;
+    --forest:#1F6B4A;       /* brand green (primary) */
+    --forest-deep:#185539;  /* green deep */
+    --coral:#1F6B4A;        /* accent unified to green */
+    --coral-soft:#FAEFDD;
+    --sage:#1F6B4A;         /* growth green */
+    --line:#ECE8DE;
+    --muted:#5C5E55;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;}
   body{
     font-family:'Plus Jakarta Sans',sans-serif;
     background:
-      radial-gradient(ellipse 60% 40% at 80% -5%, rgba(219,123,14,.18), transparent 60%),
-      radial-gradient(ellipse 50% 45% at 5% 105%, rgba(43,102,240,.16), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% -5%, rgba(31,107,74,.10), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 5% 105%, rgba(31,107,74,.08), transparent 60%),
       var(--cream);
     color:var(--ink);
     line-height:1.55;
@@ -58,7 +58,7 @@
     border:1.5px solid var(--line);
     border-radius:20px;
     padding:30px 26px;
-    box-shadow:0 18px 40px -28px rgba(27,78,209,.5);
+    box-shadow:0 18px 40px -28px rgba(31,107,74,.5);
   }
   .card + .card{margin-top:22px;}
 
@@ -74,7 +74,7 @@
     padding:11px 8px;border-radius:10px;color:var(--muted);
     transition:.18s ease;
   }
-  .tab.active{background:var(--forest);color:#FFFFFF;box-shadow:0 6px 14px -8px rgba(27,78,209,.7);}
+  .tab.active{background:var(--forest);color:#FFFFFF;box-shadow:0 6px 14px -8px rgba(31,107,74,.7);}
 
   /* Form */
   .field-label{
@@ -148,10 +148,10 @@
     display:inline-block;font-weight:700;font-size:.92rem;
     padding:6px 14px;border-radius:999px;margin-top:4px;
   }
-  .b-under{background:#FCF1E2;color:#B86208;}
-  .b-healthy{background:#E6F6EC;color:#2B66F0;}
-  .b-over{background:#FCF1E2;color:#B86208;}
-  .b-obese{background:#FCF1E2;color:#B86208;}
+  .b-under{background:#FAEFDD;color:#C2700C;}
+  .b-healthy{background:#E7F1EC;color:#1F6B4A;}
+  .b-over{background:#FAEFDD;color:#C2700C;}
+  .b-obese{background:#FAEFDD;color:#C2700C;}
 
   .callout{
     margin-top:16px;font-size:.9rem;color:var(--muted);
@@ -160,8 +160,8 @@
     padding:11px 14px;border-radius:0 10px 10px 0;
   }
   .err{
-    margin-top:16px;font-size:.92rem;color:#B86208;
-    background:#FCF1E2;border-radius:10px;padding:11px 14px;
+    margin-top:16px;font-size:.92rem;color:#C2700C;
+    background:#FAEFDD;border-radius:10px;padding:11px 14px;
     display:none;
   }
   .err.show{display:block;}
@@ -198,6 +198,8 @@
 </head>
 <body>
 <div class="wrap">
+
+  <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:.95rem;color:#5C5E55;text-decoration:none;margin-bottom:14px">‹&nbsp;<span style="font-family:'Fraunces',serif;color:#22231F">friend<span style="color:#1F6B4A">ology</span></span></a>
 
   <header>
     <div class="eyebrow">WHO &amp; CDC Reference Ranges</div>
