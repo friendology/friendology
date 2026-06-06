@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Chemistry Lab · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;--red-tint:#F7E6E0;
+  --display:'Fraunces',serif;--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:620px;margin:0 auto;padding:18px 16px 48px}
+.display{font-family:var(--display)}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:12px}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(1.9rem,7vw,2.5rem);line-height:1.04;letter-spacing:-.02em;margin:6px 0 4px}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:.95rem;margin-bottom:14px}
+
+.progress{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.progress .bar{flex:1;height:9px;border-radius:99px;background:var(--line);overflow:hidden}
+.progress .bar i{display:block;height:100%;background:var(--brand);width:0;transition:width .5s ease}
+.progress .txt{font-size:.82rem;font-weight:700;color:var(--brand);white-space:nowrap}
+
+/* beaker */
+.bench{display:flex;flex-direction:column;align-items:center;background:var(--band);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.beaker{position:relative;width:128px;height:158px;border:4px solid #cdd4cd;border-top:none;border-radius:8px 8px 30px 30px;background:rgba(255,255,255,.45);overflow:hidden}
+.beaker .rim{position:absolute;top:-4px;left:-13px;right:-13px;height:4px;background:#cdd4cd;border-radius:4px}
+.liquid{position:absolute;left:0;right:0;bottom:0;height:0;background:#e9efe9;transition:height .6s ease, background .6s ease}
+.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bubble{position:absolute;border-radius:50%;background:rgba(255,255,255,.8);animation:rise linear forwards}
+@keyframes rise{0%{transform:translateY(0);opacity:.9}100%{transform:translateY(-160px);opacity:0}}
+.lump{position:absolute;border-radius:50%}
+.grain{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.9);animation:fall .9s ease-in forwards}
+@keyframes fall{0%{transform:translateY(0);opacity:1}100%{transform:translateY(120px);opacity:0}}
+.beaker.shake{animation:wob .5s ease}
+@keyframes wob{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+
+/* slots */
+.slots{display:flex;align-items:center;gap:10px;margin-top:16px}
+.slot{width:84px;height:64px;border:2px dashed var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);font-size:1.6rem;color:var(--faint)}
+.slot.filled{border-style:solid;border-color:var(--brand);cursor:pointer}
+.slot .nm{font-size:.6rem;font-weight:700;color:var(--ink);margin-top:2px;text-align:center;line-height:1.1}
+.plus{font-family:var(--display);font-size:1.4rem;color:var(--faint)}
+.mixbtn{font-family:inherit;font-weight:700;font-size:1.02rem;border:none;border-radius:14px;padding:13px 28px;background:var(--brand);color:#fff;cursor:pointer;margin-top:16px;transition:.15s}
+.mixbtn:disabled{background:var(--line);color:var(--faint);cursor:default}
+.mixbtn:not(:disabled):active{transform:scale(.97);background:var(--brand-press)}
+
+/* shelf */
+.shelf-lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:4px 0 10px}
+.shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.ing{font-family:inherit;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.12s}
+.ing .e{font-size:1.5rem;line-height:1}
+.ing .n{font-size:.66rem;font-weight:600;color:var(--ink);text-align:center;line-height:1.1}
+.ing.sel{border-color:var(--brand);background:var(--brand-tint)}
+.ing:active{transform:scale(.96)}
+.ing:disabled{opacity:.4;cursor:default}
+
+/* result card */
+.result{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-top:14px;display:none}
+.result.show{display:block;animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.97);opacity:0}100%{transform:scale(1);opacity:1}}
+.result .badge{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 11px;border-radius:99px;margin-bottom:8px}
+.badge.new{background:var(--amber-tint);color:var(--amber)}
+.badge.known{background:var(--brand-tint);color:var(--brand)}
+.badge.none{background:var(--band);color:var(--muted)}
+.result h3{font-family:var(--display);font-weight:600;font-size:1.4rem;margin-bottom:2px}
+.result .concept{font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--brand);margin-bottom:8px}
+.result p{color:var(--ink);font-size:.96rem}
+.result .again{margin-top:14px;font-family:inherit;font-weight:600;font-size:.9rem;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 16px;cursor:pointer}
+
+.toolbar{display:flex;gap:10px;margin-top:14px}
+.toolbar button{flex:1;font-family:inherit;font-weight:600;font-size:.9rem;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:11px;cursor:pointer}
+.toolbar button:active{transform:scale(.98)}
+
+/* notebook */
+.sheet{position:fixed;inset:0;background:rgba(34,35,31,.45);display:none;align-items:flex-end;justify-content:center;z-index:50}
+.sheet.show{display:flex}
+.sheet .inner{background:var(--paper);width:100%;max-width:620px;max-height:86vh;overflow-y:auto;border-radius:22px 22px 0 0;padding:20px 18px 30px}
+.sheet h2{font-family:var(--display);font-weight:600;font-size:1.5rem;margin-bottom:4px}
+.sheet .sub{color:var(--muted);font-size:.88rem;margin-bottom:14px}
+.entry{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:9px;background:var(--surface)}
+.entry.locked{background:var(--band);border-style:dashed}
+.entry .combo{font-size:.82rem;color:var(--muted);font-weight:600}
+.entry .rn{font-family:var(--display);font-weight:600;font-size:1.05rem}
+.entry .cc{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--brand)}
+.entry.locked .rn{color:var(--faint)}
+.closebtn{width:100%;font-family:inherit;font-weight:700;font-size:1rem;border:none;background:var(--brand);color:#fff;border-radius:14px;padding:14px;cursor:pointer;margin-top:8px}
+.safe{font-size:.78rem;color:var(--faint);margin-top:20px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+  <div class="eyebrow">Play &amp; Learn · Science Lab</div>
+  <h1 class="display">Chemistry <b>Lab</b></h1>
+  <p class="lede">Pick two things, drop them in the beaker, and see what happens! Discover all the reactions and collect them in your lab notebook. (Everything here is pretend — fun and safe to watch on screen.)</p>
+
+  <div class="progress">
+    <div class="bar"><i id="progFill"></i></div>
+    <div class="txt" id="progTxt">0 of 0 discovered</div>
+  </div>
+
+  <div class="bench">
+    <div class="beaker" id="beaker">
+      <div class="rim"></div>
+      <div class="liquid" id="liquid"></div>
+      <div class="fx" id="fx"></div>
+    </div>
+    <div class="slots">
+      <div class="slot" id="slot0"><span class="plus">＋</span></div>
+      <div class="plus">＋</div>
+      <div class="slot" id="slot1"><span class="plus">＋</span></div>
+    </div>
+    <button class="mixbtn" id="mixBtn" disabled onclick="mix()">Mix it! 🧪</button>
+  </div>
+
+  <div class="shelf-lbl">Tap two ingredients</div>
+  <div class="shelf" id="shelf"></div>
+
+  <div class="result" id="result">
+    <span class="badge" id="resBadge"></span>
+    <h3 id="resName"></h3>
+    <div class="concept" id="resConcept"></div>
+    <p id="resBlurb"></p>
+    <button class="again" onclick="clearSlots()">Try another ↺</button>
+  </div>
+
+  <div class="toolbar">
+    <button onclick="openBook()">📓 Lab notebook</button>
+    <button onclick="hint()">💡 Need an idea?</button>
+  </div>
+
+  <p class="safe">friendology · calm, free, and entirely on your device. A grown-up is welcome to join the fun!</p>
+</div>
+
+<!-- notebook -->
+<div class="sheet" id="sheet">
+  <div class="inner">
+    <h2 class="display">Lab notebook</h2>
+    <div class="sub" id="bookSub"></div>
+    <div id="bookList"></div>
+    <button class="closebtn" onclick="closeBook()">Back to the lab</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+const ING = [
+  {id:'water',  name:'Water',        e:'💧'},
+  {id:'vinegar',name:'Vinegar',      e:'🧴'},
+  {id:'lemon',  name:'Lemon juice',  e:'🍋'},
+  {id:'soda',   name:'Baking soda',  e:'🥄'},
+  {id:'salt',   name:'Salt',         e:'🧂'},
+  {id:'sugar',  name:'Sugar',        e:'🍬'},
+  {id:'oil',    name:'Cooking oil',  e:'🫒'},
+  {id:'milk',   name:'Milk',         e:'🥛'},
+  {id:'cabbage',name:'Cabbage juice',e:'🥬'},
+  {id:'cola',   name:'Cola',         e:'🥤'},
+  {id:'mentos', name:'Mentos mint',  e:'🌀'},
+  {id:'iron',   name:'Iron nail',    e:'🔩'},
+];
+const NAME = Object.fromEntries(ING.map(i=>[i.id,i.name]));
+const key = (a,b)=>[a,b].sort().join('+');
+
+const RX = {
+  [key('soda','vinegar')]: {name:'Fizzy eruption', effect:'fizz', color:'#EAF3EF', concept:'Acid + base', blurb:'Vinegar is an acid and baking soda is a base. When they meet they make carbon-dioxide gas — those little bubbles!', hint:'Try the white powder with something sour and runny.'},
+  [key('soda','lemon')]:   {name:'Lemon fizz', effect:'fizz', color:'#F3F4E4', concept:'Acid + base', blurb:'Lemon juice is an acid too, so it fizzes with baking soda — making carbon-dioxide gas.', hint:'A sour yellow fruit juice also fizzes with the white powder.'},
+  [key('cabbage','vinegar')]:{name:'Turns pink!', effect:'color', color:'#D96A86', concept:'Acid test', blurb:'Cabbage juice is a natural "indicator". It turns pink or red when it meets an acid, like vinegar.', hint:'The purple juice changes colour when it meets something sour.'},
+  [key('cabbage','lemon')]: {name:'Turns pink!', effect:'color', color:'#D96A86', concept:'Acid test', blurb:'Lemon juice is acidic, so the cabbage indicator turns pink/red — just like with vinegar.', hint:'The purple juice also reacts to sour fruit juice.'},
+  [key('cabbage','soda')]:  {name:'Turns blue-green!', effect:'color', color:'#2E8B86', concept:'Base test', blurb:'Baking soda is a base. The cabbage indicator turns blue or green when it meets a base.', hint:'The purple juice turns blue-green with the white powder.'},
+  [key('milk','vinegar')]:  {name:'Milk makes curds', effect:'curdle', color:'#F2EFE3', concept:'Acid + protein', blurb:'The acid makes the protein in milk clump into soft lumps called curds — it is how paneer, and even a kind of natural plastic, are made!', hint:'Add something sour to milk and watch it change.'},
+  [key('milk','lemon')]:    {name:'Milk makes curds', effect:'curdle', color:'#F4F1E6', concept:'Acid + protein', blurb:'Lemon juice curdles milk too — the acid clumps the milk protein into curds.', hint:'Sour fruit juice also curdles milk.'},
+  [key('oil','water')]:     {name:"They won't mix", effect:'separate', color:'#dfe7df', concept:'Immiscible', blurb:'Oil and water do not mix. Oil is lighter, so it floats on top in its own layer.', hint:'Some things just float on top of water instead of mixing.'},
+  [key('oil','vinegar')]:   {name:'Salad dressing!', effect:'separate', color:'#e7ead0', concept:'Immiscible', blurb:'Oil and vinegar separate into layers too. Shake them and they mix for a moment — that is why we shake salad dressing!', hint:'Two kitchen liquids that make a dressing when shaken.'},
+  [key('salt','water')]:    {name:'It dissolves', effect:'dissolve', color:'#e6ecef', concept:'Solution', blurb:'The salt seems to vanish, but it is still there — it has dissolved into the water.', hint:'Some solids seem to disappear into water.'},
+  [key('sugar','water')]:   {name:'It dissolves', effect:'dissolve', color:'#eceaf0', concept:'Solution', blurb:'Sugar dissolves into water and seems to disappear — a taste would tell you it is still there!', hint:'A sweet solid also vanishes into water.'},
+  [key('cola','mentos')]:   {name:'Whoosh! Eruption', effect:'erupt', color:'#3b2a20', concept:'Physical change', blurb:'This is NOT a chemical reaction. The mint\u2019s rough surface lets the fizzy gas in cola escape all at once — whoosh!', hint:'A fizzy drink plus a rough little mint makes a big mess.'},
+  [key('iron','water')]:    {name:'Slowly rusts', effect:'rust', color:'#b06a3a', concept:'Oxidation', blurb:'Given time, iron + water + the oxygen in the air slowly make rust. In real life this takes days — we sped it up!', hint:'Leave metal in water and air, and over time it changes.'},
+};
+const RXKEYS = Object.keys(RX);
+const TOTAL = RXKEYS.length;
+
+let selected = [];
+let discovered = loadDisc();
+
+function loadDisc(){ try{ return new Set(JSON.parse(localStorage.getItem('fo_chem')||'[]')); }catch(e){ return new Set(); } }
+function saveDisc(){ try{ localStorage.setItem('fo_chem', JSON.stringify([...discovered])); }catch(e){} }
+
+/* ---- shelf ---- */
+function renderShelf(){
+  $('shelf').innerHTML = ING.map(i=>`
+    <button class="ing" id="ing-${i.id}" onclick="pick('${i.id}')">
+      <span class="e">${i.e}</span><span class="n">${i.name}</span>
+    </button>`).join('');
+}
+function pick(id){
+  const idx = selected.indexOf(id);
+  if(idx>-1){ selected.splice(idx,1); }            // tap again to deselect
+  else if(selected.length<2){ selected.push(id); }
+  else { selected = [selected[1], id]; }            // replace oldest
+  syncSel();
+}
+function syncSel(){
+  ING.forEach(i=> $('ing-'+i.id).classList.toggle('sel', selected.includes(i.id)));
+  [0,1].forEach(n=>{
+    const s=$('slot'+n), id=selected[n];
+    if(id){ const i=ING.find(x=>x.id===id); s.classList.add('filled'); s.innerHTML=`<span style="font-size:1.6rem">${i.e}</span><span class="nm">${i.name}</span>`; s.onclick=()=>{ pick(id); }; }
+    else { s.classList.remove('filled'); s.innerHTML='<span class="plus">＋</span>'; s.onclick=null; }
+  });
+  $('mixBtn').disabled = selected.length!==2;
+}
+function clearSlots(){ selected=[]; syncSel(); $('result').classList.remove('show'); setBeaker(null,'#e9efe9',0); }
+
+/* ---- mixing ---- */
+function mix(){
+  if(selected.length!==2) return;
+  const k = key(selected[0], selected[1]);
+  const rx = RX[k];
+  if(rx){
+    const isNew = !discovered.has(k);
+    if(isNew){ discovered.add(k); saveDisc(); }
+    setBeaker(rx.effect, rx.color, 62);
+    showResult(isNew?'new':'known', rx.name, rx.concept, rx.blurb);
+  } else {
+    setBeaker('none', mixColor(), 58);
+    showResult('none', 'Just a mixture', 'No chemical change',
+      'These two simply mixed together — no new substance formed. Not everything reacts, and noticing that is good science too!');
+  }
+  updateProgress();
+}
+function mixColor(){ return '#e3e7e0'; }
+
+function showResult(kind, name, concept, blurb){
+  const r=$('result'); r.classList.remove('show'); void r.offsetWidth;
+  const badge=$('resBadge');
+  badge.className='badge '+(kind==='new'?'new':kind==='none'?'none':'known');
+  badge.textContent = kind==='new'?'✨ New discovery!':kind==='none'?'No reaction':'Already in your notebook';
+  $('resName').textContent=name;
+  $('resConcept').textContent=concept;
+  $('resBlurb').textContent=blurb;
+  r.classList.add('show');
+}
+
+/* ---- beaker visuals ---- */
+function setBeaker(effect, color, height){
+  const liq=$('liquid'), fx=$('fx'), beaker=$('beaker');
+  fx.innerHTML=''; beaker.classList.remove('shake');
+  liq.style.background=color||'#e9efe9';
+  liq.style.height=(height||0)+'%';
+  if(!effect||effect==='none'||effect==='color'){ return; }
+  if(effect==='fizz'||effect==='erupt'){
+    const n = effect==='erupt'?34:18;
+    if(effect==='erupt'){ liq.style.height='86%'; beaker.classList.add('shake'); }
+    for(let i=0;i<n;i++){ const b=document.createElement('span'); b.className='bubble';
+      const sz=4+Math.random()*8; b.style.width=b.style.height=sz+'px';
+      b.style.left=(8+Math.random()*84)+'%'; b.style.bottom=(Math.random()*40)+'%';
+      b.style.animationDuration=(0.7+Math.random()*1.1)+'s'; b.style.animationDelay=(Math.random()*0.8)+'s';
+      fx.appendChild(b); }
+  } else if(effect==='curdle'){
+    for(let i=0;i<14;i++){ const l=document.createElement('span'); l.className='lump';
+      const sz=7+Math.random()*9; l.style.width=l.style.height=sz+'px'; l.style.background='#fffdf6';
+      l.style.left=(10+Math.random()*78)+'%'; l.style.bottom=(Math.random()*55)+'%'; fx.appendChild(l); }
+  } else if(effect==='rust'){
+    for(let i=0;i<16;i++){ const l=document.createElement('span'); l.className='lump';
+      const sz=3+Math.random()*5; l.style.width=l.style.height=sz+'px'; l.style.background='#7c3a1d';
+      l.style.left=(8+Math.random()*84)+'%'; l.style.bottom=(Math.random()*58)+'%'; fx.appendChild(l); }
+  } else if(effect==='separate'){
+    liq.style.background='linear-gradient(to bottom, #e9e08a 0%, #e9e08a 34%, '+(color||'#cfe0ea')+' 34%, '+(color||'#cfe0ea')+' 100%)';
+  } else if(effect==='dissolve'){
+    for(let i=0;i<10;i++){ const g=document.createElement('span'); g.className='grain';
+      g.style.left=(20+Math.random()*60)+'%'; g.style.top='6%'; g.style.animationDelay=(Math.random()*0.5)+'s'; fx.appendChild(g); }
+  }
+}
+
+/* ---- progress + notebook ---- */
+function updateProgress(){
+  $('progFill').style.width=(discovered.size/TOTAL*100)+'%';
+  $('progTxt').textContent=`${discovered.size} of ${TOTAL} discovered`;
+}
+function openBook(){
+  $('bookSub').textContent = discovered.size===TOTAL ? 'You found them all — brilliant work, scientist! 🌟' : `You\u2019ve discovered ${discovered.size} of ${TOTAL}. Keep experimenting!`;
+  $('bookList').innerHTML = RXKEYS.map(k=>{
+    const [a,b]=k.split('+'); const rx=RX[k]; const got=discovered.has(k);
+    if(got) return `<div class="entry"><div class="combo">${NAME[a]} + ${NAME[b]}</div><div class="rn">${rx.name}</div><div class="cc">${rx.concept}</div></div>`;
+    return `<div class="entry locked"><div class="combo">? + ?</div><div class="rn">??? — not discovered yet</div></div>`;
+  }).join('');
+  $('sheet').classList.add('show');
+}
+function closeBook(){ $('sheet').classList.remove('show'); }
+
+function hint(){
+  const undisc = RXKEYS.filter(k=>!discovered.has(k));
+  if(!undisc.length){ showResult('known','All found!','Well done','You\u2019ve discovered every reaction in the lab. Try mixing for fun, or visit your notebook!'); return; }
+  const k = undisc[Math.floor(Math.random()*undisc.length)];
+  showResult('known','Here\u2019s an idea 💡', 'Hint', RX[k].hint);
+}
+
+/* ---- init ---- */
+renderShelf(); syncSel(); updateProgress(); setBeaker(null,'#e9efe9',0);
+</script>
+</body>
+</html>
