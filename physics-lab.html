@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Physics Lab · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;
+  --display:'Fraunces',serif;--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:600px;margin:0 auto;padding:18px 16px 48px}
+.display{font-family:var(--display)}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:12px}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(1.9rem,7vw,2.5rem);line-height:1.04;letter-spacing:-.02em;margin:6px 0 4px}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:.95rem;margin-bottom:14px}
+
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.tab{font-family:inherit;font-size:.9rem;font-weight:600;padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s}
+.tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.tab:active{transform:scale(.97)}
+
+.stage{background:var(--band);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+canvas{display:block;width:100%;height:300px;touch-action:none}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:14px 0}
+.ctrl{flex:1;min-width:130px}
+.ctrl .lbl{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.ctrl .lbl b{color:var(--brand)}
+input[type=range]{width:100%;accent-color:var(--brand)}
+.cbtn{font-family:inherit;font-weight:700;font-size:.95rem;border:none;border-radius:12px;padding:11px 18px;background:var(--brand);color:#fff;cursor:pointer;transition:.12s}
+.cbtn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.cbtn:active{transform:scale(.97)}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;cursor:pointer}
+.toggle input{width:18px;height:18px;accent-color:var(--brand)}
+
+.readout{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 15px;font-weight:600;font-size:.95rem;min-height:46px;display:flex;align-items:center}
+.concept{background:var(--brand-tint);border-radius:14px;padding:13px 15px;margin-top:12px;font-size:.92rem}
+.concept b{color:var(--brand)}
+.foot{margin-top:20px;font-size:.78rem;color:var(--faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+  <div class="eyebrow">Play &amp; Learn · Science Lab</div>
+  <h1 class="display">Physics <b>Lab</b></h1>
+  <p class="lede">A hands-on bench for playing with motion, forces and simple machines. Pick a station, change things, and watch what happens — real physics, made to poke at.</p>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="stage"><canvas id="cv"></canvas></div>
+
+  <div class="controls" id="controls"></div>
+  <div class="readout" id="readout"></div>
+  <div class="concept" id="concept"></div>
+
+  <p class="foot">friendology · calm, free, and entirely on your device.</p>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const COL = { paper:'#FBFAF6', band:'#F3F1EA', line:'#E2DED3', ink:'#22231F', muted:'#8A8C82',
+  brand:'#1F6B4A', amber:'#C2700C', red:'#C0492F', sky:'#3E7CB1' };
+let W=560, H=300, dpr=1;
+function resize(){
+  dpr = window.devicePixelRatio||1;
+  W = cv.clientWidth; H = cv.clientHeight;
+  cv.width = W*dpr; cv.height = H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', resize);
+
+const PXPM = 26;      // pixels per "metre" (visual scale)
+const Gr = 9.8;       // gravity m/s^2
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function roundr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+/* ============ STATIONS ============ */
+const stations = {
+/* ---- Gravity Drop ---- */
+gravity:{
+  title:'Gravity Drop',
+  concept:'<b>Gravity</b> pulls everything down the same way. Without air, a heavy ball and a light ball land at exactly the same time — it\u2019s <b>air resistance</b> that makes a feather flutter slower than a stone.',
+  air:false, dropped:false, t:0,
+  a:{y:70,v:0,landed:false}, b:{y:70,v:0,landed:false},
+  reset(){ this.dropped=false; this.t=0; this.a={y:70,v:0,landed:false}; this.b={y:70,v:0,landed:false}; this.msg=''; },
+  drop(){ this.reset(); this.dropped=true; },
+  ground(){ return H-34; },
+  update(dt){
+    if(!this.dropped) return;
+    const g=Gr*PXPM, gnd=this.ground()-18;
+    [['a',1],['b', this.air?0.42:1]].forEach(([k,f])=>{
+      const o=this[k]; if(o.landed) return;
+      o.v += g*f*dt; o.y += o.v*dt;
+      if(o.y>=gnd){ o.y=gnd; o.landed=true; }
+    });
+    if(this.a.landed && this.b.landed && !this.msg){
+      this.msg = this.air ? 'With air: the lighter ball was slowed and landed a moment later.'
+                          : 'No air: both landed together! Gravity pulls them the same.';
+    }
+  },
+  draw(){
+    const gnd=this.ground();
+    ctx.fillStyle=COL.line; ctx.fillRect(0,gnd,W,3);
+    const xa=W*0.36, xb=W*0.64;
+    // heavy (brand), light (amber)
+    drawBall(xa,this.a.y,20,COL.brand,'heavy');
+    drawBall(xb,this.b.y,20,COL.amber,'light');
+  },
+  readout(){ return this.dropped ? (this.msg||'Falling…') : 'Tap “Drop” to race the two balls.'; }
+},
+/* ---- Ramp Racer ---- */
+ramp:{
+  title:'Ramp Racer',
+  concept:'On a <b>steeper ramp</b>, more of gravity pulls the ball <i>along</i> the slope, so it speeds up faster and reaches the bottom sooner. This is <b>acceleration</b>.',
+  angle:30, rolling:false, s:0, v:0, t:0, len:240, done:false,
+  reset(){ this.rolling=false; this.s=0; this.v=0; this.t=0; this.done=false; },
+  roll(){ this.reset(); this.rolling=true; },
+  geom(){
+    const gnd=H-30, bx=W-44, by=gnd;
+    const th=this.angle*Math.PI/180;
+    const len=Math.min(this.len, W*0.62);
+    const tx=bx-Math.cos(th)*len, ty=by-Math.sin(th)*len;
+    return {bx,by,tx,ty,th,len,gnd};
+  },
+  update(dt){
+    if(!this.rolling) return;
+    const g=this.geom();
+    const a=Gr*Math.sin(g.th)*PXPM;
+    this.v += a*dt; this.s += this.v*dt; this.t += dt;
+    if(this.s>=g.len){ this.s=g.len; this.rolling=false; this.done=true; }
+  },
+  draw(){
+    const g=this.geom();
+    ctx.fillStyle=COL.line; ctx.fillRect(0,g.gnd,W,3);
+    // ramp triangle
+    ctx.fillStyle='#E8E4D8'; ctx.strokeStyle=COL.muted; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.lineTo(g.bx,g.ty); ctx.closePath();
+    if(g.tx<g.bx){ ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.lineTo(g.tx,g.by); ctx.closePath(); }
+    ctx.fill();
+    ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.stroke();
+    // ball
+    const f=this.s/g.len, bxp=g.tx+(g.bx-g.tx)*f, byp=g.ty+(g.by-g.ty)*f;
+    drawBall(bxp, byp-13, 13, COL.brand);
+  },
+  readout(){
+    if(this.done) return `Angle ${this.angle}° · reached the bottom in ${this.t.toFixed(2)} s. Try a steeper ramp!`;
+    if(this.rolling) return `Rolling… ${this.t.toFixed(2)} s`;
+    return `Set the steepness, then tap “Roll”. Steeper = faster.`;
+  }
+},
+/* ---- Pendulum ---- */
+pendulum:{
+  title:'Pendulum',
+  concept:'A pendulum\u2019s swing time depends on its <b>length</b>, not its weight. A longer string swings slowly; a short one swings fast. Changing the bob\u2019s weight makes <i>no</i> difference to the timing!',
+  len:150, mass:3, th:0.5, om:0,
+  reset(){ this.th=0.5; this.om=0; },
+  swing(){ this.th=0.6; this.om=0; },
+  update(dt){
+    dt=Math.min(dt,0.033);
+    const L=this.len/PXPM;
+    this.om += (-(Gr/L)*Math.sin(this.th) - 0.18*this.om)*dt;
+    this.th += this.om*dt;
+  },
+  period(){ return 2*Math.PI*Math.sqrt((this.len/PXPM)/Gr); },
+  draw(){
+    const px=W/2, py=46;
+    const bx=px+Math.sin(this.th)*this.len, by=py+Math.cos(this.th)*this.len;
+    ctx.strokeStyle=COL.muted; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(px-26,py); ctx.lineTo(px+26,py); ctx.stroke();      // mount
+    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(bx,by); ctx.stroke();            // string
+    drawBall(bx,by, 10+this.mass*3, COL.brand);
+    ctx.fillStyle=COL.muted; ctx.beginPath(); ctx.arc(px,py,4,0,7); ctx.fill();
+  },
+  readout(){ return `Length set · about ${this.period().toFixed(2)} s per swing. Change the weight — the timing stays the same!`; }
+},
+/* ---- Balance Beam ---- */
+balance:{
+  title:'Balance Beam',
+  concept:'A see-saw balances when <b>weight × distance</b> is the same on both sides. That\u2019s the secret of every <b>lever</b> — a small weight far out can balance a big weight close in.',
+  Lw:3, Ld:3, Rw:3, Rd:3,
+  reset(){},
+  update(dt){},
+  draw(){
+    const px=W/2, py=H-70, beam=Math.min(W*0.8, 420), half=beam/2;
+    const Lm=this.Lw*this.Ld, Rm=this.Rw*this.Rd;
+    const tilt=clamp((Rm-Lm)*0.018, -0.32, 0.32);
+    // pivot
+    ctx.fillStyle=COL.muted; ctx.beginPath(); ctx.moveTo(px-22,py+44); ctx.lineTo(px+22,py+44); ctx.lineTo(px,py); ctx.closePath(); ctx.fill();
+    ctx.save(); ctx.translate(px,py); ctx.rotate(tilt);
+    // beam
+    ctx.fillStyle=COL.brand; roundr(-half,-7,beam,14,7); ctx.fill();
+    // weights: left at -Ld, right at +Rd (scaled)
+    const unit=half/5.5;
+    placeWeight(-this.Ld*unit, this.Lw, COL.amber);
+    placeWeight(this.Rd*unit, this.Rw, COL.sky);
+    ctx.restore();
+    function placeWeight(x,w,c){ const s=16+w*5; ctx.fillStyle=c; roundr(x-s/2,-7-s,s,s,5); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.font='bold 13px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(w, x, -7-s/2+5); }
+  },
+  readout(){
+    const Lm=this.Lw*this.Ld, Rm=this.Rw*this.Rd;
+    const st = Lm===Rm?'Balanced! ⚖️':(Lm>Rm?'Tips left ⬅':'Tips right ➡');
+    return `Left ${this.Lw}×${this.Ld}=${Lm}  ·  Right ${this.Rw}×${this.Rd}=${Rm}  ·  ${st}`;
+  }
+}
+};
+
+function drawBall(x,y,r,c,label){
+  ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(x-r*0.3,y-r*0.3,r*0.32,0,7); ctx.fill();
+  if(label){ ctx.fillStyle=COL.muted; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x, y+r+14); }
+}
+
+/* ============ UI WIRING ============ */
+let active='gravity';
+const TABS=[['gravity','Gravity Drop'],['ramp','Ramp Racer'],['pendulum','Pendulum'],['balance','Balance Beam']];
+function renderTabs(){
+  $('tabs').innerHTML=TABS.map(([k,t])=>`<button class="tab ${k===active?'on':''}" onclick="setStation('${k}')">${t}</button>`).join('');
+}
+function setStation(k){ active=k; stations[k].reset&&stations[k].reset(); renderTabs(); buildControls(); $('concept').innerHTML=stations[k].concept; }
+
+function sliderHTML(id,label,val,min,max,step,unit){
+  return `<div class="ctrl"><div class="lbl"><span>${label}</span><b id="${id}v">${val}${unit||''}</b></div>
+    <input type="range" id="${id}" min="${min}" max="${max}" step="${step||1}" value="${val}"></div>`;
+}
+function buildControls(){
+  const c=$('controls'); const s=stations[active];
+  if(active==='gravity'){
+    c.innerHTML=`<button class="cbtn" id="drop">Drop ↓</button>
+      <button class="cbtn ghost" id="rst">Reset</button>
+      <label class="toggle"><input type="checkbox" id="air"> Add air resistance</label>`;
+    $('drop').onclick=()=>s.drop(); $('rst').onclick=()=>s.reset();
+    $('air').onchange=e=>{ s.air=e.target.checked; s.reset(); };
+  } else if(active==='ramp'){
+    c.innerHTML=sliderHTML('ang','Steepness',s.angle,10,55,1,'°')
+      +`<button class="cbtn" id="roll">Roll ▸</button>`;
+    $('ang').oninput=e=>{ s.angle=+e.target.value; $('angv').textContent=s.angle+'°'; if(!s.rolling)s.reset(); };
+    $('roll').onclick=()=>s.roll();
+  } else if(active==='pendulum'){
+    c.innerHTML=sliderHTML('len','String length',s.len,80,230,1,'')
+      +sliderHTML('mass','Bob weight',s.mass,1,6,1,'')
+      +`<button class="cbtn" id="sw">Give it a swing</button>`;
+    $('len').oninput=e=>{ s.len=+e.target.value; $('lenv').textContent=s.len; };
+    $('mass').oninput=e=>{ s.mass=+e.target.value; $('massv').textContent=s.mass; };
+    $('sw').onclick=()=>s.swing();
+  } else if(active==='balance'){
+    c.innerHTML=sliderHTML('lw','Left weight',s.Lw,1,6,1)+sliderHTML('ld','Left distance',s.Ld,1,5,1)
+      +sliderHTML('rw','Right weight',s.Rw,1,6,1)+sliderHTML('rd','Right distance',s.Rd,1,5,1);
+    $('lw').oninput=e=>{s.Lw=+e.target.value;$('lwv').textContent=s.Lw;};
+    $('ld').oninput=e=>{s.Ld=+e.target.value;$('ldv').textContent=s.Ld;};
+    $('rw').oninput=e=>{s.Rw=+e.target.value;$('rwv').textContent=s.Rw;};
+    $('rd').oninput=e=>{s.Rd=+e.target.value;$('rdv').textContent=s.Rd;};
+  }
+}
+
+/* ============ LOOP ============ */
+let last=0;
+function loop(ts){
+  const dt=Math.min((ts-last)/1000||0, 0.05); last=ts;
+  ctx.clearRect(0,0,W,H);
+  const s=stations[active];
+  s.update&&s.update(dt); s.draw&&s.draw();
+  $('readout').textContent=s.readout();
+  requestAnimationFrame(loop);
+}
+
+/* init */
+resize(); renderTabs(); buildControls(); $('concept').innerHTML=stations[active].concept;
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
