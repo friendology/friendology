@@ -28,10 +28,17 @@ h1{font-family:var(--display);font-weight:600;font-size:clamp(1.9rem,7vw,2.5rem)
 h1 b{color:var(--brand);font-weight:600}
 .lede{color:var(--muted);font-size:.95rem;margin-bottom:14px}
 
-.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.tab{font-family:inherit;font-size:.9rem;font-weight:600;padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s}
+.benchtabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.stationtabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.tab{font-family:inherit;font-weight:600;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s}
+.benchtabs .tab{font-size:.86rem;padding:8px 13px;border-radius:12px}
+.stationtabs .tab{font-size:.8rem;padding:6px 11px;border-radius:10px}
 .tab.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .tab:active{transform:scale(.97)}
+
+.banner{display:none;background:var(--amber-tint);border:1px solid color-mix(in srgb,var(--amber) 30%,transparent);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:.85rem;margin-bottom:12px}
+.banner.show{display:block}
+.banner b{color:var(--amber)}
 
 .stage{background:var(--band);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 canvas{display:block;width:100%;height:300px;touch-action:none}
@@ -43,9 +50,13 @@ canvas{display:block;width:100%;height:300px;touch-action:none}
 input[type=range]{width:100%;accent-color:var(--brand)}
 .cbtn{font-family:inherit;font-weight:700;font-size:.95rem;border:none;border-radius:12px;padding:11px 18px;background:var(--brand);color:#fff;cursor:pointer;transition:.12s}
 .cbtn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.cbtn.ghost.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .cbtn:active{transform:scale(.97)}
 .toggle{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;font-weight:600;cursor:pointer}
 .toggle input{width:18px;height:18px;accent-color:var(--brand)}
+.pillrow{display:flex;gap:7px}
+.pill{font-family:inherit;font-weight:600;font-size:.84rem;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);cursor:pointer}
+.pill.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 
 .readout{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 15px;font-weight:600;font-size:.95rem;min-height:46px;display:flex;align-items:center}
 .concept{background:var(--brand-tint);border-radius:14px;padding:13px 15px;margin-top:12px;font-size:.92rem}
@@ -58,9 +69,11 @@ input[type=range]{width:100%;accent-color:var(--brand)}
   <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
   <div class="eyebrow">Play &amp; Learn · Science Lab</div>
   <h1 class="display">Physics <b>Lab</b></h1>
-  <p class="lede">A hands-on bench for playing with motion, forces and simple machines. Pick a station, change things, and watch what happens — real physics, made to poke at.</p>
+  <p class="lede">A hands-on bench for playing with the rules of the universe. Pick a bench, choose an experiment, change things, and watch real physics happen.</p>
 
-  <div class="tabs" id="tabs"></div>
+  <div class="benchtabs" id="benchtabs"></div>
+  <div class="banner" id="banner"></div>
+  <div class="stationtabs" id="stationtabs"></div>
 
   <div class="stage"><canvas id="cv"></canvas></div>
 
@@ -75,214 +88,315 @@ input[type=range]{width:100%;accent-color:var(--brand)}
 const $ = id => document.getElementById(id);
 const cv = $('cv'), ctx = cv.getContext('2d');
 const COL = { paper:'#FBFAF6', band:'#F3F1EA', line:'#E2DED3', ink:'#22231F', muted:'#8A8C82',
-  brand:'#1F6B4A', amber:'#C2700C', red:'#C0492F', sky:'#3E7CB1' };
+  brand:'#1F6B4A', amber:'#C2700C', red:'#C0492F', sky:'#3E7CB1', blue:'#2D6DB4' };
 let W=560, H=300, dpr=1;
-function resize(){
-  dpr = window.devicePixelRatio||1;
-  W = cv.clientWidth; H = cv.clientHeight;
-  cv.width = W*dpr; cv.height = H*dpr;
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-}
+function resize(){ dpr=window.devicePixelRatio||1; W=cv.clientWidth; H=cv.clientHeight; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
 window.addEventListener('resize', resize);
 
-const PXPM = 26;      // pixels per "metre" (visual scale)
-const Gr = 9.8;       // gravity m/s^2
+const PXPM=26, Gr=9.8;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const D2R=Math.PI/180, R2D=180/Math.PI;
 function roundr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function ball(x,y,r,c,label){ ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(x-r*0.3,y-r*0.3,r*0.32,0,7); ctx.fill();
+  if(label){ ctx.fillStyle=COL.muted; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(label,x,y+r+14);} }
+function line(x1,y1,x2,y2,c,w){ ctx.strokeStyle=c; ctx.lineWidth=w||2; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+function dashed(x1,y1,x2,y2,c){ ctx.save(); ctx.setLineDash([5,5]); line(x1,y1,x2,y2,c||COL.muted,1.5); ctx.restore(); }
 
-/* ============ STATIONS ============ */
-const stations = {
-/* ---- Gravity Drop ---- */
-gravity:{
-  title:'Gravity Drop',
-  concept:'<b>Gravity</b> pulls everything down the same way. Without air, a heavy ball and a light ball land at exactly the same time — it\u2019s <b>air resistance</b> that makes a feather flutter slower than a stone.',
-  air:false, dropped:false, t:0,
-  a:{y:70,v:0,landed:false}, b:{y:70,v:0,landed:false},
-  reset(){ this.dropped=false; this.t=0; this.a={y:70,v:0,landed:false}; this.b={y:70,v:0,landed:false}; this.msg=''; },
-  drop(){ this.reset(); this.dropped=true; },
-  ground(){ return H-34; },
-  update(dt){
-    if(!this.dropped) return;
-    const g=Gr*PXPM, gnd=this.ground()-18;
-    [['a',1],['b', this.air?0.42:1]].forEach(([k,f])=>{
-      const o=this[k]; if(o.landed) return;
-      o.v += g*f*dt; o.y += o.v*dt;
-      if(o.y>=gnd){ o.y=gnd; o.landed=true; }
-    });
-    if(this.a.landed && this.b.landed && !this.msg){
-      this.msg = this.air ? 'With air: the lighter ball was slowed and landed a moment later.'
-                          : 'No air: both landed together! Gravity pulls them the same.';
-    }
-  },
-  draw(){
-    const gnd=this.ground();
-    ctx.fillStyle=COL.line; ctx.fillRect(0,gnd,W,3);
-    const xa=W*0.36, xb=W*0.64;
-    // heavy (brand), light (amber)
-    drawBall(xa,this.a.y,20,COL.brand,'heavy');
-    drawBall(xb,this.b.y,20,COL.amber,'light');
-  },
-  readout(){ return this.dropped ? (this.msg||'Falling…') : 'Tap “Drop” to race the two balls.'; }
-},
-/* ---- Ramp Racer ---- */
-ramp:{
-  title:'Ramp Racer',
-  concept:'On a <b>steeper ramp</b>, more of gravity pulls the ball <i>along</i> the slope, so it speeds up faster and reaches the bottom sooner. This is <b>acceleration</b>.',
-  angle:30, rolling:false, s:0, v:0, t:0, len:240, done:false,
-  reset(){ this.rolling=false; this.s=0; this.v=0; this.t=0; this.done=false; },
-  roll(){ this.reset(); this.rolling=true; },
-  geom(){
-    const gnd=H-30, bx=W-44, by=gnd;
-    const th=this.angle*Math.PI/180;
-    const len=Math.min(this.len, W*0.62);
-    const tx=bx-Math.cos(th)*len, ty=by-Math.sin(th)*len;
-    return {bx,by,tx,ty,th,len,gnd};
-  },
-  update(dt){
-    if(!this.rolling) return;
-    const g=this.geom();
-    const a=Gr*Math.sin(g.th)*PXPM;
-    this.v += a*dt; this.s += this.v*dt; this.t += dt;
-    if(this.s>=g.len){ this.s=g.len; this.rolling=false; this.done=true; }
-  },
-  draw(){
-    const g=this.geom();
-    ctx.fillStyle=COL.line; ctx.fillRect(0,g.gnd,W,3);
-    // ramp triangle
-    ctx.fillStyle='#E8E4D8'; ctx.strokeStyle=COL.muted; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.lineTo(g.bx,g.ty); ctx.closePath();
-    if(g.tx<g.bx){ ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.lineTo(g.tx,g.by); ctx.closePath(); }
-    ctx.fill();
-    ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.stroke();
-    // ball
-    const f=this.s/g.len, bxp=g.tx+(g.bx-g.tx)*f, byp=g.ty+(g.by-g.ty)*f;
-    drawBall(bxp, byp-13, 13, COL.brand);
-  },
-  readout(){
-    if(this.done) return `Angle ${this.angle}° · reached the bottom in ${this.t.toFixed(2)} s. Try a steeper ramp!`;
-    if(this.rolling) return `Rolling… ${this.t.toFixed(2)} s`;
-    return `Set the steepness, then tap “Roll”. Steeper = faster.`;
-  }
-},
-/* ---- Pendulum ---- */
-pendulum:{
-  title:'Pendulum',
-  concept:'A pendulum\u2019s swing time depends on its <b>length</b>, not its weight. A longer string swings slowly; a short one swings fast. Changing the bob\u2019s weight makes <i>no</i> difference to the timing!',
-  len:150, mass:3, th:0.5, om:0,
-  reset(){ this.th=0.5; this.om=0; },
-  swing(){ this.th=0.6; this.om=0; },
-  update(dt){
-    dt=Math.min(dt,0.033);
-    const L=this.len/PXPM;
-    this.om += (-(Gr/L)*Math.sin(this.th) - 0.18*this.om)*dt;
-    this.th += this.om*dt;
-  },
+/* ===================== STATIONS ===================== */
+const S = {
+/* ---------- FORCES & MOTION ---------- */
+gravity:{ bench:'motion', title:'Gravity Drop',
+  concept:'<b>Gravity</b> pulls everything down the same way. Without air, a heavy and a light ball land at the same time — it is <b>air resistance</b> that makes a feather flutter slower than a stone.',
+  air:false,dropped:false,a:{y:70,v:0,l:false},b:{y:70,v:0,l:false},msg:'',
+  reset(){this.dropped=false;this.a={y:70,v:0,l:false};this.b={y:70,v:0,l:false};this.msg='';},
+  drop(){this.reset();this.dropped=true;}, gnd(){return H-34;},
+  update(dt){ if(!this.dropped)return; const g=Gr*PXPM, fl=this.gnd()-18;
+    [['a',1],['b',this.air?0.42:1]].forEach(([k,f])=>{ const o=this[k]; if(o.l)return; o.v+=g*f*dt; o.y+=o.v*dt; if(o.y>=fl){o.y=fl;o.l=true;} });
+    if(this.a.l&&this.b.l&&!this.msg){ this.msg=this.air?'With air: the lighter ball was slowed and landed later.':'No air: both landed together! Gravity pulls them the same.'; } },
+  draw(){ const g=this.gnd(); ctx.fillStyle=COL.line; ctx.fillRect(0,g,W,3); ball(W*0.36,this.a.y,20,COL.brand,'heavy'); ball(W*0.64,this.b.y,20,COL.amber,'light'); },
+  readout(){ return this.dropped?(this.msg||'Falling…'):'Tap “Drop” to race the two balls.'; } },
+
+ramp:{ bench:'motion', title:'Ramp Racer',
+  concept:'On a <b>steeper ramp</b>, more of gravity pulls the ball along the slope, so it speeds up faster and reaches the bottom sooner. That speeding-up is <b>acceleration</b>.',
+  angle:30,rolling:false,s:0,v:0,t:0,len:240,done:false,
+  reset(){this.rolling=false;this.s=0;this.v=0;this.t=0;this.done=false;}, roll(){this.reset();this.rolling=true;},
+  geom(){ const gnd=H-30,bx=W-44,by=gnd,th=this.angle*D2R,len=Math.min(this.len,W*0.62); return {bx,by,tx:bx-Math.cos(th)*len,ty:by-Math.sin(th)*len,th,len,gnd}; },
+  update(dt){ if(!this.rolling)return; const g=this.geom(),a=Gr*Math.sin(g.th)*PXPM; this.v+=a*dt; this.s+=this.v*dt; this.t+=dt; if(this.s>=g.len){this.s=g.len;this.rolling=false;this.done=true;} },
+  draw(){ const g=this.geom(); ctx.fillStyle=COL.line; ctx.fillRect(0,g.gnd,W,3);
+    ctx.fillStyle='#E8E4D8'; ctx.beginPath(); ctx.moveTo(g.tx,g.ty); ctx.lineTo(g.bx,g.by); ctx.lineTo(g.bx,g.ty); ctx.closePath(); ctx.fill();
+    line(g.tx,g.ty,g.bx,g.by,COL.muted,2); const f=this.s/g.len; ball(g.tx+(g.bx-g.tx)*f,g.ty+(g.by-g.ty)*f-13,13,COL.brand); },
+  readout(){ return this.done?`Angle ${this.angle}° · reached the bottom in ${this.t.toFixed(2)} s. Try a steeper ramp!`:this.rolling?`Rolling… ${this.t.toFixed(2)} s`:'Set the steepness, then tap “Roll”.'; } },
+
+pendulum:{ bench:'motion', title:'Pendulum',
+  concept:'A pendulum\u2019s swing time depends on its <b>length</b>, not its weight. A long string swings slowly; a short one swings fast. Changing the weight makes no difference!',
+  len:150,mass:3,th:0.5,om:0, reset(){this.th=0.5;this.om=0;}, swing(){this.th=0.6;this.om=0;},
+  update(dt){ dt=Math.min(dt,.033); const L=this.len/PXPM; this.om+=(-(Gr/L)*Math.sin(this.th)-0.18*this.om)*dt; this.th+=this.om*dt; },
   period(){ return 2*Math.PI*Math.sqrt((this.len/PXPM)/Gr); },
-  draw(){
-    const px=W/2, py=46;
-    const bx=px+Math.sin(this.th)*this.len, by=py+Math.cos(this.th)*this.len;
-    ctx.strokeStyle=COL.muted; ctx.lineWidth=2;
-    ctx.beginPath(); ctx.moveTo(px-26,py); ctx.lineTo(px+26,py); ctx.stroke();      // mount
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(bx,by); ctx.stroke();            // string
-    drawBall(bx,by, 10+this.mass*3, COL.brand);
-    ctx.fillStyle=COL.muted; ctx.beginPath(); ctx.arc(px,py,4,0,7); ctx.fill();
-  },
-  readout(){ return `Length set · about ${this.period().toFixed(2)} s per swing. Change the weight — the timing stays the same!`; }
-},
-/* ---- Balance Beam ---- */
-balance:{
-  title:'Balance Beam',
-  concept:'A see-saw balances when <b>weight × distance</b> is the same on both sides. That\u2019s the secret of every <b>lever</b> — a small weight far out can balance a big weight close in.',
-  Lw:3, Ld:3, Rw:3, Rd:3,
-  reset(){},
-  update(dt){},
-  draw(){
-    const px=W/2, py=H-70, beam=Math.min(W*0.8, 420), half=beam/2;
-    const Lm=this.Lw*this.Ld, Rm=this.Rw*this.Rd;
-    const tilt=clamp((Rm-Lm)*0.018, -0.32, 0.32);
-    // pivot
+  draw(){ const px=W/2,py=46,bx=px+Math.sin(this.th)*this.len,by=py+Math.cos(this.th)*this.len;
+    line(px-26,py,px+26,py,COL.muted,3); line(px,py,bx,by,COL.muted,2); ball(bx,by,10+this.mass*3,COL.brand);
+    ctx.fillStyle=COL.muted; ctx.beginPath(); ctx.arc(px,py,4,0,7); ctx.fill(); },
+  readout(){ return `Length set · about ${this.period().toFixed(2)} s per swing. Change the weight — the timing stays the same!`; } },
+
+balance:{ bench:'motion', title:'Balance Beam',
+  concept:'A see-saw balances when <b>weight × distance</b> is the same on both sides. That is the secret of every <b>lever</b> — a small weight far out can balance a big weight close in.',
+  Lw:3,Ld:3,Rw:3,Rd:3, reset(){},
+  draw(){ const px=W/2,py=H-70,beam=Math.min(W*0.8,420),half=beam/2,Lm=this.Lw*this.Ld,Rm=this.Rw*this.Rd,tilt=clamp((Rm-Lm)*0.018,-0.32,0.32);
     ctx.fillStyle=COL.muted; ctx.beginPath(); ctx.moveTo(px-22,py+44); ctx.lineTo(px+22,py+44); ctx.lineTo(px,py); ctx.closePath(); ctx.fill();
-    ctx.save(); ctx.translate(px,py); ctx.rotate(tilt);
-    // beam
-    ctx.fillStyle=COL.brand; roundr(-half,-7,beam,14,7); ctx.fill();
-    // weights: left at -Ld, right at +Rd (scaled)
-    const unit=half/5.5;
-    placeWeight(-this.Ld*unit, this.Lw, COL.amber);
-    placeWeight(this.Rd*unit, this.Rw, COL.sky);
-    ctx.restore();
-    function placeWeight(x,w,c){ const s=16+w*5; ctx.fillStyle=c; roundr(x-s/2,-7-s,s,s,5); ctx.fill();
-      ctx.fillStyle='#fff'; ctx.font='bold 13px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(w, x, -7-s/2+5); }
+    ctx.save(); ctx.translate(px,py); ctx.rotate(tilt); ctx.fillStyle=COL.brand; roundr(-half,-7,beam,14,7); ctx.fill();
+    const unit=half/5.5; pw(-this.Ld*unit,this.Lw,COL.amber); pw(this.Rd*unit,this.Rw,COL.sky); ctx.restore();
+    function pw(x,w,c){ const s=16+w*5; ctx.fillStyle=c; roundr(x-s/2,-7-s,s,s,5); ctx.fill(); ctx.fillStyle='#fff'; ctx.font='bold 13px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(w,x,-7-s/2+5); } },
+  readout(){ const Lm=this.Lw*this.Ld,Rm=this.Rw*this.Rd; return `Left ${this.Lw}×${this.Ld}=${Lm} · Right ${this.Rw}×${this.Rd}=${Rm} · ${Lm===Rm?'Balanced! ⚖️':Lm>Rm?'Tips left ⬅':'Tips right ➡'}`; } },
+
+friction:{ bench:'motion', title:'Friction',
+  concept:'<b>Friction</b> is a force that slows sliding things down. A rough surface (carpet) grips more and stops the box sooner; a smooth one (ice) lets it glide far.',
+  surfaces:{Ice:90,Wood:175,Carpet:375}, surface:'Wood', moving:false,x:50,v:0,dist:0,done:false,
+  reset(){this.moving=false;this.x=50;this.v=0;this.dist=0;this.done=false;}, push(){this.reset();this.v=300;this.moving=true;},
+  update(dt){ if(!this.moving)return; const dec=this.surfaces[this.surface]; this.v-=dec*dt; if(this.v<=0){this.v=0;this.moving=false;this.done=true;return;} const dx=this.v*dt; this.x+=dx; this.dist+=dx; if(this.x>W-40){this.x=W-40;this.v=0;this.moving=false;this.done=true;} },
+  draw(){ const gnd=H-40; let col=this.surface==='Ice'?'#CFE3EE':this.surface==='Carpet'?'#D8C3B0':'#D8C49A';
+    ctx.fillStyle=col; ctx.fillRect(0,gnd,W,40); ctx.fillStyle=COL.muted; ctx.font='600 12px Plus Jakarta Sans,sans-serif'; ctx.textAlign='left'; ctx.fillText(this.surface,10,gnd+25);
+    ctx.fillStyle=COL.brand; roundr(this.x-18,gnd-30,36,30,6); ctx.fill(); },
+  readout(){ return this.done?`On ${this.surface}, friction stopped the box after about ${Math.round(this.dist/3)} cm. Try Ice vs Carpet!`:this.moving?'Sliding…':'Pick a surface and push the box.'; } },
+
+projectile:{ bench:'motion', title:'Projectile',
+  concept:'A thrown ball follows a curved path called a <b>parabola</b> — moving forward steadily while gravity pulls it down. A launch angle near <b>45°</b> usually flies the furthest.',
+  angle:45,power:65,flying:false,x:40,y:0,vx:0,vy:0,range:0,trail:[],done:false,
+  reset(){this.flying=false;this.trail=[];this.range=0;this.done=false;},
+  launch(){ this.reset(); const gy=H-30; this.x=40; this.y=gy; const v=this.power/100*560,th=this.angle*D2R; this.vx=v*Math.cos(th); this.vy=-v*Math.sin(th); this.flying=true; },
+  update(dt){ if(!this.flying)return; const g=900,gy=H-30; this.vy+=g*dt; this.x+=this.vx*dt; this.y+=this.vy*dt; if(this.trail.length<200)this.trail.push([this.x,this.y]); if(this.y>=gy){this.y=gy;this.flying=false;this.done=true;this.range=this.x-40;} },
+  draw(){ const gy=H-30; ctx.fillStyle=COL.line; ctx.fillRect(0,gy,W,3); ctx.fillStyle=COL.muted; ctx.fillRect(34,gy-14,12,14);
+    ctx.fillStyle='rgba(31,107,74,.35)'; this.trail.forEach(p=>{ctx.beginPath();ctx.arc(p[0],p[1],2,0,7);ctx.fill();}); if(this.flying||this.done) ball(this.x,this.y-9,9,COL.brand); },
+  readout(){ return this.done?`Angle ${this.angle}°, power ${this.power}: it flew ${Math.round(this.range)} across. Try 45° for the longest flight!`:this.flying?'In flight…':'Set angle and power, then Launch.'; } },
+
+/* ---------- LIGHT & OPTICS ---------- */
+reflect:{ bench:'optics', title:'Reflection',
+  concept:'Light bounces off a mirror so that the <b>angle coming in equals the angle going out</b> — both measured from the dotted "normal" line.',
+  ang:50,
+  draw(){ const cx=W/2,my=H*0.62,L=Math.min(W*0.42,210),a=this.ang*D2R;
+    ctx.fillStyle='#D7DEE4'; ctx.fillRect(0,my,W,H-my); line(0,my,W,my,COL.muted,3); dashed(cx,my,cx,my-150);
+    line(cx-Math.sin(a)*L,my-Math.cos(a)*L,cx,my,COL.amber,3); line(cx,my,cx+Math.sin(a)*L,my-Math.cos(a)*L,COL.red,3);
+    ctx.fillStyle=COL.muted; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText('normal',cx,my-156);
+    ctx.fillStyle=COL.amber; ctx.textAlign='right'; ctx.fillText('in '+this.ang+'°',cx-10,my-20); ctx.fillStyle=COL.red; ctx.textAlign='left'; ctx.fillText('out '+this.ang+'°',cx+10,my-20); },
+  readout(){ return `Light hits the mirror at ${this.ang}° and bounces off at ${this.ang}° — angle in = angle out.`; } },
+
+refract:{ bench:'optics', title:'Refraction',
+  concept:'When light passes from air into <b>water</b> it slows down and <b>bends toward the normal</b>. That bending is why a straw looks broken where it enters a glass of water.',
+  ang:45,
+  draw(){ const cx=W/2,my=H*0.46,L=Math.min(W*0.4,190),a=this.ang*D2R,n1=1,n2=1.33,s2=clamp(n1/n2*Math.sin(a),-1,1),a2=Math.asin(s2);
+    ctx.fillStyle='#E8F0F4'; ctx.fillRect(0,0,W,my); ctx.fillStyle='#BBD7E6'; ctx.fillRect(0,my,W,H-my); line(0,my,W,my,COL.muted,2); dashed(cx,my-130,cx,my+120);
+    line(cx-Math.sin(a)*L,my-Math.cos(a)*L,cx,my,COL.amber,3); line(cx,my,cx+Math.sin(a2)*L,my+Math.cos(a2)*L,COL.red,3);
+    ctx.fillStyle=COL.muted; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='left'; ctx.fillText('air',8,my-8); ctx.fillText('water',8,my+18);
+    this.a2=Math.round(a2*R2D); },
+  readout(){ return `From air into water, the beam bends from ${this.ang}° to about ${this.a2||Math.round(Math.asin(1/1.33*Math.sin(this.ang*D2R))*R2D)}° — toward the normal, because light slows down in water.`; } },
+
+prism:{ bench:'optics', title:'Prism',
+  concept:'A prism bends each colour by a different amount. <b>White</b> is all colours, so it fans into a rainbow. A <b>pure</b> colour just bends — it cannot split. And colours like <b>magenta</b> are secretly mixes: the prism reveals what they are made of!',
+  input:'white',
+  SPECT:{red:'#D33A2C',orange:'#E07B1A',yellow:'#E8C21E',green:'#3E9E5B',cyan:'#2FB0C0',blue:'#3E7CB1',violet:'#6B53B0'},
+  DEFL:{red:-15,orange:-10,yellow:-5,green:1,cyan:6,blue:12,violet:18},
+  MIX:{ white:['red','orange','yellow','green','cyan','blue','violet'], red:['red'], green:['green'], blue:['blue'],
+        yellow:['red','green'], cyan:['green','blue'], magenta:['red','blue'], pink:['red','blue','violet'] },
+  INCOL:{ white:'#f3f1ea', red:'#D33A2C', green:'#3E9E5B', blue:'#3E7CB1', yellow:'#E8C21E', cyan:'#2FB0C0', magenta:'#C0397F', pink:'#D98BB0' },
+  draw(){ const cx=W/2,cy=H/2,inC=this.INCOL[this.input];
+    line(16,cy,cx-30,cy, inC==='#f3f1ea'?'#cfcfcf':inC, 4);
+    ctx.fillStyle='rgba(200,205,210,.55)'; ctx.strokeStyle=COL.muted; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx,cy-48); ctx.lineTo(cx-36,cy+42); ctx.lineTo(cx+36,cy+42); ctx.closePath(); ctx.fill(); ctx.stroke();
+    this.MIX[this.input].forEach(name=>{ const a=this.DEFL[name]*D2R; line(cx+20,cy,cx+20+Math.cos(a)*190,cy+Math.sin(a)*190,this.SPECT[name],3); }); },
+  readout(){ const m={ white:'White is every colour mixed — the prism fans it into a full rainbow.',
+    red:'Pure red is a single colour, so it only bends — it cannot split.',
+    green:'Pure green is a single colour — it bends but stays one beam.',
+    blue:'Pure blue is a single colour — it bends the most here, but stays one beam.',
+    yellow:'Yellow light is really red + green — watch the prism split it into two beams!',
+    cyan:'Cyan is green + blue — the prism separates the two.',
+    magenta:'Surprise! Magenta is red + blue with NO green — the prism reveals its two hidden colours.',
+    pink:'Pink is a pale mix (mostly red, with blue and violet) — it splits into a soft set of beams.' };
+    return m[this.input]; } },
+
+/* ---------- MAGNETS & ELECTRICITY ---------- */
+magnet:{ bench:'mag', title:'Magnet & Compass',
+  concept:'A magnet has an invisible <b>field</b> around it. A compass needle always lines up with that field — pointing out of the North pole and into the South pole. Drag the compass around!',
+  flip:false, cx:0, cy:0, _init:false,
+  reset(){ if(!this._init){ this.cx=W*0.5; this.cy=H*0.28; this._init=true; } },
+  poles(){ const mx=W/2,my=H/2,pw=60; const N={x:mx-pw,y:my},Sp={x:mx+pw,y:my}; return this.flip?{N:Sp,S:N}:{N,S:Sp}; },
+  field(px,py){ const {N,S}=this.poles(); let fx=0,fy=0;
+    [[N,1],[S,-1]].forEach(([p,q])=>{ let dx=px-p.x,dy=py-p.y,r=Math.max(18,Math.hypot(dx,dy)); const k=q/(r*r*r)*8000; fx+=k*dx; fy+=k*dy; }); return Math.atan2(fy,fx); },
+  draw(){ this.reset(); const mx=W/2,my=H/2,pw=60;
+    ctx.fillStyle=COL.red; roundr(mx-pw-18,my-16,pw+18,32,5); ctx.fill();
+    ctx.fillStyle=COL.blue; roundr(mx,my-16,pw+18,32,5); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.font='bold 16px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center';
+    const {N}=this.poles(); ctx.fillText(this.flip?'S':'N',mx-pw,my+6); ctx.fillText(this.flip?'N':'S',mx+pw,my+6);
+    // compass
+    const a=this.field(this.cx,this.cy); ctx.save(); ctx.translate(this.cx,this.cy);
+    ctx.fillStyle='#fff'; ctx.strokeStyle=COL.muted; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(0,0,18,0,7); ctx.fill(); ctx.stroke();
+    ctx.rotate(a); ctx.fillStyle=COL.red; ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-2,-5); ctx.lineTo(-2,5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=COL.muted; ctx.beginPath(); ctx.moveTo(-14,0); ctx.lineTo(-2,-5); ctx.lineTo(-2,5); ctx.closePath(); ctx.fill(); ctx.restore();
+    ctx.fillStyle=COL.faint||'#8A8C82'; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText('drag me',this.cx,this.cy+32); },
+  readout(){ return 'The red end of the compass follows the magnet\u2019s field. Drag it around — near the poles the pull is strongest.'; } },
+
+generator:{ bench:'mag', title:'⚡ Generator', game:true,
+  concept:'Move a magnet near a coil and you push electricity through the wire — that is <b>induction</b>, how real generators and dynamos make power. Move it faster for more; hold it still and nothing flows — only a <i>changing</i> field makes current.',
+  my:80,prevMy:80,cur:0,glow:0,energy:0,time:0,playing:false,finished:false,best:0,isBest:false,_init:false,
+  reset(){ this.my=H*0.25; this.prevMy=this.my; this.cur=0; this.glow=0; this.energy=0; this.time=0; this.playing=false; this.finished=false; this.isBest=false; if(!this._init){ try{this.best=parseInt(localStorage.getItem("fo_gen_best"))||0;}catch(e){this.best=0;} this._init=true; } },
+  start(){ this.reset(); this.playing=true; this.time=15; },
+  coilY(){ return H*0.54; },
+  update(dt){ const cy=this.coilY(); const v=(this.my-this.prevMy)/Math.max(dt,0.001); this.prevMy=this.my;
+    const d=this.my-cy, near=Math.exp(-(d*d)/(2*38*38)); const induced=(v/700)*near; this.cur=induced;
+    this.glow+=(Math.abs(induced)-this.glow)*Math.min(1,dt*10);
+    if(this.playing){ this.energy+=Math.abs(induced)*dt*100; this.time-=dt; if(this.time<=0){ this.time=0; this.playing=false; this.finished=true; if(this.energy>this.best){ this.best=Math.round(this.energy); this.isBest=true; try{localStorage.setItem("fo_gen_best",this.best);}catch(e){} } } } },
+  draw(){ const cx=W/2, cy=this.coilY();
+    ctx.strokeStyle=COL.muted; ctx.lineWidth=3; for(let i=-3;i<=3;i++){ ctx.beginPath(); ctx.ellipse(cx,cy+i*11,34,8,0,0,7); ctx.stroke(); }
+    const bx=W*0.82,by=H*0.30, gx=W*0.18,gy=H*0.34;
+    line(cx+34,cy,bx,by+16,COL.line,2); line(cx-34,cy,gx,gy+20,COL.line,2);
+    const mh=64,mw=26,mx=cx; ctx.fillStyle=COL.red; roundr(mx-mw/2,this.my-mh/2,mw,mh/2,5); ctx.fill(); ctx.fillStyle=COL.blue; roundr(mx-mw/2,this.my,mw,mh/2,5); ctx.fill();
+    ctx.fillStyle="#fff"; ctx.font="bold 12px Plus Jakarta Sans,sans-serif"; ctx.textAlign="center"; ctx.fillText("N",mx,this.my-mh/4+4); ctx.fillText("S",mx,this.my+mh/4+4);
+    ctx.fillStyle="#8A8C82"; ctx.font="600 10px Plus Jakarta Sans,sans-serif"; ctx.fillText("drag ↕",mx,this.my-mh/2-7);
+    const lv=clamp(this.glow*1.2,0,1); ctx.fillStyle="rgba(226,170,30,"+(0.12+lv*0.85)+")"; ctx.beginPath(); ctx.arc(bx,by,16,0,7); ctx.fill(); ctx.strokeStyle=COL.muted; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(bx,by,16,0,7); ctx.stroke();
+    ctx.fillStyle="#fff"; ctx.strokeStyle=COL.muted; ctx.lineWidth=2; roundr(gx-26,gy-20,52,40,6); ctx.fill(); ctx.stroke();
+    const na=clamp(this.cur*0.6,-1.1,1.1); ctx.save(); ctx.translate(gx,gy+14); ctx.rotate(na); line(0,0,0,-26,COL.red,2); ctx.restore();
+    ctx.fillStyle=COL.muted; ctx.font="600 10px Plus Jakarta Sans,sans-serif"; ctx.textAlign="center"; ctx.fillText("− 0 +",gx,gy+16);
+    ctx.fillStyle=COL.ink; ctx.font="700 15px Plus Jakarta Sans,sans-serif"; ctx.textAlign="left"; ctx.fillText("Energy "+Math.round(this.energy),12,24);
+    ctx.textAlign="right"; ctx.fillStyle=this.playing?COL.brand:COL.muted; ctx.fillText(this.playing?Math.ceil(this.time)+"s":"best "+this.best,W-12,24); },
+  readout(){ if(this.playing) return `Pump the magnet through the coil! Energy ${Math.round(this.energy)} · ${Math.ceil(this.time)}s left`;
+    if(this.finished) return `Time! You generated ${Math.round(this.energy)} energy. ${this.isBest?'🎉 New best!':'Best: '+this.best}`;
+    return 'Drag the magnet up & down through the coil to light the bulb — then tap Start to score in 15 seconds!'; } },
+
+circuit:{ bench:'mag', title:'Circuit & Bulbs',
+  concept:'Electricity flows in a loop from a <b>battery</b>, through the wires, and lights a bulb. In <b>series</b> the bulbs share the push and dim; in <b>parallel</b> each gets the full push and stays bright.',
+  on:true, bulbs:1, mode:'parallel',
+  draw(){ const x0=40,x1=W-40,yTop=70,yBot=H-60;
+    ctx.strokeStyle=this.on?COL.brand:COL.muted; ctx.lineWidth=3;
+    // battery on left
+    ctx.fillStyle=COL.ink; ctx.fillRect(x0-6,(yTop+yBot)/2-22,12,18); ctx.fillStyle=COL.muted; ctx.fillRect(x0-4,(yTop+yBot)/2+4,8,14);
+    const bright=(b)=>{ if(!this.on)return 0; if(this.bulbs===1)return 1; return this.mode==='series'?0.4:1; };
+    const drawBulb=(bx,by)=>{ const lv=bright(); ctx.fillStyle=`rgba(226,170,30,${0.15+lv*0.8})`; ctx.beginPath(); ctx.arc(bx,by,15,0,7); ctx.fill();
+      ctx.strokeStyle=COL.muted; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(bx,by,15,0,7); ctx.stroke(); if(lv>0){ ctx.strokeStyle=`rgba(226,170,30,${lv})`; ctx.lineWidth=2; for(let k=0;k<6;k++){const an=k*Math.PI/3; line(bx+Math.cos(an)*18,by+Math.sin(an)*18,bx+Math.cos(an)*24,by+Math.sin(an)*24,`rgba(226,170,30,${lv})`,2);} } };
+    // simple schematic loop
+    line(x0,(yTop+yBot)/2,x0,yTop,ctx.strokeStyle,3); line(x0,yTop,x1,yTop,ctx.strokeStyle,3); line(x1,yTop,x1,yBot,ctx.strokeStyle,3); line(x1,yBot,x0,yBot,ctx.strokeStyle,3); line(x0,yBot,x0,(yTop+yBot)/2+18,ctx.strokeStyle,3);
+    // switch gap (top middle-left)
+    if(!this.on){ ctx.fillStyle=COL.band; ctx.fillRect(W*0.28-10,yTop-6,20,12); line(W*0.28-10,yTop,W*0.28+6,yTop-10,COL.muted,3); }
+    if(this.bulbs===1){ drawBulb(W/2,yTop); }
+    else if(this.mode==='series'){ drawBulb(W*0.42,yTop); drawBulb(W*0.62,yTop); }
+    else { // parallel: two vertical branches
+      const my=(yTop+yBot)/2; line(W*0.5,yTop,W*0.5,yBot,ctx.strokeStyle,3); drawBulb(W*0.5,my-30); drawBulb(W*0.72,my+30); line(W*0.72,yTop,W*0.72,yBot,ctx.strokeStyle,2); }
   },
-  readout(){
-    const Lm=this.Lw*this.Ld, Rm=this.Rw*this.Rd;
-    const st = Lm===Rm?'Balanced! ⚖️':(Lm>Rm?'Tips left ⬅':'Tips right ➡');
-    return `Left ${this.Lw}×${this.Ld}=${Lm}  ·  Right ${this.Rw}×${this.Rd}=${Rm}  ·  ${st}`;
-  }
-}
+  readout(){ if(!this.on)return 'Switch is open — no current flows, so the bulbs stay dark.'; if(this.bulbs===1)return 'One bulb, glowing brightly — current flows all the way round the loop.'; return this.mode==='series'?'In series the two bulbs share the push, so each glows dimmer — and if one breaks, both go out.':'In parallel each bulb gets the full push, so both shine bright — and one can fail while the other stays on.'; } },
+
+/* ---------- LAB DEMOS (supervised) ---------- */
+static:{ bench:'demos', title:'Static & Sparks', supervised:true,
+  concept:'Rubbing builds up <b>static charge</b>. A charged object pulls light things toward it, can bend a stream of water and make hair stand up — while two things with the <i>same</i> charge push apart.',
+  charged:false, obj:'none', t:0, bits:[],
+  reset(){ this.charged=false; this.obj='none'; this.bits=[]; this.t=0; },
+  chargeUp(){ this.charged=true; this.obj='none'; this.t=0; },
+  setObj(o){ if(!this.charged)return; this.obj=o; if(o==='paper'){ this.bits=[]; for(let i=0;i<10;i++) this.bits.push({x:W*0.5+(Math.random()*120-60),y:H-46+Math.random()*8,t:0}); } },
+  update(dt){ if(!this.charged)return; this.t+=dt; if(this.obj==='paper') this.bits.forEach(b=>b.t=Math.min(1,b.t+dt*0.7)); },
+  draw(){ const cx=W*0.5,cy=H*0.42;
+    ctx.strokeStyle=COL.muted; ctx.lineWidth=4; line(cx,cy+28,cx,H-26,COL.muted,4);
+    ctx.fillStyle=this.charged?'#9fb6c4':'#B9C0C6'; ctx.beginPath(); ctx.ellipse(cx,cy,44,30,0,0,7); ctx.fill();
+    if(this.charged && this.obj==='none'){ for(let k=0;k<6;k++){ const a=this.t*3+k*1.05,al=0.35+0.3*Math.sin(this.t*9+k); ctx.strokeStyle='rgba(62,124,177,'+Math.max(0,al)+')'; const x0=cx+Math.cos(a)*42,y0=cy+Math.sin(a)*28; line(x0,y0,x0+Math.cos(a)*11,y0+Math.sin(a)*11,ctx.strokeStyle,2); } }
+    if(this.obj==='paper'){ this.bits.forEach(b=>{ const tx=b.x+(cx-b.x)*b.t,ty=b.y+(cy+18-b.y)*b.t; ctx.fillStyle='#EBE7DA'; ctx.fillRect(tx-4,ty-3,8,6); }); }
+    else if(this.obj==='water'){ ctx.strokeStyle=COL.sky; ctx.lineWidth=3; const sx=W*0.82; ctx.beginPath(); ctx.moveTo(sx,28); for(let yy=28;yy<H-26;yy+=8){ const bend=(yy-28)/(H-54)*70; ctx.lineTo(sx-bend,yy); } ctx.stroke(); }
+    else if(this.obj==='hair'){ ctx.strokeStyle=COL.amber; ctx.lineWidth=2; for(let i=-5;i<=5;i++){ const bx=cx+i*7; line(bx,cy-28,bx+i*4,cy-28-48+Math.abs(i)*3,COL.amber,2); } }
+    else if(this.obj==='rod'){ ctx.fillStyle=COL.red; roundr(cx+84,cy-7,48,14,5); ctx.fill(); ctx.fillStyle=COL.muted; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText('pushed away →',cx+108,cy-16); }
+    ctx.fillStyle=COL.muted; ctx.font='600 12px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(this.charged?'⚡ charged':'uncharged',cx,H-10); },
+  readout(){ if(!this.charged) return 'Tap “Charge it up”, then bring something near to see what static can do.';
+    const m={ none:'The dome is charged — now bring something near it!',
+      paper:'The charge pulls the little paper bits and they jump to the dome — opposite charges attract!',
+      water:'A charged object bends a thin stream of water toward it — the water molecules are pulled by the charge.',
+      hair:'Each hair gets the same charge, and like charges push apart — so the hairs stand up and spread!',
+      rod:'Bring up something with the SAME charge and it is pushed away — like charges repel.' };
+    return m[this.obj]; } },
+
+laser:{ bench:'demos', title:'Laser Light', supervised:true,
+  concept:'A laser is one pure colour in a straight, narrow beam — but put things in its way and it behaves in fascinating ways: bending through water, glowing through gel, even bouncing along a cable the way the internet does.',
+  medium:'air',
+  draw(){ const y=H/2,startX=66,wallX=W-26,red='rgba(192,73,47,0.92)';
+    ctx.fillStyle=COL.ink; roundr(20,y-12,46,24,5); ctx.fill(); ctx.fillStyle='#9aa'; ctx.fillRect(wallX,30,8,H-60);
+    const dot=(x,yy,a)=>{ ctx.fillStyle='rgba(192,73,47,'+(a||1)+')'; ctx.beginPath(); ctx.arc(x,yy,7,0,7); ctx.fill(); };
+    if(this.medium==='air'){ line(startX,y,wallX,y,red,3); dot(wallX,y); }
+    else if(this.medium==='mirror'){ const mx=W*0.58,fy=H-30; line(startX,y,mx,y,red,3); line(mx,y,mx+(fy-y),fy,red,3); ctx.strokeStyle=COL.sky; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(mx-16,y-16); ctx.lineTo(mx+16,y+16); ctx.stroke(); dot(mx+(fy-y),fy); }
+    else if(this.medium==='water'||this.medium==='glass'){ const x1=W*0.42,x2=W*0.64,bend=this.medium==='glass'?42:24;
+      ctx.fillStyle=this.medium==='water'?'rgba(120,180,210,.4)':'rgba(180,200,210,.55)'; ctx.fillRect(x1,40,x2-x1,H-80);
+      line(startX,y,x1,y,red,3); const ym=y+bend; line(x1,y,x2,ym,red,3); line(x2,ym,wallX,ym,red,3); dot(wallX,ym); }
+    else if(this.medium==='gel'){ const x1=W*0.4,x2=W*0.66; ctx.fillStyle='rgba(120,200,150,.35)'; ctx.fillRect(x1,40,x2-x1,H-80);
+      line(startX,y,x1,y,red,3); ctx.strokeStyle='rgba(192,73,47,.55)'; ctx.lineWidth=8; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke(); line(x2,y,wallX,y,'rgba(192,73,47,.4)',2); dot(wallX,y,.5); }
+    else if(this.medium==='fibre'){ const bz=(a,b,c,d,t)=>{const u=1-t;return u*u*u*a+3*u*u*t*b+3*u*t*t*c+t*t*t*d;};
+      ctx.strokeStyle='rgba(150,160,170,.55)'; ctx.lineWidth=16; ctx.beginPath(); ctx.moveTo(startX,y); for(let i=1;i<=24;i++){const t=i/24; ctx.lineTo(bz(startX,W*0.4,W*0.62,wallX-8,t),bz(y,y-66,y+66,y,t));} ctx.stroke();
+      ctx.strokeStyle=red; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(startX,y); for(let i=1;i<=24;i++){const t=i/24; ctx.lineTo(bz(startX,W*0.4,W*0.62,wallX-8,t),bz(y,y-66,y+66,y,t)+(i%2?-6:6));} ctx.stroke(); dot(wallX-8,y); }
+    ctx.fillStyle=COL.muted; ctx.font='600 12px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(this.medium,W/2,H-12); },
+  readout(){ const m={ air:'In air the beam is perfectly straight — light travels in straight lines.',
+    water:'Entering water the beam bends (refracts) because light slows down there.',
+    glass:'Glass bends the beam even more than water, and shifts it sideways.',
+    gel:'In cloudy gel the beam scatters — you can see its glowing path, and it comes out dimmer.',
+    fibre:'Inside a fibre-optic cable the beam bounces along and exits the far end — that is how the internet travels as light!',
+    mirror:'A mirror bounces the beam off at a new angle — reflection.' };
+    return m[this.medium]; } },
 };
 
-function drawBall(x,y,r,c,label){
-  ctx.fillStyle=c; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(x-r*0.3,y-r*0.3,r*0.32,0,7); ctx.fill();
-  if(label){ ctx.fillStyle=COL.muted; ctx.font='600 11px Plus Jakarta Sans,sans-serif'; ctx.textAlign='center'; ctx.fillText(label, x, y+r+14); }
+const BENCHES=[
+  {id:'motion',name:'Forces & Motion',sts:['gravity','ramp','pendulum','balance','friction','projectile']},
+  {id:'optics',name:'Light & Optics',sts:['reflect','refract','prism']},
+  {id:'mag',name:'Magnets & Electricity',sts:['generator','magnet','circuit']},
+  {id:'demos',name:'Lab Demos 🔬',sts:['static','laser'],supervised:true},
+];
+
+let activeBench='motion', active='gravity';
+
+function renderBenches(){ $('benchtabs').innerHTML=BENCHES.map(b=>`<button class="tab ${b.id===activeBench?'on':''}" onclick="setBench('${b.id}')">${b.name}</button>`).join(''); }
+function renderStations(){ const b=BENCHES.find(x=>x.id===activeBench); $('stationtabs').innerHTML=b.sts.map(id=>`<button class="tab ${id===active?'on':''}" onclick="setStation('${id}')">${S[id].title}</button>`).join(''); }
+function setBench(bid){ activeBench=bid; active=BENCHES.find(b=>b.id===bid).sts[0]; renderBenches(); renderStations(); selectStation(); updateBanner(); }
+function setStation(id){ active=id; renderStations(); selectStation(); }
+function selectStation(){ const s=S[active]; s.reset&&s.reset(); buildControls(); $('concept').innerHTML=s.concept; }
+function updateBanner(){ const b=BENCHES.find(x=>x.id===activeBench),el=$('banner'); if(b.supervised){ el.innerHTML='<b>🔬 Heads up:</b> these are real experiments — fun to watch here, but only try them with a teacher or adult, the proper way. This is a pretend demo.'; el.classList.add('show'); } else { el.classList.remove('show'); el.innerHTML=''; } }
+
+function slider(id,label,val,min,max,step,unit){ return `<div class="ctrl"><div class="lbl"><span>${label}</span><b id="${id}v">${val}${unit||''}</b></div><input type="range" id="${id}" min="${min}" max="${max}" step="${step||1}" value="${val}"></div>`; }
+function buildControls(){ const c=$('controls'), s=S[active];
+  if(active==='gravity'){ c.innerHTML=`<button class="cbtn" id="drop">Drop ↓</button><button class="cbtn ghost" id="rst">Reset</button><label class="toggle"><input type="checkbox" id="air"> Add air resistance</label>`;
+    $('drop').onclick=()=>s.drop(); $('rst').onclick=()=>s.reset(); $('air').onchange=e=>{s.air=e.target.checked;s.reset();}; }
+  else if(active==='ramp'){ c.innerHTML=slider('ang','Steepness',s.angle,10,55,1,'°')+`<button class="cbtn" id="roll">Roll ▸</button>`;
+    $('ang').oninput=e=>{s.angle=+e.target.value;$('angv').textContent=s.angle+'°';if(!s.rolling)s.reset();}; $('roll').onclick=()=>s.roll(); }
+  else if(active==='pendulum'){ c.innerHTML=slider('len','String length',s.len,80,230,1,'')+slider('mass','Bob weight',s.mass,1,6,1,'')+`<button class="cbtn" id="sw">Give it a swing</button>`;
+    $('len').oninput=e=>{s.len=+e.target.value;$('lenv').textContent=s.len;}; $('mass').oninput=e=>{s.mass=+e.target.value;$('massv').textContent=s.mass;}; $('sw').onclick=()=>s.swing(); }
+  else if(active==='balance'){ c.innerHTML=slider('lw','Left weight',s.Lw,1,6,1)+slider('ld','Left distance',s.Ld,1,5,1)+slider('rw','Right weight',s.Rw,1,6,1)+slider('rd','Right distance',s.Rd,1,5,1);
+    $('lw').oninput=e=>{s.Lw=+e.target.value;$('lwv').textContent=s.Lw;}; $('ld').oninput=e=>{s.Ld=+e.target.value;$('ldv').textContent=s.Ld;}; $('rw').oninput=e=>{s.Rw=+e.target.value;$('rwv').textContent=s.Rw;}; $('rd').oninput=e=>{s.Rd=+e.target.value;$('rdv').textContent=s.Rd;}; }
+  else if(active==='friction'){ c.innerHTML=`<div class="ctrl"><div class="lbl"><span>Surface</span></div><div class="pillrow" id="surf">${Object.keys(s.surfaces).map(k=>`<button class="pill ${k===s.surface?'on':''}" data-s="${k}">${k}</button>`).join('')}</div></div><button class="cbtn" id="push">Push the box ▸</button>`;
+    c.querySelectorAll('#surf .pill').forEach(p=>p.onclick=()=>{s.surface=p.dataset.s;s.reset();c.querySelectorAll('#surf .pill').forEach(x=>x.classList.toggle('on',x===p));}); $('push').onclick=()=>s.push(); }
+  else if(active==='projectile'){ c.innerHTML=slider('pang','Angle',s.angle,15,75,1,'°')+slider('pow','Power',s.power,30,100,1,'')+`<button class="cbtn" id="launch">Launch ▸</button>`;
+    $('pang').oninput=e=>{s.angle=+e.target.value;$('pangv').textContent=s.angle+'°';}; $('pow').oninput=e=>{s.power=+e.target.value;$('powv').textContent=s.power;}; $('launch').onclick=()=>s.launch(); }
+  else if(active==='reflect'){ c.innerHTML=slider('ria','Angle of light',s.ang,10,80,1,'°'); $('ria').oninput=e=>{s.ang=+e.target.value;$('riav').textContent=s.ang+'°';}; }
+  else if(active==='refract'){ c.innerHTML=slider('rfa','Angle of light',s.ang,5,80,1,'°'); $('rfa').oninput=e=>{s.ang=+e.target.value;$('rfav').textContent=s.ang+'°';}; }
+  else if(active==='prism'){ const opts=['white','red','green','blue','yellow','cyan','magenta','pink'];
+    c.innerHTML=`<div class="ctrl" style="flex:1 1 100%"><div class="lbl"><span>Light going in</span></div><div class="pillrow" id="pin" style="flex-wrap:wrap">${opts.map(o=>`<button class="pill ${o===s.input?'on':''}" data-i="${o}">${o.charAt(0).toUpperCase()+o.slice(1)}</button>`).join('')}</div></div>`;
+    c.querySelectorAll('#pin .pill').forEach(p=>p.onclick=()=>{ s.input=p.dataset.i; c.querySelectorAll('#pin .pill').forEach(x=>x.classList.toggle('on',x===p)); }); }
+  else if(active==='generator'){ c.innerHTML=`<button class="cbtn" id="gstart">Start · 15s ▸</button><button class="cbtn ghost" id="grst">Reset</button>`; $('gstart').onclick=()=>s.start(); $('grst').onclick=()=>s.reset(); }
+  else if(active==='magnet'){ c.innerHTML=`<button class="cbtn ghost" id="flip">Flip the poles ↔</button>`; $('flip').onclick=()=>{s.flip=!s.flip;}; }
+  else if(active==='circuit'){ c.innerHTML=`<label class="toggle"><input type="checkbox" id="sw2" ${s.on?'checked':''}> Switch on</label>
+      <div class="ctrl"><div class="lbl"><span>Bulbs</span></div><div class="pillrow" id="nb"><button class="pill ${s.bulbs===1?'on':''}" data-n="1">1</button><button class="pill ${s.bulbs===2?'on':''}" data-n="2">2</button></div></div>
+      <div class="ctrl" id="modeWrap"><div class="lbl"><span>Wiring</span></div><div class="pillrow" id="md"><button class="pill ${s.mode==='series'?'on':''}" data-m="series">Series</button><button class="pill ${s.mode==='parallel'?'on':''}" data-m="parallel">Parallel</button></div></div>`;
+    $('sw2').onchange=e=>{s.on=e.target.checked;}; c.querySelectorAll('#nb .pill').forEach(p=>p.onclick=()=>{s.bulbs=+p.dataset.n;c.querySelectorAll('#nb .pill').forEach(x=>x.classList.toggle('on',x===p));$('modeWrap').style.display=s.bulbs===2?'':'none';});
+    c.querySelectorAll('#md .pill').forEach(p=>p.onclick=()=>{s.mode=p.dataset.m;c.querySelectorAll('#md .pill').forEach(x=>x.classList.toggle('on',x===p));}); $('modeWrap').style.display=s.bulbs===2?'':'none'; }
+  else if(active==='static'){ const opts=[['paper','Paper bits'],['water','Water stream'],['hair','Hair'],['rod','Same-charge rod']];
+    c.innerHTML=`<button class="cbtn" id="ch">Charge it up ⚡</button><button class="cbtn ghost" id="dis">Discharge</button>
+      <div class="ctrl" style="flex:1 1 100%"><div class="lbl"><span>Bring near</span></div><div class="pillrow" id="so" style="flex-wrap:wrap">${opts.map(([v,t])=>`<button class="pill" data-o="${v}">${t}</button>`).join('')}</div></div>`;
+    $('ch').onclick=()=>{ s.chargeUp(); c.querySelectorAll('#so .pill').forEach(x=>x.classList.remove('on')); };
+    $('dis').onclick=()=>{ s.reset(); c.querySelectorAll('#so .pill').forEach(x=>x.classList.remove('on')); };
+    c.querySelectorAll('#so .pill').forEach(p=>p.onclick=()=>{ s.setObj(p.dataset.o); c.querySelectorAll('#so .pill').forEach(x=>x.classList.toggle('on',x===p)); }); }
+  else if(active==='laser'){ const opts=[['air','Air'],['water','Water'],['glass','Glass'],['gel','Gel'],['fibre','Fibre cable'],['mirror','Mirror']];
+    c.innerHTML=`<div class="ctrl" style="flex:1 1 100%"><div class="lbl"><span>Beam passes through</span></div><div class="pillrow" id="lm" style="flex-wrap:wrap">${opts.map(([v,t])=>`<button class="pill ${v===s.medium?'on':''}" data-m="${v}">${t}</button>`).join('')}</div></div>`;
+    c.querySelectorAll('#lm .pill').forEach(p=>p.onclick=()=>{ s.medium=p.dataset.m; c.querySelectorAll('#lm .pill').forEach(x=>x.classList.toggle('on',x===p)); }); }
+  else c.innerHTML='';
 }
 
-/* ============ UI WIRING ============ */
-let active='gravity';
-const TABS=[['gravity','Gravity Drop'],['ramp','Ramp Racer'],['pendulum','Pendulum'],['balance','Balance Beam']];
-function renderTabs(){
-  $('tabs').innerHTML=TABS.map(([k,t])=>`<button class="tab ${k===active?'on':''}" onclick="setStation('${k}')">${t}</button>`).join('');
-}
-function setStation(k){ active=k; stations[k].reset&&stations[k].reset(); renderTabs(); buildControls(); $('concept').innerHTML=stations[k].concept; }
+/* pointer drag for the compass */
+function pointerPos(e){ const r=cv.getBoundingClientRect(); return {x:clamp(e.clientX-r.left,14,W-14), y:clamp(e.clientY-r.top,14,H-14)}; }
+let dragging=false;
+function setPointer(e){ const p=pointerPos(e); if(active==='magnet'){ S.magnet.cx=p.x; S.magnet.cy=p.y; } else if(active==='generator'){ S.generator.my=clamp(p.y,30,H-30); } }
+cv.addEventListener('pointerdown',e=>{ if(active!=='magnet'&&active!=='generator')return; dragging=true; setPointer(e); if(active==='generator') S.generator.prevMy=S.generator.my; });
+cv.addEventListener('pointermove',e=>{ if(!dragging)return; if(active!=='magnet'&&active!=='generator')return; setPointer(e); });
+window.addEventListener('pointerup',()=>dragging=false);
 
-function sliderHTML(id,label,val,min,max,step,unit){
-  return `<div class="ctrl"><div class="lbl"><span>${label}</span><b id="${id}v">${val}${unit||''}</b></div>
-    <input type="range" id="${id}" min="${min}" max="${max}" step="${step||1}" value="${val}"></div>`;
-}
-function buildControls(){
-  const c=$('controls'); const s=stations[active];
-  if(active==='gravity'){
-    c.innerHTML=`<button class="cbtn" id="drop">Drop ↓</button>
-      <button class="cbtn ghost" id="rst">Reset</button>
-      <label class="toggle"><input type="checkbox" id="air"> Add air resistance</label>`;
-    $('drop').onclick=()=>s.drop(); $('rst').onclick=()=>s.reset();
-    $('air').onchange=e=>{ s.air=e.target.checked; s.reset(); };
-  } else if(active==='ramp'){
-    c.innerHTML=sliderHTML('ang','Steepness',s.angle,10,55,1,'°')
-      +`<button class="cbtn" id="roll">Roll ▸</button>`;
-    $('ang').oninput=e=>{ s.angle=+e.target.value; $('angv').textContent=s.angle+'°'; if(!s.rolling)s.reset(); };
-    $('roll').onclick=()=>s.roll();
-  } else if(active==='pendulum'){
-    c.innerHTML=sliderHTML('len','String length',s.len,80,230,1,'')
-      +sliderHTML('mass','Bob weight',s.mass,1,6,1,'')
-      +`<button class="cbtn" id="sw">Give it a swing</button>`;
-    $('len').oninput=e=>{ s.len=+e.target.value; $('lenv').textContent=s.len; };
-    $('mass').oninput=e=>{ s.mass=+e.target.value; $('massv').textContent=s.mass; };
-    $('sw').onclick=()=>s.swing();
-  } else if(active==='balance'){
-    c.innerHTML=sliderHTML('lw','Left weight',s.Lw,1,6,1)+sliderHTML('ld','Left distance',s.Ld,1,5,1)
-      +sliderHTML('rw','Right weight',s.Rw,1,6,1)+sliderHTML('rd','Right distance',s.Rd,1,5,1);
-    $('lw').oninput=e=>{s.Lw=+e.target.value;$('lwv').textContent=s.Lw;};
-    $('ld').oninput=e=>{s.Ld=+e.target.value;$('ldv').textContent=s.Ld;};
-    $('rw').oninput=e=>{s.Rw=+e.target.value;$('rwv').textContent=s.Rw;};
-    $('rd').oninput=e=>{s.Rd=+e.target.value;$('rdv').textContent=s.Rd;};
-  }
-}
-
-/* ============ LOOP ============ */
 let last=0;
-function loop(ts){
-  const dt=Math.min((ts-last)/1000||0, 0.05); last=ts;
-  ctx.clearRect(0,0,W,H);
-  const s=stations[active];
-  s.update&&s.update(dt); s.draw&&s.draw();
-  $('readout').textContent=s.readout();
-  requestAnimationFrame(loop);
-}
+function loop(ts){ const dt=Math.min((ts-last)/1000||0,0.05); last=ts; ctx.clearRect(0,0,W,H); const s=S[active]; s.update&&s.update(dt); s.draw&&s.draw(); $('readout').textContent=s.readout(); requestAnimationFrame(loop); }
 
-/* init */
-resize(); renderTabs(); buildControls(); $('concept').innerHTML=stations[active].concept;
-requestAnimationFrame(loop);
+resize(); renderBenches(); renderStations(); selectStation(); updateBanner(); requestAnimationFrame(loop);
 </script>
 </body>
 </html>
