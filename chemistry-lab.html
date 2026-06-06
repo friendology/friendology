@@ -51,6 +51,17 @@ h1 b{color:var(--brand);font-weight:600}
 @keyframes fall{0%{transform:translateY(0);opacity:1}100%{transform:translateY(120px);opacity:0}}
 .beaker.shake{animation:wob .5s ease}
 @keyframes wob{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}60%{transform:translateX(4px)}}
+.flame{position:absolute;left:50%;bottom:8%;transform:translateX(-50%);width:38px;height:56px;border-radius:50% 50% 50% 50% / 62% 62% 40% 40%;filter:blur(2px);animation:flick .25s ease-in-out infinite alternate}
+@keyframes flick{from{transform:translateX(-50%) scaleY(1)}to{transform:translateX(-50%) scaleY(1.18)}}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,#fff,rgba(255,255,255,0) 65%);animation:flashb .9s ease-out forwards}
+@keyframes flashb{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+
+.banner{display:none;background:var(--amber-tint);border:1px solid color-mix(in srgb,var(--amber) 30%,transparent);color:var(--ink);border-radius:12px;padding:10px 14px;font-size:.85rem;margin-bottom:13px}
+.banner.show{display:block}
+.banner b{color:var(--amber)}
+.supwarn{display:none;background:var(--amber-tint);border-radius:10px;padding:9px 12px;margin-top:10px;font-size:.84rem;color:var(--ink)}
+.supwarn.show{display:block}
+.supwarn b{color:var(--amber)}
 
 .slots{display:flex;align-items:center;gap:10px;margin-top:16px}
 .slot{width:84px;height:64px;border:2px dashed var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface);font-size:1.6rem;color:var(--faint)}
@@ -115,6 +126,7 @@ h1 b{color:var(--brand);font-weight:600}
   </div>
 
   <div class="tabs" id="tabs"></div>
+  <div class="banner" id="banner"></div>
 
   <div class="bench">
     <div class="beaker" id="beaker">
@@ -138,6 +150,7 @@ h1 b{color:var(--brand);font-weight:600}
     <h3 id="resName"></h3>
     <div class="concept" id="resConcept"></div>
     <p id="resBlurb"></p>
+    <div class="supwarn" id="resWarn"></div>
     <button class="again" onclick="clearSlots()">Try another ↺</button>
   </div>
 
@@ -170,7 +183,13 @@ const ING = {
   sugar:{name:'Sugar',e:'🍬'}, honey:{name:'Honey',e:'🍯'}, sand:{name:'Sand',e:'🏖️'},
   milk:{name:'Milk',e:'🥛'}, cornflour:{name:'Cornflour',e:'🌽'}, cola:{name:'Cola',e:'🥤'},
   mentos:{name:'Mentos mint',e:'🌀'}, iodine:{name:'Iodine drops',e:'🟤'}, bread:{name:'Bread',e:'🍞'},
-  colmilk:{name:'Coloured milk',e:'🎨'}
+  colmilk:{name:'Coloured milk',e:'🎨'},
+  flame:{name:'Flame',e:'🔥'}, electricity:{name:'Electricity',e:'⚡'}, copper:{name:'Copper',e:'🥉'},
+  magnesium:{name:'Magnesium',e:'🎗️'}, peroxide:{name:'Peroxide',e:'🧪'}, yeast:{name:'Yeast',e:'🫧'},
+  solA:{name:'Clear liquid A',e:'🔵'}, solB:{name:'Clear liquid B',e:'🟡'},
+  candle:{name:'Candle',e:'🕯️'}, jar:{name:'Glass jar',e:'🫙'},
+  ink:{name:'Felt-pen ink',e:'🖊️'}, paper:{name:'Paper strip',e:'📄'},
+  ice:{name:'Ice',e:'🧊'}, heat:{name:'Heat',e:'♨️'}
 };
 
 const SECTIONS = [
@@ -178,6 +197,8 @@ const SECTIONS = [
   { id:'colour', name:'Colour Lab',     ings:['cabbage','turmeric','vinegar','lemon','soda','soap','water'] },
   { id:'mix',    name:'Mix or Not?',    ings:['water','oil','salt','sugar','sand','soap','honey','vinegar'] },
   { id:'magic',  name:'Kitchen Magic',  ings:['milk','vinegar','lemon','cornflour','water','cola','mentos','iodine','bread','sugar','colmilk','soap'] },
+  { id:'states', name:'States & Changes', ings:['ice','water','heat','ink','paper','sugar'] },
+  { id:'demos',  name:'Lab Demos 🔬',   ings:['flame','electricity','water','copper','salt','magnesium','vinegar','peroxide','yeast','solA','solB','candle','jar'] },
 ];
 
 // [a, b, section, name, effect, {color,color2}, concept, blurb, hint]
@@ -213,9 +234,24 @@ const DEFS = [
   ['iodine','bread','magic','Blue-black! Starch found','color',{color:'#2a2540'},'Starch test','Iodine turns blue-black when it finds starch. Bread is full of starch — a real food-detective test!','Brown drops on a food full of starch.'],
   ['iodine','sugar','magic','Stays brown','color',{color:'#8a5a2b'},'No starch','No starch in sugar, so the iodine stays brown — that is a "negative" test, and still good science.','Brown drops on something sweet.'],
   ['colmilk','soap','magic','Magic milk swirl','swirl',{color:'#f5f1e8'},'Surface tension','Soap races across the milk chasing the fat, swirling the colours into living art!','A drop of soap into colourful milk.'],
+
+  ['ice','heat','states','Ice melts','melt',{color:'#cfe0ea'},'Solid → liquid','Heat gives the ice energy and it melts into liquid water — same stuff, a new state.','Frozen water + something warm.'],
+  ['water','heat','states','Water boils away','evaporate',{color:'#dce7ea'},'Liquid → gas','Keep heating water and it turns into invisible vapour (steam) — the liquid becomes a gas.','Liquid water + lots of heat.'],
+  ['ink','paper','states','Colours separate','swirl',{color:'#eef0e9'},'Chromatography','A felt-pen colour is really a mix. On wet paper the colours travel at different speeds and split apart.','A pen dot creeping up wet paper.'],
+  ['water','ink','states','Colour spreads','color',{color:'#7C9BD1'},'Diffusion','The colour slowly spreads through the still water all by itself — that spreading is called diffusion.','A drop of colour let loose in still water.'],
+  ['sugar','heat','states','Caramel!','color',{color:'#9C5A22'},'Melting + browning','Heated gently, sugar melts and browns into caramel. Hot work — one for the grown-ups!','Sweet white grains, gently heated.',true],
+
+  ['copper','flame','demos','Green flame!','flame',{color:'#1F8A4C'},'Flame test','Held in a flame, copper glows green. Each metal gives its own colour — that is how we identify them.','Heat a reddish metal in a flame.',true],
+  ['salt','flame','demos','Orange-yellow flame','flame',{color:'#E08A1E'},'Flame test','Table salt contains sodium, which burns bright orange-yellow — the colour of many street lamps!','Heat ordinary table salt in a flame.',true],
+  ['magnesium','flame','demos','Dazzling white light','flash',{color:'#FFFFFF'},'Burning metal','Magnesium burns with a blindingly bright white light — never look straight at it.','A light silvery ribbon, set alight.',true],
+  ['water','electricity','demos','Water splits!','electro',{color:'#cfe0ea'},'Electrolysis','Electricity splits water into two gases — hydrogen and oxygen — bubbling off the wires. Water is H₂O!','Pass electricity through plain water.',true],
+  ['magnesium','vinegar','demos','Hydrogen fizz','fizz',{color:'#EAF1F3'},'Metal + acid','A reactive metal dropped into acid bubbles off hydrogen gas, which goes "pop" near a flame.','A light metal meets an acid.',true],
+  ['peroxide','yeast','demos','Oxygen foam','erupt',{color:'#EFEFE7'},'Catalyst','Yeast speeds up peroxide breaking apart, releasing oxygen as a huge foam — the "elephant toothpaste" demo!','A helper that speeds a reaction without being used up.',true],
+  ['solA','solB','demos','A solid appears!','precipitate',{color:'#E8ECEF'},'Precipitation','Two clear liquids meet and a brand-new solid — a "precipitate" — forms and slowly settles.','Two clear liquids hiding a surprise.',true],
+  ['candle','jar','demos','Flame needs air','flame',{color:'#E0A11E'},'Combustion','Cover a flame with a jar and it soon goes out — fire needs the oxygen in the air to keep burning.','Trap a small flame under glass.',true],
 ];
 
-const RX={}; DEFS.forEach(d=>{ RX[key(d[0],d[1])]={a:d[0],b:d[1],section:d[2],name:d[3],effect:d[4],col:d[5],concept:d[6],blurb:d[7],hint:d[8]}; });
+const RX={}; DEFS.forEach(d=>{ RX[key(d[0],d[1])]={a:d[0],b:d[1],section:d[2],name:d[3],effect:d[4],col:d[5],concept:d[6],blurb:d[7],hint:d[8],sup:d[9]||false}; });
 const RXKEYS=Object.keys(RX);
 const TOTAL=RXKEYS.length;
 function secKeys(sid){ return RXKEYS.filter(k=>RX[k].section===sid); }
@@ -232,7 +268,12 @@ function renderTabs(){
     return `<button class="tab ${s.id===active?'on':''}" onclick="setSection('${s.id}')">${s.name}<span class="c">${got}/${ks.length}</span></button>`;
   }).join('');
 }
-function setSection(sid){ active=sid; selected=[]; renderTabs(); renderShelf(); syncSel(); clearBeaker(); $('result').classList.remove('show'); }
+function setSection(sid){ active=sid; selected=[]; renderTabs(); renderShelf(); syncSel(); clearBeaker(); $('result').classList.remove('show'); updateBanner(); }
+function updateBanner(){
+  const b=$('banner');
+  if(active==='demos'){ b.innerHTML='<b>🔬 Heads up:</b> these are real lab experiments — fun to watch here, but only try them with a teacher or expert in a proper lab.'; b.classList.add('show'); }
+  else { b.classList.remove('show'); b.innerHTML=''; }
+}
 
 function renderShelf(){
   const ings=SECTIONS.find(s=>s.id===active).ings;
@@ -264,18 +305,21 @@ function mix(){
     const isNew=!discovered.has(k);
     if(isNew){ discovered.add(k); saveDisc(); renderTabs(); }
     setBeaker(rx.effect, rx.col, 62);
-    showResult(isNew?'new':'known', rx.name, rx.concept, rx.blurb);
+    showResult(isNew?'new':'known', rx.name, rx.concept, rx.blurb, rx.sup);
   } else {
     setBeaker('none',{color:'#e3e7e0'},58);
     showResult('none','Just a mixture','No chemical change','These two simply mixed together — no new substance formed. Not everything reacts, and noticing that is good science too!');
   }
   updateProgress();
 }
-function showResult(kind,name,concept,blurb){
+function showResult(kind,name,concept,blurb,sup){
   const r=$('result'); r.classList.remove('show'); void r.offsetWidth;
   const b=$('resBadge'); b.className='badge '+(kind==='new'?'new':kind==='none'?'none':'known');
   b.textContent=kind==='new'?'✨ New discovery!':kind==='none'?'No reaction':'Already in your notebook';
   $('resName').textContent=name; $('resConcept').textContent=concept; $('resBlurb').textContent=blurb;
+  const w=$('resWarn');
+  if(sup){ w.innerHTML='<b>🔬 Real version:</b> only with a teacher or expert, in a proper lab. Here it is just a pretend demo to watch and learn from.'; w.classList.add('show'); }
+  else { w.classList.remove('show'); w.innerHTML=''; }
   r.classList.add('show');
 }
 
@@ -312,6 +356,30 @@ function setBeaker(effect, col, height){
     const cols=['#C0492F','#1F6B4A','#C2700C','#3E7CB1'];
     for(let i=0;i<14;i++){ const l=document.createElement('span'); l.className='lump'; const sz=8+Math.random()*12;
       l.style.width=l.style.height=sz+'px'; l.style.background=cols[i%cols.length]; l.style.opacity=.8; l.style.left=(8+Math.random()*78)+'%'; l.style.bottom=(Math.random()*52)+'%'; fx.appendChild(l); }
+  } else if(effect==='melt'){
+    liq.style.height='60%';
+  } else if(effect==='evaporate'){
+    liq.style.height='24%';
+    for(let i=0;i<10;i++){ const b=document.createElement('span'); b.className='bubble'; const sz=5+Math.random()*7;
+      b.style.width=b.style.height=sz+'px'; b.style.left=(15+Math.random()*70)+'%'; b.style.bottom=(10+Math.random()*20)+'%';
+      b.style.animationDuration=(1+Math.random()*1)+'s'; b.style.animationDelay=(Math.random()*0.8)+'s'; fx.appendChild(b); }
+  } else if(effect==='electro'){
+    liq.style.height='58%';
+    [24,76].forEach(xp=>{ for(let i=0;i<9;i++){ const b=document.createElement('span'); b.className='bubble'; const sz=4+Math.random()*5;
+      b.style.width=b.style.height=sz+'px'; b.style.left=xp+'%'; b.style.bottom=(Math.random()*40)+'%';
+      b.style.animationDuration=(0.8+Math.random()*0.9)+'s'; b.style.animationDelay=(Math.random()*0.7)+'s'; fx.appendChild(b); } });
+  } else if(effect==='flame'){
+    liq.style.height='12%';
+    const f=document.createElement('span'); f.className='flame';
+    f.style.background='radial-gradient(circle at 50% 72%, #fff8, '+color+' 45%, '+color+' 62%, rgba(255,255,255,0) 78%)';
+    fx.appendChild(f);
+  } else if(effect==='flash'){
+    liq.style.height='10%';
+    const f=document.createElement('span'); f.className='flash'; fx.appendChild(f);
+  } else if(effect==='precipitate'){
+    liq.style.height='60%';
+    for(let i=0;i<16;i++){ const l=document.createElement('span'); l.className='lump'; const sz=4+Math.random()*5;
+      l.style.width=l.style.height=sz+'px'; l.style.background='#f2f4f6'; l.style.left=(12+Math.random()*72)+'%'; l.style.bottom=(Math.random()*20)+'%'; fx.appendChild(l); }
   }
 }
 
@@ -321,7 +389,7 @@ function openBook(){
   $('bookList').innerHTML = SECTIONS.map(s=>{
     const ks=secKeys(s.id), got=ks.filter(k=>discovered.has(k)).length;
     const rows=ks.map(k=>{ const rx=RX[k]; const has=discovered.has(k);
-      if(has) return `<div class="entry"><div class="combo">${ING[rx.a].name} + ${ING[rx.b].name}</div><div class="rn">${rx.name}</div><div class="cc">${rx.concept}</div></div>`;
+      if(has) return `<div class="entry"><div class="combo">${ING[rx.a].name} + ${ING[rx.b].name}</div><div class="rn">${rx.name}${rx.sup?' 🔬':''}</div><div class="cc">${rx.concept}</div></div>`;
       return `<div class="entry locked"><div class="combo">? + ?</div><div class="rn">??? — not discovered yet</div></div>`;
     }).join('');
     return `<div class="bookcat">${s.name}<span class="pc">${got}/${ks.length}</span></div>${rows}`;
@@ -337,7 +405,7 @@ function hint(){
   showResult('known','Here is an idea 💡','Hint',RX[k].hint);
 }
 
-renderTabs(); renderShelf(); syncSel(); updateProgress(); clearBeaker();
+renderTabs(); renderShelf(); syncSel(); updateProgress(); clearBeaker(); updateBanner();
 </script>
 </body>
 </html>
