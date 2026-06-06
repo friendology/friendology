@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Speed Math · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;--red-tint:#F7E6E0;
+  --display:'Fraunces',serif;--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:560px;margin:0 auto;padding:18px 18px 40px;min-height:100%;display:flex;flex-direction:column}
+.display{font-family:var(--display)}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:14px}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2rem,8vw,2.6rem);line-height:1.04;letter-spacing:-.02em;margin:6px 0 4px}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:.96rem;margin-bottom:18px}
+
+/* screens */
+.screen{display:none;flex:1;flex-direction:column}
+.screen.on{display:flex}
+
+/* setup */
+.group{margin-bottom:18px}
+.group .lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{font-family:inherit;font-size:1rem;font-weight:600;padding:11px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.15s;min-width:54px;text-align:center}
+.chip.sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip:active{transform:scale(.96)}
+.best{margin:6px 0 16px;font-size:.95rem;color:var(--muted)}
+.best b{color:var(--brand);font-family:var(--display);font-size:1.1rem}
+.btn{font-family:inherit;font-weight:700;font-size:1.05rem;border-radius:16px;padding:15px 22px;cursor:pointer;border:none;background:var(--brand);color:#fff;width:100%;transition:.15s;margin-top:auto}
+.btn:active{transform:scale(.98);background:var(--brand-press)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line);margin-top:10px}
+
+/* play header */
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:8px 14px;text-align:center;flex:1}
+.stat .v{font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1}
+.stat .k{font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.stat.timer .v{color:var(--brand)}
+.stat.timer.low .v{color:var(--red)}
+.timebar{height:7px;border-radius:99px;background:var(--line);overflow:hidden;margin:6px 0 4px}
+.timebar i{display:block;height:100%;background:var(--brand);width:100%;transition:width 1s linear}
+.timebar.low i{background:var(--red)}
+
+/* problem */
+.problem{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px 0}
+.problem .q{font-family:var(--display);font-weight:600;font-size:clamp(3rem,17vw,5rem);letter-spacing:-.01em}
+.problem .q .eq{color:var(--faint)}
+.problem.pop .q{animation:pop .3s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+
+/* options */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.opt{font-family:var(--display);font-weight:600;font-size:1.9rem;padding:22px 10px;border-radius:18px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s}
+.opt:active{transform:scale(.97)}
+.opt.right{background:var(--brand);color:#fff;border-color:var(--brand);animation:pop .3s ease}
+.opt.wrong{background:var(--red-tint);border-color:var(--red);color:var(--red);animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{text-align:center;min-height:26px;margin-top:14px;font-weight:600;font-size:1rem}
+.feedback.good{color:var(--brand)}
+.feedback.bad{color:var(--amber)}
+
+/* end */
+.endcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px;text-align:center;box-shadow:0 10px 30px rgba(34,35,31,.06)}
+.endcard .big{font-family:var(--display);font-weight:700;font-size:3.4rem;color:var(--brand);line-height:1}
+.endcard .cap{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:4px}
+.endcard h2{font-family:var(--display);font-weight:600;font-size:1.6rem;margin-bottom:6px}
+.endrow{display:flex;justify-content:center;gap:26px;margin-top:18px}
+.endrow .v{font-family:var(--display);font-weight:600;font-size:1.5rem}
+.endrow .k{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.newbest{display:inline-block;margin-top:12px;background:var(--amber-tint);color:var(--amber);font-weight:700;font-size:.85rem;padding:5px 13px;border-radius:99px}
+.msg{color:var(--muted);margin-top:14px;font-size:.96rem}
+.foot{margin-top:22px;font-size:.78rem;color:var(--faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+
+  <!-- SETUP -->
+  <section class="screen on" id="setup">
+    <div class="eyebrow">Play &amp; Learn · Numbers &amp; Maths</div>
+    <h1 class="display">Speed <b>Math</b></h1>
+    <p class="lede">Answer as many as you can! The sums get a little trickier as you get better. Pick how you'd like to play.</p>
+
+    <div class="group">
+      <div class="lbl">What shall we practise?</div>
+      <div class="chips" id="ops">
+        <button class="chip sel" data-op="+">+ Add</button>
+        <button class="chip" data-op="−">− Subtract</button>
+        <button class="chip" data-op="×">× Multiply</button>
+        <button class="chip" data-op="÷">÷ Divide</button>
+        <button class="chip" data-op="mix">Mix</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="lbl">How big are the numbers?</div>
+      <div class="chips" id="levels">
+        <button class="chip sel" data-lvl="easy">Easy</button>
+        <button class="chip" data-lvl="medium">Medium</button>
+        <button class="chip" data-lvl="hard">Hard</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="lbl">How would you like to play?</div>
+      <div class="chips" id="modes">
+        <button class="chip sel" data-mode="timed">⏱ Beat the clock (60s)</button>
+        <button class="chip" data-mode="relaxed">😌 Relaxed (12 sums)</button>
+      </div>
+    </div>
+
+    <div class="best" id="bestLine"></div>
+    <button class="btn" onclick="startGame()">Start ▸</button>
+  </section>
+
+  <!-- PLAY -->
+  <section class="screen" id="play">
+    <div class="hud">
+      <div class="stat"><div class="v" id="score">0</div><div class="k">Score</div></div>
+      <div class="stat"><div class="v" id="streak">0</div><div class="k">Streak 🔥</div></div>
+      <div class="stat timer" id="timerStat"><div class="v" id="timer">60</div><div class="k" id="timerK">Seconds</div></div>
+    </div>
+    <div class="timebar" id="timebar"><i id="timebarFill"></i></div>
+
+    <div class="problem" id="problemBox"><div class="q" id="question"></div></div>
+
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </section>
+
+  <!-- END -->
+  <section class="screen" id="end">
+    <div class="endcard">
+      <div class="big" id="endScore">0</div>
+      <div class="cap">Correct answers</div>
+      <h2 class="display" id="endTitle">Time's up!</h2>
+      <div id="newBestWrap"></div>
+      <div class="endrow">
+        <div><div class="v" id="endBestStreak">0</div><div class="k">Best streak</div></div>
+        <div><div class="v" id="endBest">0</div><div class="k">Your record</div></div>
+      </div>
+      <div class="msg" id="endMsg"></div>
+    </div>
+    <button class="btn" onclick="startGame()" style="margin-top:22px">Play again ▸</button>
+    <button class="btn ghost" onclick="toSetup()">Change game</button>
+  </section>
+
+  <p class="foot">friendology · calm, free, and entirely on your device.</p>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const SYM = {'+':'+','−':'−','×':'×','÷':'÷'};
+let cfg = { op:'+', lvl:'easy', mode:'timed' };
+let G = null;          // game state
+let timerId = null;
+let lockInput = false;
+
+/* ---- chip pickers ---- */
+function wireChips(boxId, key){
+  $(boxId).querySelectorAll('.chip').forEach(c=>{
+    c.onclick = ()=>{
+      $(boxId).querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));
+      c.classList.add('sel');
+      cfg[key] = c.dataset.op || c.dataset.lvl || c.dataset.mode;
+    };
+  });
+}
+wireChips('ops','op'); wireChips('levels','lvl'); wireChips('modes','mode');
+
+/* ---- best score store ---- */
+function bestKey(){ return 'fo_speedmath_best'; }
+function getBest(){ try{ return parseInt(localStorage.getItem(bestKey()))||0; }catch(e){ return 0; } }
+function setBest(v){ try{ localStorage.setItem(bestKey(), v); }catch(e){} }
+function showBest(){ const b=getBest(); $('bestLine').innerHTML = b? `Your record so far: <b>${b}</b> correct` : `Have a go — let's set your first record!`; }
+showBest();
+
+/* ---- number ranges that grow with the child ---- */
+function rng(){
+  const t = Math.min(G.tier, 6);                 // difficulty tier from streak
+  if(cfg.lvl==='easy')   return { add:8+t*2,  sub:8+t*2,  tab:5+Math.floor(t/2) };
+  if(cfg.lvl==='medium') return { add:20+t*5, sub:20+t*5, tab:8+Math.floor(t/2) };
+  return { add:50+t*10, sub:50+t*10, tab:10+t };  // hard
+}
+const ri = (lo,hi)=> lo + Math.floor(Math.random()*(hi-lo+1));
+
+function makeProblem(){
+  let op = cfg.op==='mix' ? ['+','−','×','÷'][ri(0,3)] : cfg.op;
+  const r = rng(); let a,b,ans;
+  if(op==='+'){ a=ri(0,r.add); b=ri(0,r.add); ans=a+b; }
+  else if(op==='−'){ a=ri(0,r.sub); b=ri(0,a); ans=a-b; }
+  else if(op==='×'){ a=ri(1,r.tab); b=ri(0,r.tab); ans=a*b; }
+  else { b=ri(1,r.tab); ans=ri(0,r.tab); a=b*ans; }      // division with whole answer
+  return { text:`${a} <span class="eq">${SYM[op]}</span> ${b} <span class="eq">=</span> ?`, answer:ans };
+}
+
+function makeOptions(ans){
+  const set=new Set([ans]);
+  const spread=Math.max(3, Math.round(Math.abs(ans)*0.25));
+  let guard=0;
+  while(set.size<4 && guard++<60){
+    let d=ri(1,spread+3)*(Math.random()<.5?-1:1);
+    if(Math.random()<.25) d = (Math.random()<.5?10:-10)+ri(-1,1);
+    const c=ans+d;
+    if(c>=0 && !set.has(c)) set.add(c);
+  }
+  while(set.size<4){ set.add(ri(0,ans+spread+5)); }      // safety fill
+  return [...set].sort(()=>Math.random()-.5);
+}
+
+/* ---- game flow ---- */
+function toSetup(){ stopTimer(); show('setup'); showBest(); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); $(id).classList.add('on'); }
+
+function startGame(){
+  G = { score:0, streak:0, bestStreak:0, tier:0, answered:0, total:(cfg.mode==='relaxed'?12:Infinity), timeLeft:60 };
+  $('score').textContent='0'; $('streak').textContent='0';
+  lockInput=false;
+  // configure HUD for mode
+  if(cfg.mode==='timed'){
+    $('timerStat').style.display=''; $('timebar').style.display='';
+    $('timerK').textContent='Seconds'; $('timer').textContent='60';
+    $('timerStat').classList.remove('low'); $('timebar').classList.remove('low');
+    $('timebarFill').style.width='100%';
+    startTimer();
+  } else {
+    $('timerStat').style.display='none'; $('timebar').style.display='none';
+  }
+  show('play');
+  nextProblem();
+}
+
+function nextProblem(){
+  if(cfg.mode==='relaxed' && G.answered>=G.total){ return endGame(); }
+  lockInput=false;
+  G.current = makeProblem();
+  $('question').innerHTML = G.current.text;
+  $('feedback').textContent=''; $('feedback').className='feedback';
+  const opts = makeOptions(G.current.answer);
+  const box=$('opts'); box.innerHTML='';
+  opts.forEach(v=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=v;
+    b.onclick=()=>choose(b,v);
+    box.appendChild(b);
+  });
+}
+
+function choose(btn, val){
+  if(lockInput) return; lockInput=true;
+  const correct = (val===G.current.answer);
+  G.answered++;
+  if(correct){
+    btn.classList.add('right');
+    G.score++; G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak);
+    if(G.streak>0 && G.streak%5===0) G.tier++;            // ramp up difficulty
+    $('score').textContent=G.score; $('streak').textContent=G.streak;
+    $('problemBox').classList.add('pop'); setTimeout(()=>$('problemBox').classList.remove('pop'),300);
+    const cheers=['Nice!','Great!','Yes!','Spot on!','Brilliant!','On a roll!'];
+    setFeedback(G.streak>=3?`${cheers[ri(0,cheers.length-1)]} 🔥 ${G.streak} in a row`:cheers[ri(0,cheers.length-1)],'good');
+    setTimeout(nextProblem, 360);
+  } else {
+    btn.classList.add('wrong');
+    G.streak=0; $('streak').textContent='0';
+    // reveal the right one
+    [...$('opts').children].forEach(c=>{ if(parseInt(c.textContent)===G.current.answer) c.classList.add('right'); });
+    setFeedback(`The answer was ${G.current.answer}`,'bad');
+    setTimeout(nextProblem, 900);
+  }
+}
+function setFeedback(t,kind){ const f=$('feedback'); f.textContent=t; f.className='feedback '+(kind||''); }
+
+/* ---- timer ---- */
+function startTimer(){
+  stopTimer();
+  timerId=setInterval(()=>{
+    G.timeLeft--;
+    $('timer').textContent=G.timeLeft;
+    $('timebarFill').style.width=(G.timeLeft/60*100)+'%';
+    if(G.timeLeft<=10){ $('timerStat').classList.add('low'); $('timebar').classList.add('low'); }
+    if(G.timeLeft<=0){ endGame(); }
+  },1000);
+}
+function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
+
+/* ---- end ---- */
+function endGame(){
+  stopTimer(); lockInput=true;
+  const best=getBest(); const isBest=G.score>best;
+  if(isBest) setBest(G.score);
+  $('endScore').textContent=G.score;
+  $('endTitle').textContent = cfg.mode==='relaxed' ? 'All done!' : "Time's up!";
+  $('endBestStreak').textContent=G.bestStreak;
+  $('endBest').textContent=Math.max(best,G.score);
+  $('newBestWrap').innerHTML = isBest && G.score>0 ? '<span class="newbest">🎉 New record!</span>' : '';
+  let m;
+  if(G.score===0) m="Every expert started here. Give it another go!";
+  else if(G.score<8) m="Good start — a little more practice and you'll fly.";
+  else if(G.score<16) m="Lovely work! Your maths brain is warming up.";
+  else if(G.score<25) m="Seriously quick! That's some sharp thinking.";
+  else m="Wow — lightning fast! 🌟";
+  $('endMsg').textContent=m;
+  show('end');
+}
+</script>
+</body>
+</html>
