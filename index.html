@@ -225,11 +225,19 @@ h2{
 .qr{
   width:152px;height:152px;margin:0 auto 18px;border-radius:var(--r);
   border:1px dashed #d8d4c8;background:var(--paper);
-  display:grid;place-items:center;color:var(--ink-faint);font-size:.8rem;text-align:center;padding:14px;
+  display:grid;place-items:center;color:var(--ink-faint);font-size:.8rem;text-align:center;padding:14px;overflow:hidden;
 }
+.qr img{width:100%;height:100%;object-fit:contain;border-radius:inherit}
+.qr .qr-ph{display:none}
+.qr.noqr img{display:none}
+.qr.noqr .qr-ph{display:block}
+.upi-row{display:inline-flex;align-items:center;gap:8px}
 .upi{font-weight:600;color:var(--ink);background:var(--brand-tint);
   border-radius:var(--r-pill);padding:9px 18px;display:inline-block;font-size:.95rem}
-.support-note{font-size:.82rem;color:var(--ink-faint);margin-top:20px}
+.copybtn{font-family:inherit;font-weight:600;font-size:.85rem;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:var(--r-pill);padding:8px 14px;cursor:pointer}
+.copybtn:active{transform:scale(.96)}
+.pay-with{font-size:.82rem;color:var(--ink-faint);margin-top:14px}
+.support-note{font-size:.82rem;color:var(--ink-faint);margin-top:14px}
 
 /* ---------- footer ---------- */
 footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
@@ -266,8 +274,8 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
       <a href="#play">Play & Learn</a>
       <a href="#tools">Life Tools</a>
       <a href="community.html">Community</a>
-      <a href="#support">Support</a>
-      <a class="btn cta" href="#support">Support us</a>
+      <a href="#support">Gift</a>
+      <a class="btn cta" href="#support">Send a gift</a>
     </nav>
   </div>
 </header>
@@ -428,12 +436,18 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
   <section class="block" id="support">
     <div class="support">
       <div class="support-card reveal">
-        <div class="kicker" style="color:var(--brand)">Support us</div>
-        <h2>Free for everyone. Kept alive by you.</h2>
-        <p>friendology will always be free. If it's brought something good to your family, you're welcome to support us — entirely as you see fit.</p>
-        <div class="qr">Your UPI QR<br>goes here</div>
-        <div class="upi">friendology@upi</div>
-        <p class="support-note">A voluntary contribution, not a charitable donation — so it isn't tax-deductible. Thank you, truly, either way.</p>
+        <div class="kicker" style="color:var(--brand)">Send us a gift</div>
+        <h2>Free for everyone. Kept alive by your kindness.</h2>
+        <p>friendology will always be free. If it's brought something good to your family and you feel like it, you're welcome to send a small <b>gift card</b> — Amazon, Flipkart, or any voucher — to our inbox. Entirely optional, no pressure at all.</p>
+        <div class="upi-row">
+          <span class="upi" id="giftemail">gifts@friendology.in</span>
+          <button class="copybtn" id="copyupi" type="button">Copy</button>
+        </div>
+        <div style="margin-top:16px">
+          <a class="btn cta" href="mailto:gifts@friendology.in?subject=A%20gift%20for%20friendology" style="display:inline-block">Email a gift card</a>
+        </div>
+        <p class="pay-with">Buy any gift card or e-voucher and email it to the address above — that's it.</p>
+        <p class="support-note">A voluntary gift, not a charitable donation, so it isn't tax-deductible. Thank you, truly, either way.</p>
       </div>
     </div>
   </section>
@@ -448,7 +462,7 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
         <a href="#play">Play & Learn</a>
         <a href="#tools">Life Tools</a>
         <a href="#community">Community</a>
-        <a href="#support">Support us</a>
+        <a href="#support">Send a gift</a>
       </nav>
     </div>
     <div class="copyright">© <span id="yr"></span> friendology.in · Made mindfully for families. Your data stays on your device.</div>
@@ -462,6 +476,19 @@ footer{border-top:1px solid var(--line);margin-top:32px;padding:44px 0 56px}
   window.addEventListener('scroll',onScroll,{passive:true});onScroll();
   // year
   document.getElementById('yr').textContent=new Date().getFullYear();
+</script>
+<script>
+(function(){
+  var btn=document.getElementById('copyupi');
+  if(!btn)return;
+  btn.addEventListener('click',function(){
+    var id=(document.getElementById('giftemail')||{}).textContent||'';
+    id=id.trim(); var b=this;
+    function done(){ b.textContent='Copied ✓'; setTimeout(function(){b.textContent='Copy';},1600); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(id).then(done,done); }
+    else { var t=document.createElement('textarea'); t.value=id; document.body.appendChild(t); t.select(); try{document.execCommand('copy');}catch(e){} t.remove(); done(); }
+  });
+})();
 </script>
 </body>
 </html>
