@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Brain Puzzles · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;--red-tint:#F7E6E0;
+  --display:'Fraunces',serif;--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:560px;margin:0 auto;padding:18px 18px 40px;min-height:100%;display:flex;flex-direction:column}
+.display{font-family:var(--display)}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:14px}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)}
+.back .wm b{color:var(--brand)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2rem,8vw,2.6rem);line-height:1.04;letter-spacing:-.02em;margin:6px 0 4px}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:.96rem;margin-bottom:18px}
+.screen{display:none;flex:1;flex-direction:column}
+.screen.on{display:flex}
+.group{margin-bottom:18px}
+.group .lbl{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chip{font-family:inherit;font-size:1rem;font-weight:600;padding:11px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.15s;text-align:center}
+.chip.sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip:active{transform:scale(.96)}
+.best{margin:4px 0 16px;font-size:.95rem;color:var(--muted)}
+.best b{color:var(--brand);font-family:var(--display);font-size:1.05rem}
+.btn{font-family:inherit;font-weight:700;font-size:1.05rem;border-radius:16px;padding:15px 22px;cursor:pointer;border:none;background:var(--brand);color:#fff;width:100%;transition:.15s;margin-top:auto}
+.btn:active{transform:scale(.98);background:var(--brand-press)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line);margin-top:10px}
+.btn.row{margin-top:0}
+.btnrow{display:flex;gap:10px;margin-top:14px}
+
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:8px 14px;text-align:center;flex:1}
+.stat .v{font-family:var(--display);font-weight:600;font-size:1.4rem;line-height:1}
+.stat .k{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+
+/* quiz */
+.prompt{text-align:center;color:var(--muted);font-weight:600;margin:8px 0 2px}
+.seqrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;margin:14px 0 4px;flex:1;align-content:center}
+.seqtile{min-width:56px;height:64px;padding:0 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.8rem}
+.seqtile.em{font-size:2rem;font-family:'Plus Jakarta Sans',sans-serif}
+.seqtile.blank{border-style:dashed;border-color:var(--brand);color:var(--brand);background:var(--brand-tint)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.opt{font-family:var(--display);font-weight:600;font-size:1.9rem;padding:20px 10px;border-radius:18px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s}
+.opt.em{font-family:'Plus Jakarta Sans',sans-serif;font-size:2.1rem}
+.opt:active{transform:scale(.97)}
+.opt.right{background:var(--brand);color:#fff;border-color:var(--brand)}
+.opt.wrong{background:var(--red-tint);border-color:var(--red);color:var(--red)}
+.feedback{text-align:center;min-height:24px;margin-top:12px;font-weight:600}
+.feedback.good{color:var(--brand)} .feedback.bad{color:var(--amber)}
+
+/* maze */
+.stage{position:relative;width:100%;aspect-ratio:1;max-width:420px;margin:6px auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;touch-action:none}
+.stage canvas{display:block;width:100%;height:100%}
+.dpad{display:grid;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,58px);gap:8px;justify-content:center;margin:14px auto 2px}
+.dbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;font-size:1.5rem;cursor:pointer;display:grid;place-items:center;color:var(--ink)}
+.dbtn:active{transform:scale(.95);background:var(--brand-tint)}
+
+/* sudoku */
+.sgrid{display:grid;border:2.5px solid var(--ink);border-radius:10px;overflow:hidden;width:100%;max-width:380px;margin:8px auto;background:var(--surface)}
+.scell{aspect-ratio:1;display:grid;place-items:center;font-family:var(--display);font-weight:600;
+  border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer;user-select:none;color:var(--brand);
+  font-size:clamp(1rem,5.4vw,1.55rem)}
+.scell.br{border-right:2.5px solid var(--ink)}
+.scell.bb{border-bottom:2.5px solid var(--ink)}
+.scell.lk{background:var(--band);color:var(--ink);cursor:default}
+.scell.selc{background:var(--brand-tint);box-shadow:0 0 0 2px var(--brand) inset}
+.scell.conf{color:var(--red)}
+.spad{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:12px 0 2px}
+.pad{font-family:var(--display);font-weight:600;font-size:1.3rem;min-width:46px;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;padding:0 12px}
+.pad:active{transform:scale(.95);background:var(--brand-tint)}
+
+.banner{text-align:center;font-weight:600;color:var(--brand);min-height:24px;margin:8px 0}
+.banner.warn{color:var(--amber)}
+
+/* end */
+.endcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px;text-align:center;box-shadow:0 10px 30px rgba(34,35,31,.06)}
+.endcard .stars{font-size:2.4rem;letter-spacing:6px;color:var(--amber)}
+.endcard h2{font-family:var(--display);font-weight:600;font-size:1.7rem;margin:6px 0 4px}
+.endrow{display:flex;justify-content:center;gap:30px;margin-top:14px}
+.endrow .v{font-family:var(--display);font-weight:600;font-size:1.5rem}
+.endrow .k{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.newbest{display:inline-block;margin-top:12px;background:var(--amber-tint);color:var(--amber);font-weight:700;font-size:.85rem;padding:5px 13px;border-radius:99px}
+.foot{margin-top:22px;font-size:.78rem;color:var(--faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+
+  <!-- SETUP -->
+  <section class="screen on" id="setup">
+    <div class="eyebrow">Play &amp; Learn · Puzzles &amp; Brain Games</div>
+    <h1 class="display">Brain <b>Puzzles</b></h1>
+    <p class="lede">Little challenges for logical thinking. Pick a puzzle and a level to begin.</p>
+
+    <div class="group">
+      <div class="lbl">Choose a puzzle</div>
+      <div class="chips" id="types">
+        <button class="chip sel" data-type="number">🔢 Missing Number</button>
+        <button class="chip" data-type="pattern">🔷 Patterns</button>
+        <button class="chip" data-type="maze">🌀 Maze</button>
+        <button class="chip" data-type="sudoku">🧩 Sudoku</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="lbl" id="lvlLbl">Level</div>
+      <div class="chips" id="levels"></div>
+    </div>
+
+    <p class="best" id="bestline">Best: —</p>
+    <button class="btn" id="startBtn">Start puzzle</button>
+  </section>
+
+  <!-- QUIZ (number + pattern) -->
+  <section class="screen" id="quiz">
+    <div class="hud">
+      <div class="stat"><div class="v" id="qnum">1/10</div><div class="k">Question</div></div>
+      <div class="stat"><div class="v" id="qscore">0</div><div class="k">Score</div></div>
+      <div class="stat"><div class="v" id="qbest">—</div><div class="k">Best</div></div>
+    </div>
+    <div class="prompt" id="qprompt">What is the missing number?</div>
+    <div class="seqrow" id="seqrow"></div>
+    <div class="opts" id="qopts"></div>
+    <div class="feedback" id="qfb"></div>
+    <button class="btn ghost" id="quizQuit" style="margin-top:12px">Change puzzle</button>
+  </section>
+
+  <!-- MAZE -->
+  <section class="screen" id="maze">
+    <div class="hud">
+      <div class="stat"><div class="v" id="mzMoves">0</div><div class="k">Moves</div></div>
+      <div class="stat"><div class="v" id="mzSize">9×9</div><div class="k">Maze</div></div>
+      <div class="stat"><div class="v" id="mzTime">0:00</div><div class="k">Time</div></div>
+    </div>
+    <div class="prompt">Guide the dot to the ⭐</div>
+    <div class="stage" id="mzStage"><canvas id="mz"></canvas></div>
+    <div class="dpad">
+      <span></span><button class="dbtn" data-dir="up">▲</button><span></span>
+      <button class="dbtn" data-dir="left">◀</button><button class="dbtn" data-dir="down">▼</button><button class="dbtn" data-dir="right">▶</button>
+    </div>
+    <div class="banner" id="mzBanner"></div>
+    <div class="btnrow">
+      <button class="btn row" id="mzNew">New maze</button>
+      <button class="btn row ghost" id="mzQuit" style="margin-top:0">Change puzzle</button>
+    </div>
+  </section>
+
+  <!-- SUDOKU -->
+  <section class="screen" id="sudoku">
+    <div class="hud">
+      <div class="stat"><div class="v" id="skSize">4×4</div><div class="k">Grid</div></div>
+      <div class="stat"><div class="v" id="skLeft">0</div><div class="k">Empty</div></div>
+    </div>
+    <div class="prompt">Fill every row, column and box with no repeats</div>
+    <div class="sgrid" id="sgrid"></div>
+    <div class="spad" id="spad"></div>
+    <div class="banner" id="skBanner"></div>
+    <div class="btnrow">
+      <button class="btn row" id="skCheck">Check</button>
+      <button class="btn row ghost" id="skNew" style="margin-top:0">New</button>
+    </div>
+    <div class="btnrow">
+      <button class="btn row ghost" id="skSolve" style="margin-top:0">Show solution</button>
+      <button class="btn row ghost" id="skQuit" style="margin-top:0">Change puzzle</button>
+    </div>
+  </section>
+
+  <!-- END (quiz) -->
+  <section class="screen" id="end">
+    <div class="endcard">
+      <div class="stars" id="starsV">★★★</div>
+      <h2 id="endTitle">Great thinking! 🎉</h2>
+      <p class="lede" id="endmsg" style="margin:0"></p>
+      <div class="endrow">
+        <div><div class="v" id="endScore">0</div><div class="k">Score</div></div>
+        <div><div class="v" id="endOf">/10</div><div class="k">Out of</div></div>
+      </div>
+      <div id="nbWrap"></div>
+    </div>
+    <button class="btn" id="againBtn" style="margin-top:18px">Play again</button>
+    <button class="btn ghost" id="changeBtn">Change puzzle</button>
+    <p class="foot">friendology · a calm place to play and learn</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function rint(lo,hi){return Math.floor(Math.random()*(hi-lo+1))+lo;}
+  function go(id){ ['setup','quiz','maze','sudoku','end'].forEach(function(s){ $(s).classList.toggle('on', s===id); }); }
+
+  var LEVELS={
+    number:[['easy','Easy'],['medium','Medium'],['hard','Hard']],
+    pattern:[['easy','Easy'],['medium','Medium'],['hard','Hard']],
+    maze:[['6','Small'],['9','Medium'],['12','Large']],
+    sudoku:[['4','4×4'],['6','6×6'],['9','9×9']]
+  };
+  var type='number';
+  var sel={number:'easy',pattern:'easy',maze:'9',sudoku:'4'};
+
+  function renderLevels(){
+    var L=LEVELS[type], box=$('levels'); box.innerHTML='';
+    $('lvlLbl').textContent = (type==='maze'||type==='sudoku')?'Size':'Level';
+    L.forEach(function(p){
+      var b=document.createElement('button'); b.className='chip'+(sel[type]===p[0]?' sel':'');
+      b.textContent=p[1]; b.setAttribute('data-val',p[0]);
+      b.addEventListener('click',function(){
+        sel[type]=p[0];
+        [].forEach.call(box.querySelectorAll('.chip'),function(x){x.classList.remove('sel');});
+        b.classList.add('sel'); showBestLine();
+      });
+      box.appendChild(b);
+    });
+  }
+  $('types').addEventListener('click',function(e){
+    var c=e.target.closest('.chip'); if(!c)return;
+    [].forEach.call(this.querySelectorAll('.chip'),function(x){x.classList.remove('sel');});
+    c.classList.add('sel'); type=c.getAttribute('data-type'); renderLevels(); showBestLine();
+  });
+
+  // best (quiz only)
+  function bests(){ try{return JSON.parse(localStorage.getItem('fo_puzzle_best')||'{}');}catch(e){return{};} }
+  function bestKey(){return type+'_'+sel[type];}
+  function getBest(){var b=bests()[bestKey()]; return typeof b==='number'?b:null;}
+  function setBest(s){var b=bests(),k=bestKey(); if(b[k]==null||s>b[k]){b[k]=s;try{localStorage.setItem('fo_puzzle_best',JSON.stringify(b));}catch(e){}return true;}return false;}
+  function showBestLine(){
+    if(type==='number'||type==='pattern'){ var b=getBest(); $('bestline').innerHTML=b==null?'Best score: —':('Best: <b>'+b+'/10</b>'); }
+    else if(type==='maze'){ $('bestline').textContent='Reach the star in as few moves as you can.'; }
+    else { $('bestline').textContent='Tap a square, then a number. No repeats in a row, column or box.'; }
+  }
+
+  // =================== QUIZ ===================
+  var qTotal=10, qIdx=0, qScore=0, qAns=null, qLock=false, isEmoji=false;
+  var SYM=['🔴','🟠','🟡','🟢','🔵','🟣','🟤','⚫'];
+
+  function genNumber(level){
+    var len=5, seq=[], i;
+    if(level==='easy'){ var s=rint(1,9), st=rint(1,3); for(i=0;i<len;i++)seq.push(s+i*st); }
+    else if(level==='medium'){ var s2=rint(1,12), st2=rint(2,7); for(i=0;i<len;i++)seq.push(s2+i*st2); }
+    else {
+      var pick=rint(1,3);
+      if(pick===1){ var s3=rint(1,3), ratio=rint(2,3); seq=[s3]; for(i=1;i<len;i++)seq.push(seq[i-1]*ratio); }
+      else if(pick===2){ var base=rint(1,3); for(i=0;i<len;i++){var n=base+i; seq.push(n*n);} }
+      else { var s4=rint(1,5), d=rint(1,3); seq=[s4]; for(i=1;i<len;i++){ seq.push(seq[i-1]+d); d++; } }
+    }
+    var bi=rint(1,len-1), ans=seq[bi];
+    var opts=[ans], guard=0;
+    var deltas=[1,-1,2,-2,(seq[1]-seq[0])||3,-(seq[1]-seq[0])||-3];
+    while(opts.length<4 && guard<40){ guard++;
+      var cand = ans + deltas[rint(0,deltas.length-1)] + (Math.random()<0.3?rint(-1,1):0);
+      if(cand>0 && opts.indexOf(cand)<0) opts.push(cand);
+    }
+    while(opts.length<4){ var extra=ans+opts.length; if(opts.indexOf(extra)<0)opts.push(extra); else opts.push(ans+10+opts.length); }
+    return {render:seq.map(function(v,idx){return idx===bi?null:String(v);}), answer:String(ans), options:shuffle(opts.map(String)), emoji:false, prompt:'What is the missing number?'};
+  }
+
+  function genPattern(level){
+    var period = level==='easy'?2 : (level==='medium'?3 : (Math.random()<0.5?3:4));
+    var pool=shuffle(SYM.slice()); var cyc=pool.slice(0,period);
+    var vis = period*2 + rint(0, period===2?2:1); // shown tiles before the blank
+    var render=[]; for(var i=0;i<vis;i++) render.push(cyc[i%period]);
+    var ans=cyc[vis%period];
+    render.push(null); // blank
+    var opts=[ans]; var extras=shuffle(cyc.concat(pool.slice(period)));
+    for(var j=0;j<extras.length && opts.length<4;j++){ if(opts.indexOf(extras[j])<0)opts.push(extras[j]); }
+    return {render:render, answer:ans, options:shuffle(opts), emoji:true, prompt:'What comes next?'};
+  }
+
+  function startQuiz(){
+    qIdx=0; qScore=0; isEmoji=(type==='pattern');
+    $('qscore').textContent='0'; var b=getBest(); $('qbest').textContent=b==null?'—':b+'/10';
+    go('quiz'); nextQ();
+  }
+  function nextQ(){
+    if(qIdx>=qTotal){ quizEnd(); return; }
+    qIdx++; qLock=false; $('qfb').textContent='';
+    $('qnum').textContent=qIdx+'/'+qTotal;
+    var q = type==='number'?genNumber(sel.number):genPattern(sel.pattern);
+    qAns=q.answer; $('qprompt').textContent=q.prompt;
+    var row=$('seqrow'); row.innerHTML='';
+    q.render.forEach(function(v){
+      var t=document.createElement('div'); t.className='seqtile'+(q.emoji?' em':'');
+      if(v===null){ t.classList.add('blank'); t.textContent='?'; } else t.textContent=v;
+      row.appendChild(t);
+    });
+    var opts=$('qopts'); opts.innerHTML='';
+    q.options.forEach(function(o){
+      var b=document.createElement('button'); b.className='opt'+(q.emoji?' em':''); b.textContent=o;
+      b.addEventListener('click',function(){ answer(b,o); });
+      opts.appendChild(b);
+    });
+  }
+  function answer(btn,val){
+    if(qLock)return; qLock=true;
+    var buttons=$('qopts').querySelectorAll('.opt');
+    if(val===qAns){ btn.classList.add('right'); qScore++; $('qscore').textContent=qScore; $('qfb').textContent='Correct! 🎉'; $('qfb').className='feedback good'; }
+    else {
+      btn.classList.add('wrong'); $('qfb').textContent='Not quite — the answer was '+qAns; $('qfb').className='feedback bad';
+      [].forEach.call(buttons,function(b){ if(b.textContent===String(qAns)) b.classList.add('right'); });
+    }
+    [].forEach.call(buttons,function(b){ b.disabled=true; });
+    setTimeout(nextQ, val===qAns?700:1250);
+  }
+  function quizEnd(){
+    var s=qScore, stars = s>=9?3:(s>=6?2:1);
+    var str=''; for(var i=0;i<3;i++) str+=(i<stars?'★':'☆');
+    $('starsV').textContent=str; $('endScore').textContent=s;
+    var nb=setBest(s); $('nbWrap').innerHTML=nb?'<span class="newbest">★ New best score!</span>':'';
+    var msgs=['Sharp logic!','Lovely thinking!','You spotted the pattern!','Brilliant work!'];
+    $('endmsg').textContent=msgs[Math.floor(Math.random()*msgs.length)];
+    go('end');
+  }
+
+  // =================== MAZE ===================
+  var mzCv=$('mz'), mzCtx=mzCv.getContext('2d'), mzStage=$('mzStage');
+  var mzN=9, grid=null, pos={r:0,c:0}, mzMoves=0, mzSolved=false, mzTimer=null, mzT0=0;
+  var dpr=Math.min(window.devicePixelRatio||1,2), MW=0,MH=0;
+
+  function mzResize(){ MW=mzStage.clientWidth; MH=mzStage.clientHeight; mzCv.width=Math.round(MW*dpr); mzCv.height=Math.round(MH*dpr); mzCtx.setTransform(dpr,0,0,dpr,0,0); if(grid)drawMaze(); }
+  window.addEventListener('resize',function(){ if($('maze').classList.contains('on')) mzResize(); });
+
+  function genMaze(n){
+    var g=[],r,c; for(r=0;r<n;r++){ g[r]=[]; for(c=0;c<n;c++) g[r][c]={top:true,right:true,bottom:true,left:true,v:false}; }
+    var st=[[0,0]]; g[0][0].v=true;
+    while(st.length){
+      var cur=st[st.length-1]; r=cur[0]; c=cur[1]; var nb=[];
+      if(r>0&&!g[r-1][c].v)nb.push([r-1,c,'top']);
+      if(r<n-1&&!g[r+1][c].v)nb.push([r+1,c,'bottom']);
+      if(c>0&&!g[r][c-1].v)nb.push([r,c-1,'left']);
+      if(c<n-1&&!g[r][c+1].v)nb.push([r,c+1,'right']);
+      if(nb.length){ var p=nb[rint(0,nb.length-1)], nr=p[0],nc=p[1],d=p[2];
+        if(d==='top'){g[r][c].top=false;g[nr][nc].bottom=false;}
+        else if(d==='bottom'){g[r][c].bottom=false;g[nr][nc].top=false;}
+        else if(d==='left'){g[r][c].left=false;g[nr][nc].right=false;}
+        else {g[r][c].right=false;g[nr][nc].left=false;}
+        g[nr][nc].v=true; st.push([nr,nc]);
+      } else st.pop();
+    }
+    return g;
+  }
+  function startMaze(){ mzN=parseInt(sel.maze,10); $('mzSize').textContent=mzN+'×'+mzN; newMaze(); go('maze'); mzResize(); }
+  function newMaze(){
+    grid=genMaze(mzN); pos={r:0,c:0}; mzMoves=0; mzSolved=false;
+    $('mzMoves').textContent='0'; $('mzBanner').textContent=''; $('mzBanner').className='banner';
+    mzT0=Date.now(); if(mzTimer)clearInterval(mzTimer); mzTimer=setInterval(function(){ if(!mzSolved){var s=Math.floor((Date.now()-mzT0)/1000);$('mzTime').textContent=Math.floor(s/60)+':'+((s%60)<10?'0':'')+(s%60);} },300);
+    drawMaze();
+  }
+  function drawMaze(){
+    var size=Math.min(MW,MH), cell=Math.floor((size-6)/mzN), ox=(MW-cell*mzN)/2, oy=(MH-cell*mzN)/2;
+    mzCtx.clearRect(0,0,MW,MH);
+    // goal cell
+    mzCtx.fillStyle='#FAEFDD'; mzCtx.fillRect(ox+(mzN-1)*cell, oy+(mzN-1)*cell, cell, cell);
+    // walls
+    mzCtx.strokeStyle='#3a3b34'; mzCtx.lineWidth=2; mzCtx.lineCap='round';
+    for(var r=0;r<mzN;r++)for(var c=0;c<mzN;c++){
+      var x=ox+c*cell, y=oy+r*cell, g=grid[r][c];
+      mzCtx.beginPath();
+      if(g.top){mzCtx.moveTo(x,y);mzCtx.lineTo(x+cell,y);}
+      if(g.right){mzCtx.moveTo(x+cell,y);mzCtx.lineTo(x+cell,y+cell);}
+      if(g.bottom){mzCtx.moveTo(x+cell,y+cell);mzCtx.lineTo(x,y+cell);}
+      if(g.left){mzCtx.moveTo(x,y+cell);mzCtx.lineTo(x,y);}
+      mzCtx.stroke();
+    }
+    // goal star
+    mzCtx.fillStyle='#C2700C'; mzCtx.font=Math.floor(cell*0.62)+'px serif'; mzCtx.textAlign='center'; mzCtx.textBaseline='middle';
+    mzCtx.fillText('⭐', ox+(mzN-0.5)*cell, oy+(mzN-0.5)*cell+1);
+    // player
+    mzCtx.fillStyle='#1F6B4A'; mzCtx.beginPath();
+    mzCtx.arc(ox+(pos.c+0.5)*cell, oy+(pos.r+0.5)*cell, cell*0.30, 0, Math.PI*2); mzCtx.fill();
+  }
+  function mzMove(dir){
+    if(mzSolved||!grid)return; var r=pos.r,c=pos.c,g=grid[r][c],moved=false;
+    if(dir==='up'&&!g.top&&r>0){pos.r--;moved=true;}
+    else if(dir==='down'&&!g.bottom&&r<mzN-1){pos.r++;moved=true;}
+    else if(dir==='left'&&!g.left&&c>0){pos.c--;moved=true;}
+    else if(dir==='right'&&!g.right&&c<mzN-1){pos.c++;moved=true;}
+    if(moved){ mzMoves++; $('mzMoves').textContent=mzMoves; drawMaze();
+      if(pos.r===mzN-1&&pos.c===mzN-1){ mzSolved=true; if(mzTimer)clearInterval(mzTimer); $('mzBanner').textContent='Solved in '+mzMoves+' moves! 🎉'; }
+    }
+  }
+  [].forEach.call(document.querySelectorAll('.dbtn'),function(b){ b.addEventListener('click',function(){ mzMove(b.getAttribute('data-dir')); }); });
+  document.addEventListener('keydown',function(e){
+    if(!$('maze').classList.contains('on'))return;
+    var k=e.key; if(k==='ArrowUp')mzMove('up'); else if(k==='ArrowDown')mzMove('down'); else if(k==='ArrowLeft')mzMove('left'); else if(k==='ArrowRight')mzMove('right'); else return; e.preventDefault();
+  });
+  // swipe
+  var sx=0,sy=0,stracking=false;
+  mzStage.addEventListener('pointerdown',function(e){ sx=e.clientX;sy=e.clientY;stracking=true; });
+  mzStage.addEventListener('pointerup',function(e){
+    if(!stracking)return; stracking=false; var dx=e.clientX-sx, dy=e.clientY-sy;
+    if(Math.abs(dx)<18&&Math.abs(dy)<18)return;
+    if(Math.abs(dx)>Math.abs(dy)) mzMove(dx>0?'right':'left'); else mzMove(dy>0?'down':'up');
+  });
+
+  // =================== SUDOKU ===================
+  var skN=4, boxW=2, boxH=2, sol=[], puz=[], given=[], scells=[], selCell=null, skSolved=false;
+  function boxDims(n){ if(n===4)return[2,2]; if(n===6)return[3,2]; return[3,3]; } // [boxW, boxH]
+
+  function validPlace(g,n,bw,bh,r,c,v){
+    var i;
+    for(i=0;i<n;i++){ if(g[r][i]===v)return false; if(g[i][c]===v)return false; }
+    var r0=Math.floor(r/bh)*bh, c0=Math.floor(c/bw)*bw;
+    for(i=0;i<bh;i++)for(var j=0;j<bw;j++){ if(g[r0+i][c0+j]===v)return false; }
+    return true;
+  }
+  function buildSolved(n,bw,bh){
+    var g=[],r,c; for(r=0;r<n;r++){g[r]=[];for(c=0;c<n;c++)g[r][c]=0;}
+    function fill(idx){
+      if(idx===n*n)return true;
+      var rr=Math.floor(idx/n), cc=idx%n;
+      var nums=shuffle((function(){var a=[];for(var k=1;k<=n;k++)a.push(k);return a;})());
+      for(var t=0;t<nums.length;t++){ var v=nums[t];
+        if(validPlace(g,n,bw,bh,rr,cc,v)){ g[rr][cc]=v; if(fill(idx+1))return true; g[rr][cc]=0; }
+      }
+      return false;
+    }
+    fill(0); return g;
+  }
+  function startSudoku(){
+    skN=parseInt(sel.sudoku,10); var bd=boxDims(skN); boxW=bd[0]; boxH=bd[1];
+    $('skSize').textContent=skN+'×'+skN; newSudoku(); go('sudoku');
+  }
+  function newSudoku(){
+    sol=buildSolved(skN,boxW,boxH);
+    var keepFrac = skN===4?0.62 : (skN===6?0.58 : 0.50);
+    puz=[]; given=[]; var r,c;
+    for(r=0;r<skN;r++){ puz[r]=[]; given[r]=[]; for(c=0;c<skN;c++){ var keep=Math.random()<keepFrac; puz[r][c]=keep?sol[r][c]:0; given[r][c]=keep; } }
+    selCell=null; skSolved=false; $('skBanner').textContent=''; $('skBanner').className='banner';
+    renderGrid(); renderPad(); updateLeft();
+  }
+  function renderGrid(){
+    var grid=$('sgrid'); grid.style.gridTemplateColumns='repeat('+skN+',1fr)'; grid.innerHTML=''; scells=[];
+    var maxw = skN<=4?260:(skN===6?320:380); grid.style.maxWidth=maxw+'px';
+    for(var r=0;r<skN;r++){ scells[r]=[]; for(var c=0;c<skN;c++){
+      var d=document.createElement('div'); d.className='scell';
+      if((c+1)%boxW===0 && c<skN-1) d.classList.add('br');
+      if((r+1)%boxH===0 && r<skN-1) d.classList.add('bb');
+      if(given[r][c]) d.classList.add('lk');
+      (function(rr,cc){ d.addEventListener('click',function(){ if(given[rr][cc]||skSolved)return; selCell=[rr,cc]; paintSel(); }); })(r,c);
+      grid.appendChild(d); scells[r][c]=d;
+    }}
+    paintCells();
+  }
+  function renderPad(){
+    var pad=$('spad'); pad.innerHTML='';
+    for(var k=1;k<=skN;k++){ (function(v){ var b=document.createElement('button'); b.className='pad'; b.textContent=v; b.addEventListener('click',function(){ place(v); }); pad.appendChild(b); })(k); }
+    var er=document.createElement('button'); er.className='pad'; er.textContent='⌫'; er.addEventListener('click',function(){ place(0); }); pad.appendChild(er);
+  }
+  function place(v){
+    if(!selCell||skSolved)return; var r=selCell[0],c=selCell[1]; if(given[r][c])return;
+    puz[r][c]=v; paintCells(); updateLeft();
+    if(isComplete()&&conflicts().size===0){ skSolved=true; $('skBanner').textContent='Solved! Brilliant! 🎉'; $('skBanner').className='banner'; }
+  }
+  function conflicts(){
+    var bad=new Set(), r,c,i,j;
+    for(r=0;r<skN;r++)for(c=0;c<skN;c++){ var v=puz[r][c]; if(!v)continue;
+      for(i=0;i<skN;i++){ if(i!==c&&puz[r][i]===v){bad.add(r+','+c);bad.add(r+','+i);} if(i!==r&&puz[i][c]===v){bad.add(r+','+c);bad.add(i+','+c);} }
+      var r0=Math.floor(r/boxH)*boxH, c0=Math.floor(c/boxW)*boxW;
+      for(i=0;i<boxH;i++)for(j=0;j<boxW;j++){ var rr=r0+i,cc=c0+j; if((rr!==r||cc!==c)&&puz[rr][cc]===v){bad.add(r+','+c);bad.add(rr+','+cc);} }
+    }
+    return bad;
+  }
+  function isComplete(){ for(var r=0;r<skN;r++)for(var c=0;c<skN;c++) if(!puz[r][c])return false; return true; }
+  function countLeft(){ var n=0; for(var r=0;r<skN;r++)for(var c=0;c<skN;c++) if(!puz[r][c])n++; return n; }
+  function updateLeft(){ $('skLeft').textContent=countLeft(); }
+  function paintCells(){
+    var bad=conflicts();
+    for(var r=0;r<skN;r++)for(var c=0;c<skN;c++){ var d=scells[r][c]; var v=puz[r][c];
+      d.textContent=v?v:''; d.classList.toggle('conf', bad.has(r+','+c)); }
+    paintSel();
+  }
+  function paintSel(){ for(var r=0;r<skN;r++)for(var c=0;c<skN;c++) scells[r][c].classList.toggle('selc', !!selCell&&selCell[0]===r&&selCell[1]===c); }
+  document.addEventListener('keydown',function(e){
+    if(!$('sudoku').classList.contains('on')||!selCell||skSolved)return;
+    if(e.key>='1'&&e.key<=String(skN)) { place(parseInt(e.key,10)); e.preventDefault(); }
+    else if(e.key==='Backspace'||e.key==='Delete'||e.key==='0'){ place(0); e.preventDefault(); }
+  });
+  $('skCheck').addEventListener('click',function(){
+    var bad=conflicts(); var left=countLeft();
+    if(left===0&&bad.size===0){ skSolved=true; $('skBanner').textContent='Solved! Brilliant! 🎉'; $('skBanner').className='banner'; }
+    else if(bad.size>0){ $('skBanner').textContent='Some numbers clash — check the red ones.'; $('skBanner').className='banner warn'; }
+    else { $('skBanner').textContent='Looking good — '+left+' square'+(left===1?'':'s')+' to go.'; $('skBanner').className='banner'; }
+  });
+  $('skSolve').addEventListener('click',function(){
+    for(var r=0;r<skN;r++)for(var c=0;c<skN;c++){ puz[r][c]=sol[r][c]; } skSolved=true; selCell=null;
+    paintCells(); updateLeft(); $('skBanner').textContent='Here\u2019s the full solution.'; $('skBanner').className='banner';
+  });
+
+  // routing buttons
+  $('startBtn').addEventListener('click',function(){
+    if(type==='number'||type==='pattern') startQuiz();
+    else if(type==='maze') startMaze();
+    else startSudoku();
+  });
+  $('againBtn').addEventListener('click',startQuiz);
+  function toSetup(){ if(mzTimer)clearInterval(mzTimer); showBestLine(); go('setup'); }
+  $('changeBtn').addEventListener('click',toSetup);
+  $('quizQuit').addEventListener('click',toSetup);
+  $('mzQuit').addEventListener('click',toSetup);
+  $('skQuit').addEventListener('click',toSetup);
+  $('mzNew').addEventListener('click',newMaze);
+  $('skNew').addEventListener('click',newSudoku);
+
+  // init
+  renderLevels(); showBestLine();
+})();
+</script>
+</body>
+</html>
