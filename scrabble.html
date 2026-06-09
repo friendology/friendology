@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--fo-meta-->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1F6B4A">
+<meta name="description" content="Calm, free, private games and tools for families - made in India. No sign-up; your child's play stays on their device.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Word Tiles · friendology">
+<meta property="og:description" content="Calm, free, private games and tools for families - made in India. No sign-up; your child's play stays on their device.">
+<meta property="og:image" content="https://friendology.in/og-image.png">
+<meta property="og:url" content="https://friendology.in/">
+<meta name="twitter:card" content="summary_large_image">
+<title>Word Tiles · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;--red:#C0492F;--red-tint:#F7E6E0;
+  --display:'Fraunces',serif;--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:560px;margin:0 auto;padding:18px 18px 40px;min-height:100%;display:flex;flex-direction:column}
+.display{font-family:var(--display)}
+a{color:inherit}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:14px}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)} .back .wm b{color:var(--brand)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2rem,8vw,2.6rem);line-height:1.04;letter-spacing:-.02em;margin:6px 0 4px}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:.96rem;margin-bottom:18px}
+.screen{display:none;flex:1;flex-direction:column}.screen.on{display:flex}
+.btn{font-family:inherit;font-weight:700;font-size:1.05rem;border-radius:16px;padding:15px 22px;cursor:pointer;border:none;background:var(--brand);color:#fff;width:100%;transition:.15s;margin-top:auto}
+.btn:active{transform:scale(.98);background:var(--brand-press)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.5}
+.best{margin:4px 0 16px;font-size:.95rem;color:var(--muted)}.best b{color:var(--brand);font-family:var(--display);font-size:1.05rem}
+
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:8px 14px;text-align:center;flex:1}
+.stat .v{font-family:var(--display);font-weight:600;font-size:1.4rem;line-height:1}
+.stat .k{font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+
+.tray{display:flex;flex-wrap:wrap;gap:8px;min-height:66px;background:var(--band);border:1.5px dashed var(--line);border-radius:14px;padding:10px;justify-content:center;align-items:center;margin:6px 0}
+.tray .ph{color:var(--faint);font-size:.92rem}
+.wordline{text-align:center;font-weight:600;color:var(--muted);min-height:22px;margin:2px 0 6px}
+.wordline b{color:var(--brand)}
+.lbl{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:center;margin:10px 0 6px}
+.rack{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:2px 0}
+.tile{position:relative;width:46px;height:54px;border-radius:10px;border:1.5px solid #d9b98a;background:#F6E4C5;color:#5a3d1e;font-family:var(--display);font-weight:700;font-size:1.5rem;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 0 #d6b07a}
+.tile .pt{position:absolute;right:5px;bottom:3px;font-size:.58rem;font-weight:700;opacity:.85}
+.tile:active{transform:translateY(1px);box-shadow:none}
+.tile.used{opacity:.22;pointer-events:none}
+.tray .tile{background:#FBEFD8}
+.msg{text-align:center;min-height:22px;font-weight:600;margin:8px 0 2px}
+.msg.bad{color:var(--red)} .msg.good{color:var(--brand)}
+.shake{animation:shk .3s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.controls{display:flex;gap:8px;margin-top:8px}
+.controls .btn{margin-top:0;padding:13px 10px;font-size:.95rem}
+.row2{display:flex;gap:8px;margin-top:8px}.row2 .btn{margin-top:0}
+
+.endcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px;text-align:center;box-shadow:0 10px 30px rgba(34,35,31,.06)}
+.endcard .hero{font-family:var(--display);font-weight:700;font-size:3.2rem;color:var(--brand);line-height:1}
+.endcard .herok{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-top:4px}
+.endcard h2{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:2px 0 4px}
+.wordsmade{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:14px}
+.chiplet{background:var(--brand-tint);color:var(--brand);font-weight:700;font-size:.82rem;padding:4px 10px;border-radius:99px}
+.newbest{display:inline-block;margin-top:12px;background:var(--amber-tint);color:var(--amber);font-weight:700;font-size:.85rem;padding:5px 13px;border-radius:99px}
+.foot{margin-top:22px;font-size:.78rem;color:var(--faint);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+
+  <section class="screen on" id="setup">
+    <div class="eyebrow">Play &amp; Learn · Words &amp; Reading</div>
+    <h1 class="display">Word <b>Tiles</b></h1>
+    <p class="lede">You get seven letter tiles, just like Scrabble. Tap letters to spell a real word, then submit it to score. Longer and trickier letters score more. Tiles refill as you go.</p>
+    <p class="best" id="bestline">Best score: —</p>
+    <button class="btn" id="startBtn">Start playing</button>
+  </section>
+
+  <section class="screen" id="play">
+    <div class="hud">
+      <div class="stat"><div class="v" id="scoreV">0</div><div class="k">Score</div></div>
+      <div class="stat"><div class="v" id="wordsV">0</div><div class="k">Words</div></div>
+      <div class="stat"><div class="v" id="bagV">98</div><div class="k">In bag</div></div>
+    </div>
+
+    <div class="lbl">Your word</div>
+    <div class="tray" id="tray"><span class="ph">Tap letters below to build a word</span></div>
+    <div class="wordline" id="wordline"></div>
+
+    <div class="lbl">Your tiles</div>
+    <div class="rack" id="rack"></div>
+
+    <div class="controls">
+      <button class="btn" id="submitBtn" disabled>Submit word</button>
+      <button class="btn ghost" id="clearBtn" style="flex:0 0 38%">Clear</button>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="row2">
+      <button class="btn ghost" id="shuffleBtn">↻ Shuffle</button>
+      <button class="btn ghost" id="swapBtn">New letters</button>
+      <button class="btn ghost" id="doneBtn">Done</button>
+    </div>
+  </section>
+
+  <section class="screen" id="end">
+    <div class="endcard">
+      <div class="hero" id="endScore">0</div>
+      <div class="herok">total score</div>
+      <h2 id="endTitle">Nice words! 🎉</h2>
+      <p class="lede" id="endmsg" style="margin:0"></p>
+      <div class="wordsmade" id="wordsMade"></div>
+      <div id="nbWrap"></div>
+    </div>
+    <button class="btn" id="againBtn" style="margin-top:18px">Play again</button>
+    <button class="btn ghost" id="homeBtn" style="margin-top:10px">Back to start</button>
+    <p class="foot">friendology · uses a built-in common-word dictionary</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  function $(id){return document.getElementById(id);}
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+  var DICT=new Set(("ability able about above abuse academy account ace achieve acid acorn acre act actor acute adapt add adept admit adobe adopt adore adult after again age aged agent agile aglow ago agree ahead ahoy aid aim air airport aisle alarm album alert alien align alike alive all allow alloy aloft alone along aloof aloud alpha also altar alter am amazing amber amble amend amid ample amply an ancient and angel anger angle angry animal ankle annoy another answer ant ants anvil anxious any apart ape apes apple apply approve apron arch archery area arena argue arid arise arm armor army aroma array arrow arson art artist artwork as ash aside ask asset at ate atlas atom attic audio audit aunt auto autumn avail avert avoid await awake award aware away awe awful awkward awoke ax axe axes axiom azure baby back bacon bad badge badly bag bagel bait bake baker bald ball balmy ban band bang banjo bank bar bargain barge barn base bash basic basil basin basis basket baste bat batch bath bathe baton bay be beach bead beads beady beak beam bean beans bear beard beast beat beauty because bed bedroom bee beef been beep beer bees before beg began begin begun behind being belief believe bell belly below belt bench bend bent berry berth best bet better between bias bible bicycle bid big bigot bike bin binge bingo birch bird birth bison bit bite black blade blame bland blank blanket blare blast blaze bleak bleat bleed blend bless blind blink bliss blitz bloat blob block blond blood bloom blossom blot blown blue blues bluff blunt blur blurt blush boa boar board boast boat bob body bog bogey bogus boil boils bold bolt bolts bomb bond bone bonus book boom boon boost boot booth booty booze bore bored born borne borrow bosom boss bossy botch both bottle bottom bough bought bound bout bow bowel bowl box boxer boy brace brag braid brain brake bran branch brand brash brass brat brave bravo brawl brawn bread break breath breed brew brews briar bribe brick bride bridge brief bright brine bring brink briny brisk broad broil broke broken brood brook broom broth brother brought brow brown brunt brush brute bubble buck bucket bud buddy budge budget buff bug buggy bugle build builder built bulb bulge bulk bulky bull bully bump bun bunch bundle bunk bunny burnt burst bury bus bush bushy bust busy but butt butter button buy buyer by cab cabin cabinet cable cacao cadet cafe cage cake calf call calm came camel cameo camera camp can candle candy cane canoe cans canvas cap capable cape caper capital caps capture car carat carbon card cards care career careful cargo carol carpet carrier carrot carry cart carve case cash cast caste castle casual cat catch cater cats cattle catty cause cave cease cedar ceiling cell cellar cent center cereal chain chair chalk chamber champ change chant chaos chap chapter charge charity charm chart chase chasm chat cheap cheat check cheek cheer cheese chef cherry chess chest chew chewy chick chicken chief child chili chill chime chimney chin china chip chirp choice choir choke chop chord chore chose chuck chum chump chunk churn chute cider cigar cinch circle citizen city civic civil clad claim clam clamp clan clang clank clap clarify clash clasp class claw claws clay clean clear cleat clerk clever click cliff climate climb cling clip cloak clock clog clone close closet cloth clothes cloud cloudy clout clove clown club clubs clue clump clung cluster clutch coach coal coast coat cob cobra cocoa cod code coffee cog coil coin cola cold collect college colon color colt column comb combat combine come comedy comet comfort comfy comic coming command comment company compare compass compete complex compose con concept concern concert conch conduct cone confess confirm connect consent contact contain content contest control convert cook cooking cool cop cope copy coral cord cords core cork corn corner corny correct cost costume cosy cot cottage cotton couch cough could council count counter country court cove cover covet cow cows crab crack cradle craft cram cramp crane crank crash crate crave crawl craze crazy creak cream create credit credo creed creek creep crepe crept crest crew crews crib cried crime crimp crisp croak crock crony crook croon crop cross crow crowd crown crude cruel crumb crush crust cry crypt crystal cub cube cubs cue cuff cult cumin cup cups curb cure curio curl curly curry curse curt curve curvy cushion custom cut cute cycle cynic dad daily dairy daisy dally dam dame damp dance dandy danger dare dark darn dart dash data date datum daunt dawn day days daze dazzle dead deaf deal deals dealt dean dear death debit debt debug debut decade decay decide deck decor decoy deed deem deep deer defeat defend deft defy degree delay deliver dell delta delve demand demo demon den dens dense dent deny depart depend deposit depot depth derby desert deserve design desire desk desks dessert destroy detail detect deter detox device devil dew dial diamond diary dice dicey did die died diet diets dig digit digital dignity digs dim dime dimly din dine diner ding dingo dingy dinner dip dirge dirt disco dish disk ditch ditto ditty dive diver dizzy do dock dodge dodgy doe does dog dogs doing doll dolphin dome done donor donut doom door dope dose dosed doses dot dote dots doubt dough dove dowel down downy dowry doze dozen drab draft drag dragon drain drake drama drank drape draw drawer drawing drawl drawn dread dream dress drew dribble dried drier drift drill drink drip drive driver droll drone drool droop drop drops dross drove drown drug drugs drum drums dry dryer dryly dual dub duck duct dude due duel dues duet dug duke dull dump dune dung dunk during dusk dust duty dye dyed dyes each eager eagle ear earl early earn earns ears earth ease easel easily east eastern easy eat eaten eats ebony echo economy eddy edge edges edgy edition educate eel eels egg eggs ego egos eight elbow elder elect elegant element elevate eleven elf elite elk elm elope else email ember embrace emit empire empty end endless ends enemy energy engine enhance enjoy enough enter entry envy epic episode equal equator equip era erase error escape essay estate ether ethnic evade eve even evening event ever every evict evil ewes exact exactly exalt exam examine example excel excited exclude execute exert exhibit exile exist exit expand expect expert explain explore export express extra extreme eye eyed eyes fable fabric face faces fact factory facts fad fade fail failure faint fair fairly fairy faith fake fall false fame family famous fan fancy fang fans fantasy far faraway fare farm farms fast fat fatal fate father fault favor fawn fax fear feast feat feather feature fed fee feed feel fees feet fell fellow felt female fence fend fern ferry fetch fever few fewer fiber fiction field fiery fifteen fifth fifty fig fight figs file filer fill film films fin final finally finance finch find fine finger finish fins fir fire firm first fish fishy fist fit fitness fits five fix fixed fizz fjord flag flair flake flame flank flap flaps flare flash flat flaw flea fleck fled flee fleet flesh flew flick flier flight fling flint flip flips flit float flock flood floor flop flora flour flout flow flower flown flue fluff fluid fluke flung flunk flush flute fly foal foam foamy focal focus foe foes fog foggy fold folk fond font food fool foot for foray force fore forearm forest forever forge forget forgo fork forks form formal format former forms fort forth fortune forty forward foul found four fowl fox frame frank fraud fray freak free freedom freezer fresh fret fried friend fries frill frisk frock frog from front frost froth frown froze frozen fruit fry fudge fuel full fully fume fumes fun fund funds fungi funk funny fur furry furs further fury fuse fuss fussy future fuzz fuzzy gabby gain gait gala gale gallery game gamer games gang gap gaps garb garden gas gash gasp gate gates gateway gather gauge gaunt gave gavel gawky gaze gazer gear geese gem gems gene general genie genre gent gentle genuine germ gesture get ghost giant giddy gift gig gild gill ginger gins giraffe girls give given giver glacier glad glade glance gland glare glass glaze gleam glee glen glide glimpse glob globe gloom gloomy glory gloss glove glow glue glued glum gnat gnaw gnome go goad goal goat god goddess gods goes goggles going gold golden golf golly gone goner gong good goody goof goofy goon goose gore gorge gorilla gory gossip got gourd gout govern gown grab grace grade gradual grain gram grammar grand grandma grandpa granite grant grape graph graphic grasp grass grate grave gravity gravy gray graze great greed green greet grew grey grid grief grill grim grime grimy grin grind grip grit groan grocery groin groom grope gross ground group grout grove grow growl grown growth grub gruff grump grunt guard guava guess guest guide guild guilt guitar gulf gull gully gum gummy gun guppy guru gusto gusty gut guts gutsy guy guys gym habit hack had hail hair hairy half hall halls halo halt ham hand handle handy hang happen happy hard hardly hardy hare hares harm harmony harms harp harsh harvest has hash haste hasty hat hatch hate haul haunt have haven havoc hawk hay haze hazel he head heads heady heal health healthy heap hear heard heart heat heath heating heavily heavy hedge heed heel hefty heir held hell hello helm help hemp hen hence her herb herbs herd here hero heroine heron hi hid hidden hide hides high highway hike hill hilly him hinge hint hip hippo hire his hiss history hit hitch hits hive hoard hobby hoe hog hoist hold holds hole holes holiday hollow holly holy home homes honest honey honor hood hoof hook hoop hop hope hoped hopes horde horn horns horse hose hoses host hot hotel hound hour house hovel hover how however hub hue huff hug huge hula hulk hull hum human humid humor hump humps hunch hundred hung hungry hunk hunt hunter hurl hurry hurt husband hush husk husky hut hutch hydra hymn ice icily icing icon icy idea ideal idiom idiot idle idler idol idols if igloo ignore ill illness image imagine imp impact imply import improve in inbox inch include incur index indoor inept inert infer ingot initial injury ink inlet inn inner input inquiry insect inside insight inspire install instant intend inter into intro invent ion irate iron irons irony is island isle issue it itchy item its ivory ivy jab jack jacket jade jail jam jams janitor jar jars jaunt jaw jaws jazz jazzy jeans jeep jeer jell jelly jerk jerky jest jet jets jetty jewel jibe jiffy jig jilt jinx job jobs jog jogs join joint joist joke joker jolly jolt jot jots journey joust joy joys judge judo jug jugs juice juicy jumbo jump jumpy jungle junk juror jury just justice jute kayak kebab keel keen keep keeper keg kegs kelp kelpy kept kettle key keys kick kid kidney kids kill kiln kilt kin kind kindly king kinky kiosk kiss kit kitchen kite kites kits kitten kiwi knack knee kneel knees knelt knew knife knight knit knob knock knoll knot knots know known koala kudos lab label labor labs lace lack lad ladder laden ladle lady lager laid lair lairs lake lakes lamb lame lamp lance land lands lane lanky lantern lap lapel laps lapse laptop lard large lark lash lasso last latch late later latte laugh launch lava law lawn laws lawyer lay layer lays lazy lead leader leads leaf leafy league leak leaky lean leap leaps learn lease leash least leave lecture led ledge leech leeks leers left leg legacy legal legend leisure lemon lemur lend lens less lesson lest let letter level lever liar liberty library lice license lick lid lids lie lied lies life lift light like likely liken lilac lily limb limbo limbs lime limes limit limited limp line lined linen liner lines linger lingo link links lint lion lions lip lips liquid lisp lisps list listen lists lit liter live lived lively liver lives load loads loaf loafs loamy loan loans lobby lobe lobster local locate lock locks lodge loft lofty log logic logo logs loins lone lonely loner long look loom loons loop loops loose loot loots lord lords lore lorry lose loser loses losing loss lost lot lottery loud love loved lover loves low lower lows loyal lucid luck lucky lull lumber lump lumps lumpy lunar lunch lung lunge lungs lurch lure lured lures lurid lurk lurks lush lust luxury lying lyre lyric macaw mace machine macho macro mad madam made madly mafia magic magical maid maids mail mailbox maim main major make maker making male males mall malt mamba man manage mane mango mangy mania manner manor manse mansion many map maple maps marble march mare margin mark market marsh mash mask masks mason mass massive mast mat match mate mater mates math maths mats matte matter mauve maxim maximum may maybe mayor maze me mead meadow meal meals mean meaning means meant measure meat meaty medal media medium meek meet meld melon melt memo memory men mend mends mention mentor menu mercy mere merge merit merry mesh mess message messy met metal meter method mewed mice micro mid middle midst might mild mile milk mill million mime mimic mince mind minds mine mined miner mineral mines mingy mini minimum mink minor mint minty minus minute mire mirror mirth miss mist mistake mite mix mixed mixer mixture moan moans moat moats mob mocha mock modal mode model modem modern modest moist molar mold molds moldy mole moles mom moment momma money monk monkey monks monster month mood moods moody moon moor moose mop moral more morning moron moss most mostly moth mother moths motif motion motor motto mound mount mourn mouse mousy mouth move moved mover moves movie mowed mower much muck mucky mud muddy muff mufti mug muggy mugs mule mules mull mum mumbo mummy mums munch mural murk murky muse mused muses museum mush mushy music musical musk musks musky must musty mute muted my myself mystery myth myths nacho nadir nag nail naive naked name named names nanny nap nape narrow nasal nasty natal native natural nature naval navel navy near nearby nearly nears neat neck necks need needs needy neither nephew nerds nerdy nerve nervous nest nests net network neutral never new newer newly news newt next nib nice nicer niche nick niece night nil nimble nine nines ninja ninth nip no nobby noble nobly nobody nod nodal node nodes nods noise noisy nomad none noodle nook nooks noon noose nope nor north nose nosey nostril nosy not notable notch note noted notes nothing notice noun nouns novel now nowhere nuclear nude nudge nuke nukes numb number numbs nun nurse nut nutty nylon oafs oak oaken oaks oar oars oases oasis oat oaten oath oats obey object obscure observe obtain obvious ocean ochre octet odd odder odds odor odors of off offal offense offer office officer often ogled ogre ogres oh oil oiled oils oily oinks ok okay old olden older olive omega omen omit omits on once one ones onion online only onset onto onyx oomph ooze oozed oozes opal opals open opens opera opium opted optic or oral orange orb orbit order ore organ organic origin other otter ouch ought ounce our ours oust ousts out outdo outdoor outer outline output outs outside oval ovals ovary oven ovens over overall overs overt owe owing owl owlet owls own owned owner owns ox oxide ozone pace paced paces pack package packs pact pad paddy pads pagan page paged pager pages paid pail pails pain painful pains paint pair pairs pal palace pale paler pales palm palms pan panda pane panel panes pang pangs panic pans pansy pant pants papas papaw paper par parade parcel pardon pare parent park parka parks parry parse part partly partner parts party pass passage passion past pasta paste pastel pasts pat patch pate pates path paths patient patio patrol pats patsy pattern pause pave paved paver paves paw pawed pawn pawns pay payee payer payment pays pea peace peach peak peaks peal peals pear pearl pears peas pease peat pebble pecan peck pecks pedal peek peeks peel peels peep peeps peer peers peg pegs pelican pelt pelts pen penal pence pencil penguin penne penny pens pension pent peon peony people pepper perch perfect perform perhaps peril period perk perks perky permit person pert pesky pest pesto pet petal peter pets petty pews phase phone photo piano pick pickle picks picky picture pie piece pier pies piety pig piggy pigs pike pikes pile piled piles pill pillow pills pilot pin pinch pine pined pines ping pink pinky pins pint pinto pints pioneer pious pipe piped piper pipes pique pit pita pitch pitcher pithy pits pity pivot pixel pixie pizza place plaid plain plait plan plane planet plank plans plant plastic plate plateau play plaza plea plead pleas pleased pleat plenty plied plier plies plod plonk plop plot plots plow plows ploy pluck plug plugs plum plumb plume plump plums plunk plus plush poach pock pocket pod pods poem poems poet poetry poets point pointer poise poke poked poker pokes polar pole poled poles police polio polish polka poll polls polo polyp pomp pond ponds pones pony pooch poohs pool pools poor pop popcorn pope pops porch pore pores pork porky port portion portray ports pose posed poser poses posh posit posse post posts posy pot potato pots pottery potty pouch pound pour pours pout pouts poverty powder power praise prank prawn pray preen prefer premium prep prepare present press pretend pretty prevent prey preys price pride pried prier pries priest prim prima prime primo prince print printer prior prism prison privacy private privy prize probe problem proceed prod prods produce prof profile profit program project prole prom promise prone prong proof prop proper props pros prose prosy protect protein proud prove proven provide prow prowl proxy prude prune pry pryer psalm pshaw pub pubic public publish puck pudgy puff puffs puffy pug puke puked pukes pull pulls pulp pulpy pulse puma pumas pump pumps pun punch punish punk punks puns punts pup pupa pupae pupil puppet puppy pure puree purer purge purple purr purse pursue push pushy pussy put puts putt putts putty puzzle pygmy pyramid quack quad quads quail quake quality qualm quart quarter quash quasi quay queen queer quell query quest queue quick quid quiet quietly quill quilt quip quips quirk quit quite quits quiz quota quote rabbi rabbit race raced racer races rack racket racks racy radar radii radio raft rafts rag rage raged rages raid raids rail rails rain rainbow rainy raise rajah rake raked rakes rally ram ramp ramps ran ranch random randy rang range rank ranks rant rants rap rape raped rapid rare rarely rarer rash rasp raspy rat rate rated rates rather ratio rats ratty rave raven raver raves raw ray rays raze razed razes reach react reactor read reader reading reads ready real reality realize really realm ream reams reap reaps rear rearm rears reason rebar rebel rebus recap receipt receive recent recipe record recover recur red redid redo reds reduce reed reeds reedy reef reefs reek reeks reel reels reflect reform refresh refuse regard region regret regular reign rein reject relate related relax relay release relic relief relieve rely remain remark remind remit remote removal remove rend renew rent rents repair repay repeat repel replace reply report request reran rerun rescue reserve reset resin resolve resort respect respond rest restore rests result retail retain retch retire retro return reunion reuse reveal revel revenge reverse review revolve revue reward rewrite rhino rhyme rib ribbon rice ricer rices rich rid riddle ride rider rides ridge rids rife rifle rift rifts rig right rigid rigs rile riled riles rim rims rind rinds ring rings rink rinks rinse riot riots rip ripe ripen riper ripple rips rise risen riser rises risk risks risky rite rites rival riven river rivet roach road roads roam roams roar roars roast rob robe robed robes robin robot robs rock rocket rocks rocky rod rode rodeo rods roe roes roger rogue role roles roll roller rolls roman romp roods roof roofs rook rooks room rooms roomy roost root roots rope roped roper ropes rose roses rosin rosy rot rotate rote rotor rouge rough round rouse rout route routine routs rove roved rover roves row rowdy rower rows royal rub rubber rubbish ruby rude ruder rued rues ruff ruffs rug rugby rugged rugs ruin ruins rule ruled ruler rules rum rumba rumor rump rumps run runaway rune runes rung rungs runner runny runs runt runts rural ruse ruses rush rusks rust rusts rusty rut ruts rye saber sable sack sacks sad saddle sadly safe safer sag saga sagas sage sages saggy said sail sails saint sake salad sale sales saliva sally salmon salon salsa salt salts salty salve salvo samba same sample sand sandal sandy sane saner sang sank sap sappy saps sash sass sassy sat sate satin sauce saucer saucy sauna savage save saved saver saves savor savoy savvy saw sawed saws say says scab scabs scald scale scalp scaly scam scamp scams scan scans scant scar scarce scare scarf scars scary scat scatter scene scent scheme school science scoff scold scone scoop scoot scope score scorn scour scout scowl scram scrap scrape scratch scream screen script scrub scrum scuba scuff scum sea seal seals seam seams seamy sear sears seas season seat seats second secret sect section sects sedan see seed seeds seedy seek seeks seem seems seen seep seeps seer seers sees segment segue seize seldom select self sell sells semi seminar semis send sends senior senna sense sensor sent sepia sera serf serfs sermon serpent serum servant serve service session set setback sets settle setup seven sever severe sew sewed sewer sewn sews shack shade shadow shady shaft shake shaken shaky shale shall shallow shame shank shape shard share shark sharp shave shawl shays she sheaf shear shed sheds sheen sheep sheer sheet shelf shell shelter sheriff shied shield shies shift shine shins shiny ship ships shire shirk shirt shoal shock shoe shoed shoes shone shoo shook shoot shop shops shore shorn short shorten shot shots shout shove show shown shows showy shred shrew shrimp shrink shrub shrug shuck shun shuns shunt shush shut shuts shy shyer sick sicko side sided sides sidle siege sieve sift sifts sigh sighs sight sigma sign signal signs silence silent silk silks silky sill silly silo silos silt silver similar simple sin since sincere sinew sing singe single sings sink sinks sins sinus sip sips sir sire sired siren sirs sirup sissy sister sit sitar site sites sits six sixes sixth sixty size sized sizes skate skein skeptic sketch skews ski skid skids skied skier skies skiff skill skim skimp skims skin skins skint skip skips skirt skis skits skulk skull skunk sky slab slabs slack slags slain slake slam slang slant slap slaps slash slat slate slats slave slaw slaws sled sleds sleek sleep sleet sleeve slept slew slews slice slick slid slide slight slim slime slimy sling slink slip slit slits slob slobs sloe sloes slog slogs sloop slop slope slops slosh slot sloth slots slow slows slug slugs slum slump slums slung slunk slur slurp slurs slush sly slyer smack small smart smash smear smell smelt smile smirk smite smith smock smog smoke smoky smooth smug smut snack snag snags snail snake snaky snap snaps snare snarl sneak sneer snide sniff snip snipe snips snits snob snobs snoop snore snort snot snots snout snow snowy snub snubs snuff snug snugs so soak soaks soap soaps soapy soar soars sob sober sobs social society sock socks sod soda sodas sofa sofas soft soften soggy soil soils solar sold soldier sole soled solely solemn soles solid solo solos solve some son sonar song songs sonic sons soon soot sooth sooty sop soprano sore sores sorrow sorry sort sorts soul souls sound soup soups soupy sour source sours south sow sowed sower sown sows soy soya spa space spade spam span spank spans spar spare spark spas spasm spat spats spawn spay spays speak speaker spear special species speck specs sped speech speed spell spelt spend spent sperm spew sphere spice spicy spider spied spiel spies spike spiky spill spilt spin spinal spine spins spiny spiral spire spirt spit spite splash splat split spoil spoke spoken sponsor spoof spook spooky spool spoon spore sport spot spots spotted spout sprat spray spread spree sprig spring sprint spruce spry spud spuds spume spun spunk spur spurn spurs spurt spy squab squad squash squat squaw squeak squeeze squid squint stab stable stabs stack stadium staff stag stage staid stain stair stairs stake stale stalk stall stamp stand stank stanza staple star starch stare stark stars start stash stat state station statue stave stay stays stead steak steal steam steed steel steep steer stein stem stems step steps stereo stern stew stews stick sticky stiff still stilt sting stink stint stir stirs stitch stoat stock stoic stoke stole stolen stomach stomp stone stony stood stool stoop stop stops storage store stork storm stormy story stout stove stow stows strain strait strand strap straw stray stream street stress stretch strew strike string strip stripe strive stroke strut stub stubs stuck stud student studio studs study stuff stump stun stung stunk stuns stunt sturdy style suave sub subject submit subs subtle suburb succeed success such suck sucks sudden suds sudsy sue sued suede suers sues suets suety suffer sugar suggest suing suit suite suits sulk sulks sulky sully sum sumac summa summary summer summit sumo sumos sump sumps sums sun sung sunk sunny sunrise suns sunset sunup super supper supply support suppose supreme sups sure surer surf surface surfs surge surplus survey survive suspect suspend swab swabs swag swags swain swallow swam swami swamp swan swank swap swaps sward swarm swash swat swath swats sway sways swear sweat sweater sweep sweet swell swept swift swig swigs swill swim swims swine swing swipe swirl swish switch swoon swoop sword swore sworn swum swung symbol symptom sync syrup system tab tabby table tablet taboo tabs tacit tack tackle tacks tacky taco tacos tact taffy tag tags tail taint take taken taker takes tale talent tales talk talks tall tally talon tame tamed tamer tames tamp tan tang tango tangs tangy tank tanks tap tape taper tapes tapir taps tar tardy tare tares target tarn tarns taro taros tarot tarps tarry tart tarts taser task tasks tassel taste tasty tattoo tatty taunt taupe taut tawny tax taxed taxes taxi taxis tea teach teacher teak teaks teal teals team teams tear tears teary teas tease teat teats teddy teem teems teen teens tees teeth tell tells temp temple tempo temps tempt ten tenant tench tend tender tends tenet tennis tenor tens tense tent tenth tents tepee tepid term terms tern terns terse test tests testy text than thank thanks that thaw thaws the theater thee theft their them theme then theory there therm these theta they thick thief thigh thin thine thing think third thirst thirty this thong thorn those thread threat three threw throb throw thrum thrust thud thuds thug thugs thumb thump thunder thy thyme tiara tibia tick ticket ticks tidal tide tided tides tidy tie tied tier tiers ties tiff tiger tight tikes tilde tile tiled tiles till tills tilt tilts timber time timed timer times timid timing tin tinder tine tines ting tinge tingle tinker tins tinsel tint tints tiny tip tips tipsy tire tired tires tissue titan tithe title to toad toads toast today toddy toe toed toes toga toggle toil toils token told toll tolls tomato tomb ton tonal tone toned toner tones tong tongs tongue tonic tonight tons too took tool tools toot tooth toots top topaz topic topical tops torch torn tornado torpedo torso torus toss tot total tote totem touch tough tour tourism tourist tours tout touts tow toward towed towel tower town towns tows toxic toxin toy toys trace track tract trade tragedy trail trailer train trait tramp transit trap traps trash travel trawl tray trays tread treason treat treaty tree trees trek treks tremor trench trend tress triad trial tribe trice trick tried trier tries trill trim trims trio trios trip tripe triple trips trite trod troll trolley troop trope trophy trot trots trouble trout truce truck true trued truer trues truly trump trumpet trunk truss trust truth try tsar tub tuba tubas tubby tube tubed tuber tubes tubs tuck tucks tuft tufts tug tugs tuition tulip tumor tuna tunas tune tuned tuner tunes tunic tunnel turbo turf turfs turkey turn turns tusk tusks tutor tutu tutus twang tweak tweed tweet twelve twenty twerp twice twig twigs twin twine twins twirl twist two tying type typed types typical typo tyre tyres udder ugly ulcer ultra umbra uncle uncut under undid undo undue unfed unfit uniform unify union unique unit unite units unity unknown unless unlike unlit unman unpack unpin unsay unset untie until unusual unwed unwrap unzip up update upend upgrade uphill uplift upload upon upped upper upright upset upside urban urge urged urgent urges urine urn urns us usage use used useful user uses usher using usual usurp utensil utility utter vague vain valet valid valley valor value valve van vandal vane vanes vanish vapor variety various vary vase vast vat vault vaunt veal veals veers vehicle veil veils vein veins velvet vend vendor venom vent vents venture venue verb verbal verbs verge verify verse version versus verve very vest vet vetch veteran veto vexed vexes via vial vials vibe vicar vice vices victim victory video vied vies view views vigil vile villa village vine vinegar vinyl viol viola violet violin viols viper viral virtue virus visa visas visible vision visit visitor visor vista visual vital vivid vixen vocal vodka vogue voice void voids voila voile vole volt voltage volts volume vote voted voter votes vouch voucher vow vowed vowel vows voyage vroom wacky wad waddy wade wades wadis wads wafer waffle waft wafts wag wage waged wager wages wagon wags waif waifs wail wails waist wait waits waive wake waked waken wakes wale wales walk walks wall walls walnut waltz wand wander wands wane waned wanes wanly want wants war ward wards ware wares warm warms warmth warn warns warps warrior wars wart warts wary was wash wasp wasps waste watch water watts wave waved waver waves wavy wax waxed waxen waxes waxy way ways we weak wealth wean weans weapon wear wears weary weasel weather weave web webby webpage webs website wed wedding wedge weds wee weed weeds weedy week weekend weekly weeks weeny weep weeps weigh weight weird welcome weld well wells welsh welt welts wench wends went wept were west western wet wetly wets whack whale wham whams wharf what wheat wheel whelp when where whet whey which whiff while whim whims whine whiny whip whips whir whirl whirr whisk whisky whisper whistle white whits whiz whizz who whoa whole whom whoop whops whose why wick wicks wide widen wider widow width wield wife wifes wig wigs wild wilds wiled wiles will willing willow wills wilt wilts wily wimp wimps wimpy win wince winch wind window winds windy wine wines wing wings wink winks wins winter wipe wiped wiper wipes wire wired wires wisdom wise wiser wish wisp wisps wispy wit witch with withe without witness wived wives wizen woe woes wok woke woken wolf wolfs woman womb wombs women won wonder wont woo wood wooden woods woody wooed wooer woof woofs wool wools woozy word words wordy wore work workout works world worm worms worn worried worry worse worst worth would wound wove woven wowed wrack wrap wraps wrath wreak wreck wren wrens wrest wrestle wring wrist writ write writer writs wrong wrote wrung wryer wurst yacht yak yam yams yank yanks yap yard yards yarn yarns yawn yawns yaws yeah year yearly yearn years yeast yell yelling yellow yells yelp yelps yes yeses yet yew yield yodel yoga yogis yoke yoked yokel yokes yolk yolks yore you young your yours youth yowl yowls yuck yucks yucky yule yummy zany zap zappy zaps zeal zebra zero zeros zest zests zesty zigzag zilch zinc zing zings zip zippy zips zombie zonal zone zoned zones zoo zoom zooms zoos").split(" ").filter(Boolean));
+  var PTS={a:1,e:1,i:1,o:1,u:1,l:1,n:1,s:1,t:1,r:1,d:2,g:2,b:3,c:3,m:3,p:3,f:4,h:4,v:4,w:4,y:4,k:5,j:8,x:8,q:10,z:10};
+  var DIST={a:9,b:2,c:2,d:4,e:12,f:2,g:3,h:2,i:9,j:1,k:1,l:4,m:2,n:6,o:8,p:2,q:1,r:6,s:4,t:6,u:4,v:2,w:2,x:1,y:2,z:1};
+
+  var bag=[], rack=[], tray=[], score=0, words=[];
+
+  function buildBag(){ bag=[]; for(var L in DIST){ for(var i=0;i<DIST[L];i++) bag.push(L); } shuffle(bag); }
+  function draw(n){ var out=[]; while(n-->0 && bag.length) out.push(bag.pop()); return out; }
+  function refill(){ while(rack.length<7 && bag.length) rack.push(bag.pop()); }
+
+  function wordScore(letters){ var s=0; letters.forEach(function(l){ s+=PTS[l]||0; }); if(letters.length===7) s+=20; return s; }
+
+  function start(){
+    buildBag(); rack=draw(7); tray=[]; score=0; words=[];
+    $('scoreV').textContent='0'; $('wordsV').textContent='0'; $('msg').textContent=''; $('msg').className='msg';
+    render(); go('play');
+  }
+
+  function render(){
+    $('bagV').textContent=bag.length;
+    // rack
+    var rk=$('rack'); rk.innerHTML='';
+    rack.forEach(function(l,idx){
+      var b=document.createElement('button'); b.className='tile'+(tray.indexOf(idx)>=0?' used':'');
+      b.innerHTML=l.toUpperCase()+'<span class="pt">'+(PTS[l]||0)+'</span>';
+      b.addEventListener('click',function(){ if(tray.indexOf(idx)>=0)return; tray.push(idx); render(); });
+      rk.appendChild(b);
+    });
+    // tray
+    var tr=$('tray'); tr.innerHTML='';
+    if(!tray.length){ tr.innerHTML='<span class="ph">Tap letters below to build a word</span>'; }
+    else tray.forEach(function(idx,pos){
+      var l=rack[idx]; var b=document.createElement('button'); b.className='tile';
+      b.innerHTML=l.toUpperCase()+'<span class="pt">'+(PTS[l]||0)+'</span>';
+      b.addEventListener('click',function(){ tray.splice(pos,1); render(); });
+      tr.appendChild(b);
+    });
+    // word + potential score
+    var letters=tray.map(function(i){return rack[i];}); var w=letters.join('');
+    $('wordline').innerHTML = w ? (w.toUpperCase()+' · <b>'+wordScore(letters)+' pts</b>') : '';
+    $('submitBtn').disabled = letters.length<2;
+  }
+
+  function submit(){
+    var letters=tray.map(function(i){return rack[i];}); var w=letters.join('');
+    if(w.length<2) return;
+    if(!DICT.has(w)){
+      $('msg').textContent='“'+w.toUpperCase()+'” isn’t in our word list — try another.'; $('msg').className='msg bad';
+      var tr=$('tray'); tr.classList.remove('shake'); void tr.offsetWidth; tr.classList.add('shake');
+      return;
+    }
+    var pts=wordScore(letters); score+=pts; words.push({w:w,p:pts});
+    $('scoreV').textContent=score; $('wordsV').textContent=words.length;
+    $('msg').textContent=(letters.length===7?'Bingo! +20 bonus. ':'')+'“'+w.toUpperCase()+'” = '+pts+' points!'; $('msg').className='msg good';
+    // remove used tiles (descending index) then refill
+    var used=tray.slice().sort(function(a,b){return b-a;});
+    used.forEach(function(idx){ rack.splice(idx,1); });
+    tray=[]; refill(); render();
+    if(rack.length===0 && bag.length===0) end();
+  }
+
+  function end(){
+    var best=parseInt(localStorage.getItem('fo_scrabble_best')||'-1',10);
+    var nb=score>best; if(nb){ try{localStorage.setItem('fo_scrabble_best',score);}catch(e){} }
+    $('endScore').textContent=score;
+    $('wordsMade').innerHTML = words.length? words.map(function(o){return '<span class="chiplet">'+o.w.toUpperCase()+' '+o.p+'</span>';}).join('') : '<span class="lede">No words this time — give it another go!</span>';
+    $('nbWrap').innerHTML = nb && score>0 ? '<span class="newbest">★ New high score!</span>' : '';
+    var msgs=['Great word-building!','Your spelling is sharp!','Lovely vocabulary!','Well played!'];
+    $('endmsg').textContent = words.length? msgs[Math.floor(Math.random()*msgs.length)] : '';
+    go('end');
+  }
+  function go(id){ ['setup','play','end'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); }
+
+  function showBestLine(){ var b=localStorage.getItem('fo_scrabble_best'); $('bestline').innerHTML=b==null?'Best score: —':('Best score: <b>'+b+'</b>'); }
+
+  $('startBtn').addEventListener('click',start);
+  $('againBtn').addEventListener('click',start);
+  $('submitBtn').addEventListener('click',submit);
+  $('clearBtn').addEventListener('click',function(){ tray=[]; render(); $('msg').textContent=''; $('msg').className='msg'; });
+  $('shuffleBtn').addEventListener('click',function(){ shuffle(rack); tray=[]; render(); });
+  $('swapBtn').addEventListener('click',function(){ rack.forEach(function(l){bag.push(l);}); shuffle(bag); rack=draw(7); tray=[]; render(); $('msg').textContent='Fresh tiles!'; $('msg').className='msg'; });
+  $('doneBtn').addEventListener('click',end);
+  $('homeBtn').addEventListener('click',function(){ showBestLine(); go('setup'); });
+
+  showBestLine();
+})();
+</script>
+</body>
+</html>
