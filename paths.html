@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--fo-meta-->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1F6B4A">
+<meta name="description" content="A calm, free learning path for the whole mind - numbers, words, logic, memory, space and creativity. Suggested orders for every friendology game, by stage.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Learning Paths · friendology">
+<meta property="og:description" content="A calm, free learning path for the whole mind - suggested orders for every friendology game, by stage.">
+<meta property="og:image" content="https://friendology.in/og-image.png">
+<meta property="og:url" content="https://friendology.in/">
+<meta name="twitter:card" content="summary_large_image">
+<title>Learning Paths · friendology</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFAF6;--surface:#FFFFFF;--line:#ECE8DE;--band:#F3F1EA;
+  --ink:#22231F;--muted:#5C5E55;--faint:#8A8C82;
+  --brand:#1F6B4A;--brand-press:#185539;--brand-tint:#E7F1EC;
+  --amber:#C2700C;--amber-tint:#FAEFDD;
+  --display:'Fraunces',serif;--r:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:640px;margin:0 auto;padding:18px 18px 56px}
+.display{font-family:var(--display)}
+a{color:var(--brand);text-decoration:none}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.92rem;color:var(--muted);text-decoration:none;margin-bottom:14px}
+.back .wm{font-family:var(--display);font-weight:600;color:var(--ink)} .back .wm b{color:var(--brand)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(2.1rem,8vw,2.8rem);line-height:1.04;letter-spacing:-.02em;margin:6px 0 6px}
+h1 b{color:var(--brand);font-weight:600}
+.lede{color:var(--muted);font-size:1rem;margin-bottom:8px}
+h2{font-family:var(--display);font-weight:600;font-size:1.5rem;margin:30px 0 4px}
+.sub{color:var(--faint);font-size:.9rem;margin-bottom:14px}
+.why{background:var(--band);border-radius:14px;padding:14px 16px;font-size:.92rem;color:var(--muted);margin:16px 0 4px}
+.why b{color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:520px){.grid{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 17px}
+.dot{width:34px;height:34px;border-radius:10px;background:var(--brand-tint);color:var(--brand);display:grid;place-items:center;margin-bottom:10px}
+.dot svg{width:19px;height:19px}
+.card h3{font-family:var(--display);font-weight:600;font-size:1.16rem;margin-bottom:3px}
+.card p{font-size:.9rem;color:var(--muted);margin-bottom:9px}
+.links{font-size:.92rem;font-weight:600}
+.links a{display:inline-block;margin:0 10px 4px 0}
+.links a::after{content:"›";margin-left:3px;color:var(--faint)}
+.track{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.track .age{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--brand);background:var(--brand-tint);padding:4px 10px;border-radius:99px;margin-bottom:6px}
+.track h3{font-family:var(--display);font-weight:600;font-size:1.25rem;margin-bottom:4px}
+.track p{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.steps{list-style:none;counter-reset:s}
+.steps li{counter-increment:s;position:relative;padding:9px 0 9px 38px;border-top:1px solid var(--line);font-weight:600}
+.steps li:first-child{border-top:none}
+.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-family:var(--display);font-size:.95rem;display:grid;place-items:center}
+.steps li span{display:block;font-weight:400;font-size:.85rem;color:var(--faint)}
+.steps li a{font-weight:700}
+.soon{color:var(--faint);font-weight:600}
+.rhythm{display:grid;gap:10px;grid-template-columns:1fr}
+@media(min-width:520px){.rhythm{grid-template-columns:1fr 1fr 1fr}}
+.rstep{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.rstep b{font-family:var(--display);display:block;margin-bottom:3px}
+.rstep p{font-size:.86rem;color:var(--muted)}
+.foot{margin-top:34px;font-size:.8rem;color:var(--faint);text-align:center}
+.cta{display:block;text-align:center;background:var(--brand);color:#fff;font-weight:700;border-radius:16px;padding:15px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">‹ <span class="wm">friend<b>ology</b></span></a>
+  <div class="eyebrow">Higher learning · for the whole mind</div>
+  <h1 class="display">Learning <b>Paths</b></h1>
+  <p class="lede">A gentle plan that keeps every part of thinking active — counting and language, logic and memory, space and imagination. No accounts, no pressure, no fees. Just a suggested order, so you always know what to play next.</p>
+
+  <div class="why">Often people talk about being “left-brained” or “right-brained.” In truth, <b>almost every real task uses both sides together</b> — reading a map, solving a puzzle, telling a story. So friendology doesn’t try to label anyone as one type. The aim is simpler and kinder: a <b>rounded mix</b> of skills, practised a little at a time.</p>
+
+  <h2 class="display">Six skills worth growing</h2>
+  <p class="sub">Each one is built by a few friendology games. Tap any to begin.</p>
+  <div class="grid">
+    <div class="card">
+      <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
+      <h3>Numbers &amp; Quant</h3>
+      <p>Counting, arithmetic, percentages, ratios — the maths exams love.</p>
+      <div class="links"><a href="speed-math.html">Speed Math</a><a href="reasoning.html">Reasoning (Quant)</a><a href="brain-puzzles.html">Brain Puzzles</a></div>
+    </div>
+    <div class="card">
+      <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 10h8M8 13h5"/></svg></div>
+      <h3>Words &amp; Language</h3>
+      <p>Reading, spelling, meaning, and a wider vocabulary.</p>
+      <div class="links"><a href="tiny-words-game.html">Tiny Words</a><a href="vocab-game.html">Vocabulary</a><a href="scrabble.html">Word Tiles</a></div>
+    </div>
+    <div class="card">
+      <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+      <h3>Logic &amp; Reasoning</h3>
+      <p>Patterns, deduction, and following an argument to its conclusion.</p>
+      <div class="links"><a href="reasoning.html">Reasoning (Logic)</a><a href="brain-puzzles.html">Brain Puzzles</a></div>
+    </div>
+    <div class="card">
+      <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 0-4 4v1a4 4 0 0 0 0 8 4 4 0 0 0 8 0 4 4 0 0 0 0-8V7a4 4 0 0 0-4-4z"/></svg></div>
+      <h3>Memory &amp; Focus</h3>
+      <p>Holding things in mind and paying steady attention.</p>
+      <div class="links"><a href="memory-game.html">Memory Match</a><a href="reflex-game.html">Quick Reflexes</a></div>
+    </div>
+    <div class="card">
+      <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v6l9 4 9-4V7"/></svg></div>
+      <h3>Space &amp; Hands-on</h3>
+      <p>Picturing shapes, mazes and how things move and react.</p>
+      <div class="links"><a href="brain-puzzles.html">Mazes</a><a href="physics-lab.html">Physics Lab</a><a href="chemistry-lab.html">Chemistry Lab</a></div>
+    </div>
+    <div class="card">
+      <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.5.5 1 1.2 1 2h6c0-.8.5-1.5 1-2a7 7 0 0 0-4-12z"/></svg></div>
+      <h3>Curiosity &amp; Creativity</h3>
+      <p>Asking “what if”, exploring, and making things.</p>
+      <div class="links"><a href="chemistry-lab.html">Chemistry Lab</a><a href="physics-lab.html">Physics Lab</a><span class="soon">Create corner soon</span></div>
+    </div>
+  </div>
+
+  <h2 class="display">Suggested paths by stage</h2>
+  <p class="sub">A simple order that touches several skills. Move at your own pace.</p>
+
+  <div class="track">
+    <span class="age">Little Learners · ages 3–7</span>
+    <h3>First steps</h3>
+    <p>Short, playful, and gentle — a few minutes is plenty.</p>
+    <ol class="steps">
+      <li><a href="tiny-words-game.html">Tiny Words</a><span>Meet first words</span></li>
+      <li><a href="memory-game.html">Memory Match</a><span>Easy mode, colours or animals</span></li>
+      <li><a href="brain-puzzles.html">Brain Puzzles</a><span>Small mazes</span></li>
+      <li><a href="speed-math.html">Speed Math</a><span>Gentle counting</span></li>
+    </ol>
+  </div>
+
+  <div class="track">
+    <span class="age">Growing Minds · ages 8–12</span>
+    <h3>Building strength</h3>
+    <p>One word game, one number game, one thinking game — most days.</p>
+    <ol class="steps">
+      <li><a href="vocab-game.html">Vocabulary Builder</a><span>Synonyms &amp; opposites, with audio</span></li>
+      <li><a href="scrabble.html">Word Tiles</a><span>Spell to score</span></li>
+      <li><a href="brain-puzzles.html">Brain Puzzles</a><span>Patterns &amp; Sudoku</span></li>
+      <li><a href="speed-math.html">Speed Math</a><span>Build speed and accuracy</span></li>
+      <li><a href="chemistry-lab.html">A Lab demo</a><span>Curiosity, with a grown-up</span></li>
+    </ol>
+  </div>
+
+  <div class="track">
+    <span class="age">Teens &amp; adults · 13+</span>
+    <h3>Exam &amp; aptitude prep</h3>
+    <p>The thinking that GMAT, bank/job aptitude and entrance papers test — for free.</p>
+    <ol class="steps">
+      <li><a href="reasoning.html">Reasoning &amp; Aptitude</a><span>Quantitative + logical reasoning</span></li>
+      <li><a href="vocab-game.html">Vocabulary Builder</a><span>Verbal foundations</span></li>
+      <li><a href="scrabble.html">Word Tiles</a><span>Quick word recall under choice</span></li>
+      <li><span class="soon">Coming next</span><span>Data interpretation, reading comprehension, abstract patterns</span></li>
+    </ol>
+  </div>
+
+  <h2 class="display">A simple rhythm</h2>
+  <p class="sub">How to turn this into a habit — and start noticing patterns.</p>
+  <div class="rhythm">
+    <div class="rstep"><b>A little, often</b><p>10–15 minutes beats an hour once a week.</p></div>
+    <div class="rstep"><b>Mix two kinds</b><p>Pair one analytical game with one creative one.</p></div>
+    <div class="rstep"><b>Watch it grow</b><p>Each game remembers your best, so progress is visible.</p></div>
+  </div>
+
+  <a class="cta" href="index.html">Browse all games &amp; tools</a>
+  <p class="foot">friendology · knowledge, freely shared</p>
+</div>
+</body>
+</html>
